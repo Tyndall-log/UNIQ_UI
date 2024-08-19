@@ -1,0 +1,67 @@
+소스 코드 라이선스 조항
+
+1. 라이선스의 적용 범위:
+    * 본 리포지토리에 포함된 모든 소스 코드는 새로운 라이선스 조건이 채택되기 전까지 아래 명시된 제한 사항이 적용됩니다.
+    * 이 라이선스는 본 리포지토리의 소유자가 명시적으로 다른 라이선스 조건을 공개하기 전까지 유효합니다.
+    * 본 리포지토리에 포함된 소스 코드뿐만 아니라, 이 리포지토리에서 파생된 모든 자료에 대해 본 라이선스가 적용됩니다.
+2. 용어:
+    * "소스 코드"는 본 리포지토리에 포함되어 있는 모든 컴퓨터 프로그램의 코드를 의미합니다.
+    * "복제"는 코드의 사본을 만드는 행위를 지칭합니다.
+    * "수정"은 기존 코드를 변경하는 행위를 지칭합니다.
+    * "배포"는 코드를 다른 사람들에게 제공하는 행위를 지칭합니다.
+    * "파생 작업 생성"은 기존 코드를 기반으로 새로운 기능이나 제품을 개발하는 행위를 지칭합니다.
+3. 사용 허가:
+    * 비영리적 사용: 교육 또는 자가 학습 목적으로, 비영리적인 범위 내에서 소스 코드의 사용이 가능합니다. 그러나 이러한 사용은 복제, 수정, 배포, 파생 작업 생성을 포함하지 않으며, 개인적인 학습 이외의 용도로 사용할 수 없습니다.
+    * 제한된 용도: 비영리적 사용이 허가된 경우에도, 사용자는 소스 코드의 재배포, 판매, 라이선스 변경을 할 수 없습니다.
+4. 사용 제한:
+    * 본 리포지토리의 소스 코드는 새로운 라이선스 조건이 채택되기 전까지 복제, 수정, 배포, 파생 작업 생성 등을 포함한 모든 형태의 사용이 엄격히 금지됩니다.
+    * 사용자는 소유자의 사전 서면 승인 없이 소스 코드를 어떠한 방식으로도 사용, 복제, 수정, 배포할 수 없습니다.
+    * 위반 시 법적 조치가 취해질 수 있으며, 그에 따른 모든 결과는 사용자 본인이 책임을 집니다.
+5. 라이선스 변경 및 유효성:
+    * 새로운 라이선스가 채택되면, 리포지토리에 포함된 모든 소스 코드는 새로운 라이선스 조건을 따르게 됩니다. 이 변경은 새 라이선스가 적용된 이후 추가되거나 수정된 코드뿐만 아니라, 기존 코드에도 소급 적용됩니다.
+    * 그러나 이전에 제한된 라이선스 하에 작성된 시점의 소스 파일은 여전히 제한된 라이선스 조건을 따릅니다.
+    * 새로운 라이선스의 채택 여부는 향후 SPDX 식별자를 통해 라이선스 변경이 명시되며, 이는 REUSE Software의 표준 규격에 따라 공개됩니다.
+    * 리포지토리 소유자는 언제든지 새로운 라이선스 조건을 적용할 권리를 보유합니다.
+6. 법적 책임:
+    * 본 라이선스의 조항을 위반하는 경우, 사용자는 해당 국가의 관할 법원에서 법적 책임을 질 수 있습니다.
+    * 사용자는 본 라이선스의 모든 조항을 준수할 의무가 있으며, 이를 준수하지 않을 경우 발생하는 모든 결과에 대한 책임을 집니다.
+    * 법적 분쟁 발생 시 리포지토리 소유자의 국적 국가 법률에 따라 해석되고 적용됩니다.
+7. 언어와 법적 해석:
+    * 이 라이선스의 공식 문서는 한국어로 작성된 버전입니다.
+    * 이 라이선스의 영어 번역은 참고용으로 제공되며, 법적 효력이나 해석에 있어서는 한국어 버전이 우선합니다.
+    * 이 라이선스와 관련된 모든 법적 해석은 한국어로 진행되며, 한국어 버전이 최종적으로 해석의 기준이 됩니다.
+
+----------
+
+Source Code License Provisions
+
+1. Scope of the License:
+    * All source code contained in this repository is subject to the restrictions specified below until new licensing terms are adopted.
+    * This license remains in effect until the owner of this repository explicitly publishes different licensing terms.
+    * This license applies not only to the source code contained in this repository but also to any materials derived from this repository.
+2. Definitions:
+    * "Source Code" refers to all computer program code contained in this repository.
+    * "Reproduction" refers to the act of making copies of the code.
+    * "Modification" refers to the act of altering the existing code.
+    * "Distribution" refers to the act of providing the code to others.
+    * "Creating Derivative Works" refers to the act of developing new functionality or products based on the existing code.
+3. Permitted Use:
+    * Non-Commercial Use: The source code may be used for educational or self-learning purposes within a non-commercial scope. However, such use does not include reproduction, modification, distribution, or creation of derivative works, and it cannot be used for any purpose other than personal learning.
+    * Restricted Use: Even if non-commercial use is permitted, users may not redistribute, sell, or change the license of the source code.
+4. Usage Restrictions:
+    * The source code in this repository is strictly prohibited from being used, reproduced, modified, distributed, or used to create derivative works in any form until new licensing terms are adopted.
+    * Users may not use, reproduce, modify, or distribute the source code in any way without the prior written consent of the owner.
+    * Violations may result in legal action, and all consequences are the sole responsibility of the user.
+5. License Changes and Validity:
+    * When a new license is adopted, all source code contained in the repository will be subject to the new licensing terms. This change applies retroactively to both the code added or modified after the new license is adopted and the existing code.
+    * However, source files created under the previously restricted license conditions will continue to be governed by the restricted license terms.
+    * The adoption of a new license will be indicated by an SPDX identifier and published in accordance with the standards of REUSE Software.
+    * The repository owner reserves the right to apply new licensing terms at any time.
+6. Legal Liability:
+    * In case of violation of the provisions of this license, the user may be held legally liable in the court of competent jurisdiction in the relevant country.
+    * The user is obliged to comply with all provisions of this license and is responsible for all consequences arising from non-compliance.
+    * In case of legal disputes, the laws of the country of the repository owner's nationality shall govern and apply.
+7. Language and Legal Interpretation:
+    * The official version of this license is written in Korean.
+    * The English translation of this license is provided for reference purposes only and does not hold legal authority or precedence in interpretation.
+    * All legal interpretations related to this license shall be conducted in Korean, and the Korean version shall take precedence in all matters of interpretation.
