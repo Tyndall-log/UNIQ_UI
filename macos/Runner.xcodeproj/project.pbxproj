@@ -27,8 +27,7 @@
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
-		5B9B78E32C5F608900AD2B39 /* libUNIQ_Library.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B9B78DD2C5F607E00AD2B39 /* libUNIQ_Library.dylib */; };
-		5B9B78E42C5F612B00AD2B39 /* libUNIQ_Library.dylib in Bundle Framework */ = {isa = PBXBuildFile; fileRef = 5B9B78DD2C5F607E00AD2B39 /* libUNIQ_Library.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5BF171222C7501E000FB2DEF /* libUNIQ_Library.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5BF171212C7501E000FB2DEF /* libUNIQ_Library.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BA82521A5399D5F795AF23FF /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBB891E86B66EE2D46D7C077 /* Pods_Runner.framework */; };
 		CAF845AAEC976ADB2D596732 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9410C028090F8D6DFA35E05E /* Pods_RunnerTests.framework */; };
 /* End PBXBuildFile section */
@@ -51,15 +50,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		33CC110E2044A8840003C045 /* Bundle Framework */ = {
+		5BF171202C75010600FB2DEF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				5B9B78E42C5F612B00AD2B39 /* libUNIQ_Library.dylib in Bundle Framework */,
+				5BF171222C7501E000FB2DEF /* libUNIQ_Library.dylib in CopyFiles */,
 			);
-			name = "Bundle Framework";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -95,6 +93,8 @@
 		5B9B78DE2C5F607E00AD2B39 /* MainFlutterWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainFlutterWindow.swift; sourceTree = "<group>"; };
 		5B9B78DF2C5F607E00AD2B39 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5B9B78E12C5F607E00AD2B39 /* Release.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Release.entitlements; sourceTree = "<group>"; };
+		5BF1711E2C75004200FB2DEF /* libUNIQ_Library.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libUNIQ_Library.dylib; path = ../native_libs/macos/libUNIQ_Library.dylib; sourceTree = "<group>"; };
+		5BF171212C7501E000FB2DEF /* libUNIQ_Library.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libUNIQ_Library.dylib; path = ../native_libs/macos/libUNIQ_Library.dylib; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		9410C028090F8D6DFA35E05E /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		94E8D23019EAA3D3A9B2D701 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -118,7 +118,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B9B78E32C5F608900AD2B39 /* libUNIQ_Library.dylib in Frameworks */,
 				BA82521A5399D5F795AF23FF /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -148,6 +147,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				5BF171212C7501E000FB2DEF /* libUNIQ_Library.dylib */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
 				331C80D6294CF71000263BE5 /* RunnerTests */,
@@ -238,13 +238,13 @@
 				94E8D23019EAA3D3A9B2D701 /* Pods-RunnerTests.release.xcconfig */,
 				E2CAC7C163A18C207677543A /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
 		D73912EC22F37F3D000D13A0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5BF1711E2C75004200FB2DEF /* libUNIQ_Library.dylib */,
 				5B9B78E22C5F607E00AD2B39 /* Runner */,
 				BBB891E86B66EE2D46D7C077 /* Pods_Runner.framework */,
 				9410C028090F8D6DFA35E05E /* Pods_RunnerTests.framework */,
@@ -282,9 +282,9 @@
 				33CC10E92044A3C60003C045 /* Sources */,
 				33CC10EA2044A3C60003C045 /* Frameworks */,
 				33CC10EB2044A3C60003C045 /* Resources */,
-				33CC110E2044A8840003C045 /* Bundle Framework */,
 				3399D490228B24CF009A79C7 /* ShellScript */,
 				8E96FD3D82D71EDC4E0027B2 /* [CP] Embed Pods Frameworks */,
+				5BF171202C75010600FB2DEF /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -621,11 +621,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 33E5194F232828860026EE4D /* AppInfo.xcconfig */;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_ARCHS = "";
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -757,11 +759,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 33E5194F232828860026EE4D /* AppInfo.xcconfig */;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_ARCHS = "";
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -781,11 +785,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 33E5194F232828860026EE4D /* AppInfo.xcconfig */;
 			buildSettings = {
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Release.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_ARCHS = "";
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

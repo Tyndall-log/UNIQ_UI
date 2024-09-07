@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uniq_ui/common/platform.dart';
+import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'default_value.dart';
 import 'widgets/grid.dart';
 import 'widgets/gesture_detector.dart';
@@ -8,19 +10,26 @@ import 'bloc/bloc.dart';
 import 'bloc/event.dart';
 import 'bloc/state.dart';
 
-class WorkspaceScreen extends StatefulWidget {
-  const WorkspaceScreen({super.key});
-
-  @override
-  _WorkspaceScreenState createState() => _WorkspaceScreenState();
+class WorkspaceIdCubit extends Cubit<int> {
+  WorkspaceIdCubit(super.id);
 }
 
-class _WorkspaceScreenState extends State<WorkspaceScreen>
+class WorkspaceScreen extends StatefulWidget {
+  // final WorkspaceIdCubit workspaceIdCubit;
+  final int id;
+  WorkspaceScreen({super.key, required this.id});
+
+  @override
+  WorkspaceScreenState createState() => WorkspaceScreenState();
+}
+
+class WorkspaceScreenState extends State<WorkspaceScreen>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => WorkspaceBloc(this),
+      create: (context) =>
+          WorkspaceViewBloc(workspaceId: widget.id, vsync: this),
       child: const Stack(
         children: [
           Positioned.fill(
@@ -42,12 +51,12 @@ class Bb2 extends StatelessWidget {
   });
 
   // final initialOffset = const Offset(1e+6, 1e+6);
-  final double initialX = 0;
-  final double initialY = 0;
+  // final double initialX = 0;
+  // final double initialY = 0;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkspaceBloc, WorkspaceState>(
+    return BlocBuilder<WorkspaceViewBloc, WorkspaceViewState>(
       builder: (context, state) {
         double currentX = 0;
         double currentY = 0;
@@ -67,7 +76,7 @@ class Bb2 extends StatelessWidget {
         }
 
         return Stack(
-          clipBehavior: Clip.none,
+          clipBehavior: Clip.hardEdge,
           children: [
             const SizedBox(
               width: double.maxFinite,
@@ -83,7 +92,7 @@ class Bb2 extends StatelessWidget {
                   child: Container(
                     width: 30000 * currentTimeScale, //(300s = 5m)
                     height: 1000,
-                    color: Colors.green[50],
+                    color: Colors.orange[50],
                     child: CustomPaint(
                       painter: GridPainter(currentTimeLength),
                     ),
@@ -117,6 +126,14 @@ class Bb2 extends StatelessWidget {
                 origin: -Offset(currentX + 100 * currentTimeScale, currentY),
                 transform: matrixOnlyScale,
                 child: const Text('좌표: 100, 0'),
+              ),
+            ),
+            Positioned(
+              left: (currentX + 100 * currentTimeScale) * currentScale,
+              top: (currentY + 100) * currentScale,
+              child: SelectableText(
+                '좌표: 100, 100',
+                style: TextStyle(fontSize: 14 * currentScale),
               ),
             ),
             Positioned(

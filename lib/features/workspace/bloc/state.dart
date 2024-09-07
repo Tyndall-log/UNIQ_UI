@@ -1,11 +1,11 @@
 // state.dart
 import 'package:flutter/material.dart';
 
-sealed class WorkspaceState {
-  const WorkspaceState();
+sealed class WorkspaceViewState {
+  const WorkspaceViewState();
 }
 
-class TransformationState extends WorkspaceState {
+class TransformationState extends WorkspaceViewState {
   final Offset offset;
   final double scale;
   final double timeLength;
@@ -17,6 +17,6 @@ class TransformationState extends WorkspaceState {
   ) : super();
 }
 
-class TransformationInitial extends WorkspaceState {
+class TransformationInitial extends WorkspaceViewState {
   const TransformationInitial() : super();
 }

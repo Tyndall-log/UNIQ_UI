@@ -1,45 +1,45 @@
 // event.dart
 import 'package:flutter/material.dart';
 
-sealed class WorkspaceEvent {
-  const WorkspaceEvent();
+sealed class WorkspaceViewEvent {
+  const WorkspaceViewEvent();
 }
 
-class ScaleStartEvent extends WorkspaceEvent {
+class ScaleStartEvent extends WorkspaceViewEvent {
   final ScaleStartDetails details;
 
   const ScaleStartEvent(this.details);
 }
 
-class ScaleUpdateEvent extends WorkspaceEvent {
+class ScaleUpdateEvent extends WorkspaceViewEvent {
   final ScaleUpdateDetails details;
 
   const ScaleUpdateEvent(this.details);
 }
 
-class ScaleEndEvent extends WorkspaceEvent {
+class ScaleEndEvent extends WorkspaceViewEvent {
   final ScaleEndDetails details;
 
   const ScaleEndEvent(this.details);
 }
 
-class ScaleAnimationEvent extends WorkspaceEvent {
+class ScaleAnimationEvent extends WorkspaceViewEvent {
   const ScaleAnimationEvent();
 }
 
-class TimeScaleStartEvent extends WorkspaceEvent {
+class TimeScaleStartEvent extends WorkspaceViewEvent {
   final ScaleStartDetails details;
 
   const TimeScaleStartEvent(this.details);
 }
 
-class TimeScaleUpdateEvent extends WorkspaceEvent {
+class TimeScaleUpdateEvent extends WorkspaceViewEvent {
   final ScaleUpdateDetails details;
 
   const TimeScaleUpdateEvent(this.details);
 }
 
-class TimeScaleEndEvent extends WorkspaceEvent {
+class TimeScaleEndEvent extends WorkspaceViewEvent {
   final ScaleEndDetails details;
 
   const TimeScaleEndEvent(this.details);

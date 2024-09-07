@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:uniq_ui/common/platform.dart';
 import 'package:uniq_ui/common/sample_toast.dart';
+import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import '../default_value.dart';
 import '../widgets/grid.dart';
 import '../bloc/bloc.dart';
@@ -11,6 +12,7 @@ import '../bloc/state.dart';
 
 var _tapDownTime = DateTime.now().millisecondsSinceEpoch;
 var _tapDownPosition = Offset.zero;
+var _tapDownLocalPosition = Offset.zero;
 int _tapDragTimeDeadline = 300;
 bool _tapDragFlag = false;
 
@@ -24,42 +26,40 @@ class WorkspaceGestureDetector extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onScaleStart: (details) {
         if (_tapDragFlag && details.pointerCount == 1) {
-          print(_tapDownPosition);
-          print(details.focalPoint);
-          print(details.localFocalPoint);
           details = ScaleStartDetails(
-            focalPoint: _tapDownPosition,
-            localFocalPoint: _tapDownPosition,
+            focalPoint: _tapDownLocalPosition,
+            localFocalPoint: _tapDownLocalPosition,
             pointerCount: details.pointerCount,
             sourceTimeStamp: details.sourceTimeStamp,
           );
-          context.read<WorkspaceBloc>().add(TimeScaleStartEvent(details));
+          context.read<WorkspaceViewBloc>().add(TimeScaleStartEvent(details));
         } else {
           _tapDragFlag = false;
-          context.read<WorkspaceBloc>().add(ScaleStartEvent(details));
+          context.read<WorkspaceViewBloc>().add(ScaleStartEvent(details));
         }
-        // print('Scale Start: ${details.focalPoint}');
       },
       onScaleUpdate: (details) {
         if (_tapDragFlag) {
           if (details.pointerCount == 1) {
-            context.read<WorkspaceBloc>().add(TimeScaleUpdateEvent(details));
+            context
+                .read<WorkspaceViewBloc>()
+                .add(TimeScaleUpdateEvent(details));
           } else {
             _tapDragFlag = false;
-            context.read<WorkspaceBloc>().add(TimeScaleEndEvent(
+            context.read<WorkspaceViewBloc>().add(TimeScaleEndEvent(
                   ScaleEndDetails(),
                 ));
           }
         } else {
-          context.read<WorkspaceBloc>().add(ScaleUpdateEvent(details));
+          context.read<WorkspaceViewBloc>().add(ScaleUpdateEvent(details));
         }
       },
       onScaleEnd: (details) {
         if (_tapDragFlag) {
           _tapDragFlag = false;
-          context.read<WorkspaceBloc>().add(TimeScaleEndEvent(details));
+          context.read<WorkspaceViewBloc>().add(TimeScaleEndEvent(details));
         } else {
-          context.read<WorkspaceBloc>().add(ScaleEndEvent(details));
+          context.read<WorkspaceViewBloc>().add(ScaleEndEvent(details));
         }
       },
       onTap: () => print('Tapped'),
@@ -85,17 +85,19 @@ class WorkspaceGestureDetector extends StatelessWidget {
         }
         _tapDownTime = now;
         _tapDownPosition = details.globalPosition;
+        _tapDownLocalPosition = details.localPosition;
       },
       onSecondaryTapDown: (details) {
         _tapDragFlag = false;
         _tapDownPosition = details.globalPosition;
+        _tapDownLocalPosition = details.localPosition;
         _showContextMenu(context);
       },
       child: child,
     );
   }
 
-  void _showContextMenu(context) async {
+  void _showContextMenu(BuildContext context) async {
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox;
 
@@ -120,6 +122,7 @@ class WorkspaceGestureDetector extends StatelessWidget {
         ),
       ],
     ).then((value) {
+      if (!context.mounted) return;
       if (value != null) {
         switch (value) {
           case 1:
@@ -144,8 +147,12 @@ class WorkspaceGestureDetector extends StatelessWidget {
               type: FileType.custom,
               allowedExtensions: ['zip', 'uni'],
             ).then((value) {
+              if (!context.mounted) return;
               if (value != null) {
-                print(value.files.first.name);
+                var workspaceId = context.read<WorkspaceViewBloc>().workspaceId;
+                var id = Unipack.load(workspaceId, value.files.first.path!);
+                print('unipackId: $id');
+                Project.launchpadAutoConnect(id);
               } else {
                 SampleToast.show(
                   context: context,

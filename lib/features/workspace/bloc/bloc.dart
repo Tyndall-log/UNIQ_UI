@@ -7,10 +7,11 @@ import 'dart:math' as math;
 import 'event.dart';
 import 'state.dart';
 
-class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
-  double _previousScale = 1.0;
-  Offset _previousFocalPoint = Offset.zero;
-  Offset _lastFocalPoint = Offset.zero;
+class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
+  final int workspaceId;
+  double _previousViewScale = 1.0;
+  Offset _previousLocalFocalPoint = Offset.zero;
+  Offset _lastLocalFocalPoint = Offset.zero;
   final double coefficient = 0.0000135;
 
   Offset _offset = Offset.zero;
@@ -32,7 +33,9 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
       const AlwaysStoppedAnimation(Offset.zero);
   Animation<double> _scaleAnimation = const AlwaysStoppedAnimation(1.0);
 
-  WorkspaceBloc(TickerProvider vsync) : super(const TransformationInitial()) {
+  WorkspaceViewBloc({required this.workspaceId, required TickerProvider vsync})
+      : super(const TransformationInitial()) {
+    print('WorkspaceViewBloc');
     _animationController = AnimationController(vsync: vsync)
       ..addListener(() => add(const ScaleAnimationEvent()));
     on<ScaleStartEvent>(_onScaleStart);
@@ -45,16 +48,16 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
   }
 
   void _panAndZoomStart(
-      Emitter<WorkspaceState> emit, Offset controlPoint, double viewScale) {
+      Emitter<WorkspaceViewState> emit, Offset controlPoint, double viewScale) {
     _previousOffset = _offset;
-    _previousScale = _viewScale;
-    _previousFocalPoint = controlPoint;
+    _previousViewScale = _viewScale;
+    _previousLocalFocalPoint = controlPoint;
     _previousTimeLength = _timeLength;
     _animationController.stop();
   }
 
   void _panAndZoomUpdate(
-    Emitter<WorkspaceState> emit,
+    Emitter<WorkspaceViewState> emit,
     Offset controlPoint,
     Offset startPoint,
     Offset currentPoint,
@@ -73,13 +76,13 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     _timeLength = length;
 
     var scale = viewScale;
-    _viewScale = _previousScale * scale;
+    _viewScale = _previousViewScale * scale;
     if (_viewScale < _timeLength / _maxTimeLength) {
       _viewScale = _timeLength / _maxTimeLength;
-      scale = _viewScale / _previousScale;
+      scale = _viewScale / _previousViewScale;
     } else if (_timeLength / _minTimeLength < _viewScale) {
       _viewScale = _timeLength / _minTimeLength;
-      scale = _viewScale / _previousScale;
+      scale = _viewScale / _previousViewScale;
     }
 
     _offset = _previousOffset +
@@ -93,28 +96,30 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
   }
 
   void _onScaleAnimation(
-      ScaleAnimationEvent event, Emitter<WorkspaceState> emit) {
+      ScaleAnimationEvent event, Emitter<WorkspaceViewState> emit) {
     _viewScale = _scaleAnimation.value;
     _offset = _offsetAnimation.value;
-    _offset += (_offset - _lastFocalPoint) * (_viewScale / _previousScale - 1);
+    _offset += (_offset - _lastLocalFocalPoint) *
+        (_viewScale / _previousViewScale - 1);
     // var matrix = Matrix4.identity()
     //   ..translate(_offset.dx, _offset.dy)
     //   ..scale(_viewScale);
     // emit(TransformationState(matrix, _offset, _scale));
   }
 
-  void _onScaleStart(ScaleStartEvent event, Emitter<WorkspaceState> emit) {
+  void _onScaleStart(ScaleStartEvent event, Emitter<WorkspaceViewState> emit) {
     final details = event.details;
-    _panAndZoomStart(emit, details.focalPoint, _viewScale);
+    _panAndZoomStart(emit, details.localFocalPoint, _viewScale);
   }
 
-  void _onScaleUpdate(ScaleUpdateEvent event, Emitter<WorkspaceState> emit) {
+  void _onScaleUpdate(
+      ScaleUpdateEvent event, Emitter<WorkspaceViewState> emit) {
     final ScaleUpdateDetails details = event.details;
-    _panAndZoomUpdate(emit, _previousFocalPoint, _previousFocalPoint,
-        details.focalPoint, details.scale, 1);
+    _panAndZoomUpdate(emit, _previousLocalFocalPoint, _previousLocalFocalPoint,
+        details.localFocalPoint, details.scale, 1);
   }
 
-  void _onScaleEnd(ScaleEndEvent event, Emitter<WorkspaceState> emit) {
+  void _onScaleEnd(ScaleEndEvent event, Emitter<WorkspaceViewState> emit) {
     return;
     final ScaleEndDetails details = event.details;
 
@@ -165,21 +170,22 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
       _animationController.forward(from: 0);
     }
     _previousOffset = _offset;
-    _previousScale = _viewScale;
+    _previousViewScale = _viewScale;
     _previousOffset = _offset;
   }
 
   void _onTimeLengthStart(
-      TimeScaleStartEvent event, Emitter<WorkspaceState> emit) {
+      TimeScaleStartEvent event, Emitter<WorkspaceViewState> emit) {
     final details = event.details;
-    _panAndZoomStart(emit, details.focalPoint, _viewScale);
+    _panAndZoomStart(emit, details.localFocalPoint, _viewScale);
   }
 
   void _onTimeLengthUpdate(
-      TimeScaleUpdateEvent event, Emitter<WorkspaceState> emit) {
+      TimeScaleUpdateEvent event, Emitter<WorkspaceViewState> emit) {
     final ScaleUpdateDetails details = event.details;
-    _lastFocalPoint = details.localFocalPoint;
-    final Offset translationDelta = details.focalPoint - _previousFocalPoint;
+    _lastLocalFocalPoint = details.localFocalPoint;
+    final Offset translationDelta =
+        details.localFocalPoint - _previousLocalFocalPoint;
 
     if (!_horizontalDrag && !_verticalDrag) {
       if (translationDelta.distance < _dragThreshold) {
@@ -194,27 +200,30 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     }
 
     if (_horizontalDrag) {
-      var timeScale = math.exp((details.focalPoint.dx - _dragStart.dx) / 100);
-      var currentPoint = Offset(_dragStart.dx, details.focalPoint.dy);
-      _panAndZoomUpdate(
-          emit, _previousFocalPoint, _dragStart, currentPoint, 1, timeScale);
+      var timeScale =
+          math.exp((details.localFocalPoint.dx - _dragStart.dx) / 100);
+      var currentPoint = Offset(_dragStart.dx, details.localFocalPoint.dy);
+      _panAndZoomUpdate(emit, _previousLocalFocalPoint, _dragStart,
+          currentPoint, 1, timeScale);
     } else if (_verticalDrag) {
       if (_verticalDragPinMode) {
-        var scale = (details.focalPoint.dy - _previousFocalPoint.dy) /
-            (_dragStart.dy - _previousFocalPoint.dy);
+        var scale = (details.localFocalPoint.dy - _previousLocalFocalPoint.dy) /
+            (_dragStart.dy - _previousLocalFocalPoint.dy);
         _panAndZoomUpdate(
-            emit, _dragStart, _dragStart, details.focalPoint, scale, 1);
+            emit, _dragStart, _dragStart, details.localFocalPoint, scale, 1);
       } else {
-        var scale = math.exp((details.focalPoint.dy - _dragStart.dy) / 100);
-        var currentPoint = Offset(details.focalPoint.dx, _dragStart.dy);
+        var scale =
+            math.exp((details.localFocalPoint.dy - _dragStart.dy) / 100);
+        var currentPoint = Offset(details.localFocalPoint.dx, _dragStart.dy);
         _panAndZoomUpdate(
-            emit, _previousFocalPoint, _dragStart, currentPoint, scale, 1);
+            emit, _previousLocalFocalPoint, _dragStart, currentPoint, scale, 1);
       }
     }
     emit(TransformationState(_offset, _viewScale, _timeLength));
   }
 
-  void _onTimeLengthEnd(TimeScaleEndEvent event, Emitter<WorkspaceState> emit) {
+  void _onTimeLengthEnd(
+      TimeScaleEndEvent event, Emitter<WorkspaceViewState> emit) {
     _verticalDrag = false;
     _horizontalDrag = false;
     return;

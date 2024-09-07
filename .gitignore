@@ -1,3 +1,6 @@
+# native libraries
+native_libs/
+
 # Miscellaneous
 *.class
 *.log
