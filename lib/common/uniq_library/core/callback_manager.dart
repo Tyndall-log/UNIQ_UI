@@ -49,15 +49,47 @@ final class LaunchpadManagerConnectData extends Struct {
   external Pointer<Utf8> outputIdentifier;
 }
 
+final class IdLifecycle extends Struct {
+  @Uint64()
+  external int id;
+}
+
+class CallbackKey {
+  final int workspaceId; // apiWorkspaceId (not hash)
+  final int objId; // PreferredId or objId (not hash)
+  final int funcId; // funcId (fnv1aHash of funcName)
+
+  CallbackKey(this.workspaceId, this.objId, this.funcId);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is CallbackKey) {
+      return workspaceId == other.workspaceId &&
+          objId == other.objId &&
+          funcId == other.funcId;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => workspaceId ^ (objId << 32 | objId >> 32) ^ funcId;
+}
+
+typedef ApiCallback = void Function(ApiCallbackMessage);
 typedef _GetApiCallbackMessage = Pointer<ApiCallbackMessage> Function();
 typedef _ReleaseApiCallbackMessageC = Void Function(
     Pointer<ApiCallbackMessage>);
 typedef _ReleaseApiCallbackMessage = void Function(Pointer<ApiCallbackMessage>);
 
 extension CallbackManager on UniqLibrary {
-  static final Map<int, Function(ApiCallbackMessage)> _callbackWorkspaceIdMap =
-      {};
-  static final Map<int, Function(ApiCallbackMessage)> _callbackIdMap = {};
+  static final Map<CallbackKey, ApiCallback> _callbackKeyMap = {};
+  static final Map<int, Set<CallbackKey>> _callbackWorkspaceIdKeyMap = {};
+  static final Map<int, Set<CallbackKey>> _callbackObjIdKeyMap = {};
+  // static final Map<int, void Function(ApiCallbackMessage)> _callbackWorkspaceIdMap =
+  //     {};
+  // static final Map<int, void Function(ApiCallbackMessage)> _callbackIdMap = {};
+  // static final Map<PreferredId, Map<int, void Function(ApiCallbackMessage)>>
+  //     _callbackPreferredIdMap = {};
   static Timer? _callbackTimer;
 
   static final _GetApiCallbackMessage _getMessage = UniqLibrary._uniqLibrary!
@@ -68,68 +100,165 @@ extension CallbackManager on UniqLibrary {
       .lookupFunction<_ReleaseApiCallbackMessageC, _ReleaseApiCallbackMessage>(
           'API_callback_message_release');
 
-  static void registerWorkspaceCallback(
-      int apiWorkspaceId, Function(ApiCallbackMessage) callback) {
-    _callbackWorkspaceIdMap[apiWorkspaceId] = callback;
+  static void init() {
+    startCallbackTimer();
   }
 
-  static void registerCallbackById(
-      int objId, Function(ApiCallbackMessage) callback) {
-    _callbackIdMap[objId] = callback;
+  static void registerCallback({
+    int? workspaceId,
+    int? objId,
+    PreferredId? preferredId,
+    int? funcId,
+    String? funcIdName,
+    required ApiCallback callback,
+  }) {
+    assert(objId != null || preferredId != null);
+    assert(funcId != null || funcIdName != null);
+
+    workspaceId ??= 0;
+    objId ??= preferredId!.index;
+    funcId ??= Hash.fnv1aHash(funcIdName!);
+
+    final key = CallbackKey(workspaceId, objId, funcId);
+    _callbackKeyMap[key] = callback;
+    (_callbackWorkspaceIdKeyMap[workspaceId] ??= {}).add(key);
+    (_callbackObjIdKeyMap[objId] ??= {}).add(key);
   }
 
-  static void registerCallbackByName(
-      String funcName, Function(ApiCallbackMessage) callback) {
-    final objId = Hash.fnv1aHash(funcName);
-    _callbackIdMap[objId] = callback;
+  // static void registerWorkspaceCallback(
+  //     int apiWorkspaceId, Function(ApiCallbackMessage) callback) {
+  //   _callbackWorkspaceIdMap[apiWorkspaceId] = callback;
+  // }
+
+  // static void registerCallbackById(
+  //     int objId, Function(ApiCallbackMessage) callback) {
+  //   _callbackIdMap[objId] = callback;
+  // }
+  //
+  // static void registerCallbackByName(
+  //     String funcName, Function(ApiCallbackMessage) callback) {
+  //   final objId = Hash.fnv1aHash(funcName);
+  //   _callbackIdMap[objId] = callback;
+  // }
+  //
+  // static void registerCallbackByPreferredId(PreferredId preferredId, int funcId,
+  //     Function(ApiCallbackMessage) callback) {
+  //   if (!_callbackPreferredIdMap.containsKey(preferredId)) {
+  //     _callbackPreferredIdMap[preferredId] = {};
+  //   }
+  //   _callbackPreferredIdMap[preferredId]![funcId] = callback;
+  // }
+  //
+  // static void registerCallbackByPreferredIdFuncName(PreferredId preferredId,
+  //     String funcName, Function(ApiCallbackMessage) callback) {
+  //   final objId = Hash.fnv1aHash(funcName);
+  //   registerCallbackByPreferredId(preferredId, objId, callback);
+  // }
+
+  static void unregisterCallback({
+    int? workspaceId,
+    int? objId,
+    PreferredId? preferredId,
+    int? funcId,
+    String? funcName,
+  }) {
+    assert(objId != null || preferredId != null);
+    assert(funcId != null || funcName != null);
+
+    workspaceId ??= 0;
+    objId ??= preferredId!.index;
+    funcId ??= Hash.fnv1aHash(funcName!);
+
+    final key = CallbackKey(workspaceId, objId, funcId);
+    _callbackKeyMap.remove(key);
+    final workspaceIdKeyList = _callbackWorkspaceIdKeyMap[workspaceId]!;
+    if (workspaceIdKeyList.remove(key) && workspaceIdKeyList.isEmpty) {
+      _callbackWorkspaceIdKeyMap.remove(workspaceId);
+    }
+    final objIdKeyList = _callbackObjIdKeyMap[objId]!;
+    if (objIdKeyList.remove(key) && objIdKeyList.isEmpty) {
+      _callbackObjIdKeyMap.remove(objId);
+    }
   }
 
-  static void unregisterWorkspaceCallback(int apiWorkspaceId) {
-    _callbackWorkspaceIdMap.remove(apiWorkspaceId);
+  static void unregisterCallbackByWorkspaceIdAll(int workspaceId) {
+    for (var key in _callbackWorkspaceIdKeyMap[workspaceId] ?? {}) {
+      _callbackKeyMap.remove(key);
+      final objIdKeyList = _callbackObjIdKeyMap[key.objId]!;
+      if (objIdKeyList.remove(key) && objIdKeyList.isEmpty) {
+        _callbackObjIdKeyMap.remove(key.objId);
+      }
+    }
+    _callbackWorkspaceIdKeyMap.remove(workspaceId);
   }
 
-  static void unregisterCallbackById(int objId) {
-    _callbackIdMap.remove(objId);
+  static void unregisterCallbackByObjIdAll(int objId) {
+    for (var key in _callbackObjIdKeyMap[objId] ?? {}) {
+      _callbackKeyMap.remove(key);
+      final workspaceIdKeyList = _callbackWorkspaceIdKeyMap[key.workspaceId]!;
+      if (workspaceIdKeyList.remove(key) && workspaceIdKeyList.isEmpty) {
+        _callbackWorkspaceIdKeyMap.remove(key.workspaceId);
+      }
+    }
+    _callbackObjIdKeyMap.remove(objId);
   }
 
-  static void unregisterCallbackByName(String funcName) {
-    final objId = Hash.fnv1aHash(funcName);
-    _callbackIdMap.remove(objId);
+  static void unregisterCallbackByPreferredIdAll(PreferredId preferredId) {
+    unregisterCallbackByObjIdAll(preferredId.index);
   }
+
+  // static void unregisterWorkspaceCallback(int apiWorkspaceId) {
+  //   _callbackWorkspaceIdMap.remove(apiWorkspaceId);
+  // }
+
+  // static void unregisterCallbackById(int objId) {
+  //   _callbackIdMap.remove(objId);
+  // }
+  //
+  // static void unregisterCallbackByName(String funcName) {
+  //   final objId = Hash.fnv1aHash(funcName);
+  //   _callbackIdMap.remove(objId);
+  // }
+  //
+  // static void unregisterCallbackByPreferredId(
+  //     PreferredId preferredId, int funcId) {
+  //   if (!_callbackPreferredIdMap.containsKey(preferredId)) {
+  //     return;
+  //   }
+  //   _callbackPreferredIdMap[preferredId]!.remove(funcId);
+  //   if (_callbackPreferredIdMap[preferredId]!.isEmpty) {
+  //     _callbackPreferredIdMap.remove(preferredId);
+  //   }
+  // }
 
   static int count = 0;
+  static int lastCount = 0;
   static void startCallbackTimer() {
     if (_callbackTimer != null) {
       return;
     }
-    _callbackTimer = Timer.periodic(const Duration(milliseconds: 8), (timer) {
+    _callbackTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
       var timeLimit = const Duration(milliseconds: 4);
       final stopwatch = Stopwatch()..start();
       do {
         final Pointer<ApiCallbackMessage> messagePtr = _getMessage();
-        if (messagePtr == nullptr) return;
+        if (messagePtr == nullptr) break;
         final message = messagePtr.ref;
-        // if (message.objId < PreferredId.last.index) {
-        //   final callback = _callbackWorkspaceIdMap[message.apiWorkspaceId];
-        //   if (callback != null) {
-        //     callback(message);
-        //   } else {
-        //     count++;
-        //     print('Callback not found: $count');
-        //   }
-        // } else {
-        //
-        // }
-        final callback = _callbackIdMap[message.objId];
+        final callback = _callbackKeyMap[
+            CallbackKey(message.apiWorkspaceId, message.objId, message.funcId)];
         if (callback != null) {
           callback(message);
         } else {
           count++;
-          if (count % 100 == 0) print('누적 $count 개의 콜벡을 처리하지 않아 무시합니다.');
         }
         _releaseMessage(messagePtr);
       } while (stopwatch.elapsed < timeLimit);
       stopwatch.stop();
+      if (count != lastCount) {
+        print('누적 $count 개의 콜벡을 처리하지 않아 무시되었습니다.');
+        print('현재 등록된 콜백: ${_callbackKeyMap.length}개');
+        lastCount = count;
+      }
     });
   }
 

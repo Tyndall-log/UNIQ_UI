@@ -3,10 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'dart:math' as math;
+import 'dart:ffi';
+
+import 'package:uniq_ui/common/uniq_library/uniq.dart';
+import '../widgets/project.dart';
 
 import 'event.dart';
 import 'state.dart';
 
+//========== WorkspaceViewBloc Start ==========
 class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
   final int workspaceId;
   double _previousViewScale = 1.0;
@@ -240,3 +245,56 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
     return math.log(effectivelyMotionless / velocity) / math.log(drag / 100);
   }
 }
+//========== WorkspaceViewBloc End ==========
+
+//========== WorkspaceProjectManagerCubit Start ==========
+class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
+  WorkspaceProjectManagerCubit({required int workspaceId})
+      : super(WorkspaceProjectManagerState(workspaceId: workspaceId)) {
+    CallbackManager.registerCallback(
+      workspaceId: state.workspaceId,
+      preferredId: PreferredId.create,
+      funcIdName: 'uniq::project::project',
+      callback: (message) {
+        var data = message.dataPtr.cast<IdLifecycle>().ref;
+        addProject(id: data.id);
+        Project.launchpadAutoConnect(data.id);
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: state.workspaceId,
+      preferredId: PreferredId.destroy,
+      funcIdName: 'uniq::project::project',
+      callback: (message) {
+        var data = message.dataPtr.cast<IdLifecycle>().ref;
+        removeProject(id: data.id);
+      },
+    );
+  }
+
+  @override
+  Future<void> close() {
+    // print('WorkspaceProjectManagerCubit close() called');
+    for (var project in state.projects) {
+      project.close();
+    }
+    state.projects.clear();
+    CallbackManager.unregisterCallbackByWorkspaceIdAll(state.workspaceId);
+    return super.close();
+  }
+
+  void addProject({required int id}) {
+    state.projects.add(ProjectCubit(ProjectState(id: id)));
+    emit(state);
+  }
+
+  void removeProject({required int id}) {
+    print('removeProject: $id');
+    final project =
+        state.projects.firstWhere((element) => element.state.id == id);
+    project.close();
+    state.projects.remove(project);
+    emit(state);
+  }
+}
+//========== WorkspaceProjectManagerCubit End ==========

@@ -38,6 +38,15 @@ class RemoveTab extends TabEvent {
   List<Object> get props => [index];
 }
 
+class RemoveTabByTabItem extends TabEvent {
+  final TabItem tabItem;
+
+  const RemoveTabByTabItem({required this.tabItem});
+
+  @override
+  List<Object> get props => [tabItem];
+}
+
 class MoveTab extends TabEvent {
   final int oldIndex;
   final int newIndex;

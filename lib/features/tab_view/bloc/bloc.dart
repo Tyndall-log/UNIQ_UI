@@ -65,8 +65,6 @@ class TabBloc extends Bloc<TabEvent, TabState> {
     });
 
     on<RemoveTab>((event, emit) {
-      // if (state.tabItems.length <= 1) return;
-
       final updatedTabItems = List<TabItem>.from(state.tabItems)
         ..removeAt(event.index);
 
@@ -74,6 +72,25 @@ class TabBloc extends Bloc<TabEvent, TabState> {
         event.index < state.targetIndex
             ? state.targetIndex - 1
             : state.targetIndex,
+        updatedTabItems.length - 1,
+      );
+      _pageController.jumpToPage(newIndex);
+      // animateToTab(newIndex);
+
+      emit(state.copyWith(
+        tabItems: updatedTabItems,
+        targetIndex: newIndex,
+        tabBarRebuildFlag: true,
+        tabContentRebuildFlag: true,
+      ));
+    });
+
+    on<RemoveTabByTabItem>((event, emit) {
+      final updatedTabItems = List<TabItem>.from(state.tabItems)
+        ..remove(event.tabItem);
+
+      final newIndex = min(
+        state.currentIndex,
         updatedTabItems.length - 1,
       );
       _pageController.jumpToPage(newIndex);

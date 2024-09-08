@@ -6,6 +6,7 @@ import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'default_value.dart';
 import 'widgets/grid.dart';
 import 'widgets/gesture_detector.dart';
+import 'widgets/project.dart';
 import 'bloc/bloc.dart';
 import 'bloc/event.dart';
 import 'bloc/state.dart';
@@ -27,9 +28,20 @@ class WorkspaceScreenState extends State<WorkspaceScreen>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          WorkspaceViewBloc(workspaceId: widget.id, vsync: this),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => WorkspaceViewBloc(
+            workspaceId: widget.id,
+            vsync: this,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => WorkspaceProjectManagerCubit(
+            workspaceId: widget.id,
+          ),
+        ),
+      ],
       child: const Stack(
         children: [
           Positioned.fill(
@@ -72,8 +84,9 @@ class Bb2 extends StatelessWidget {
           currentTimeLength = state.timeLength;
           currentTimeScale = defaultTimeLength / currentTimeLength;
           matrixOnlyScale.scale(state.scale);
-          // print('Scale: ${state.scale}');
         }
+
+        final wpms = context.watch<WorkspaceProjectManagerCubit>().state;
 
         return Stack(
           clipBehavior: Clip.hardEdge,
@@ -100,6 +113,19 @@ class Bb2 extends StatelessWidget {
                 ),
               ),
             ),
+            for (var i = 0; i < wpms.projects.length; i++)
+              BlocProvider.value(
+                value: wpms.projects[i],
+                child: BlocBuilder<ProjectCubit, ProjectState>(
+                  builder: (context, state) {
+                    return Positioned(
+                      left: (currentX) * currentScale,
+                      top: (currentY + 25 * i) * currentScale,
+                      child: Text('Project $i'),
+                    );
+                  },
+                ),
+              ),
             Positioned(
               left: currentX,
               top: currentY,

@@ -101,7 +101,7 @@ class WorkspaceGestureDetector extends StatelessWidget {
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox;
 
-    await showMenu(
+    final value = await showMenu(
       context: context,
       position: RelativeRect.fromRect(
         _tapDownPosition & Size(40, 40),
@@ -121,50 +121,45 @@ class WorkspaceGestureDetector extends StatelessWidget {
           value: 3,
         ),
       ],
-    ).then((value) {
-      if (!context.mounted) return;
-      if (value != null) {
-        switch (value) {
-          case 1:
-            SampleToast.show(
-              context: context,
-              title: '새 프로젝트 생성',
-              description: '아직 지원하지 않는 기능입니다.',
-              type: ToastificationType.error,
-            );
-            break;
-          case 2:
-            SampleToast.show(
-              context: context,
-              title: '프로젝트 불러오기',
-              description: '아직 지원하지 않는 기능입니다.',
-              type: ToastificationType.error,
-            );
-            break;
-          case 3:
-            FilePicker.platform.pickFiles(
-              dialogTitle: '유니팩 불러오기',
-              type: FileType.custom,
-              allowedExtensions: ['zip', 'uni'],
-            ).then((value) {
-              if (!context.mounted) return;
-              if (value != null) {
-                var workspaceId = context.read<WorkspaceViewBloc>().workspaceId;
-                var id = Unipack.load(workspaceId, value.files.first.path!);
-                print('unipackId: $id');
-                Project.launchpadAutoConnect(id);
-              } else {
-                SampleToast.show(
-                  context: context,
-                  title: '유니팩 불러오기 실패',
-                  description: '사용자가 파일을 선택하지 않았습니다.',
-                  type: ToastificationType.error,
-                );
-              }
-            });
-            break;
+    );
+    if (!context.mounted) return;
+    if (value == null) return;
+    switch (value) {
+      case 1:
+        SampleToast.show(
+          context: context,
+          title: '새 프로젝트 생성',
+          description: '아직 지원하지 않는 기능입니다.',
+          type: ToastificationType.error,
+        );
+        break;
+      case 2:
+        SampleToast.show(
+          context: context,
+          title: '프로젝트 불러오기',
+          description: '아직 지원하지 않는 기능입니다.',
+          type: ToastificationType.error,
+        );
+        break;
+      case 3:
+        final fpr = await FilePicker.platform.pickFiles(
+          dialogTitle: '유니팩 불러오기',
+          type: FileType.custom,
+          allowedExtensions: ['zip', 'uni'],
+        );
+        if (!context.mounted) return;
+        if (fpr == null) {
+          SampleToast.show(
+            context: context,
+            title: '유니팩 불러오기 실패',
+            description: '사용자가 파일을 선택하지 않았습니다.',
+            type: ToastificationType.error,
+          );
+        } else {
+          var workspaceId = context.read<WorkspaceViewBloc>().workspaceId;
+          Unipack.load(workspaceId, fpr.files.first.path!);
         }
-      }
-    });
+        break;
+    }
   }
 }

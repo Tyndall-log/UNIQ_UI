@@ -94,7 +94,7 @@ class UniqLibrary {
 
     _isLoaded = true;
     _loadMessage = 'UNIQ 라이브러리를 성공적으로 로드했습니다.';
-    CallbackManager.startCallbackTimer();
+    CallbackManager.init();
     Loger.startLogTimer();
   }
 

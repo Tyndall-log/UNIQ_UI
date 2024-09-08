@@ -8,7 +8,9 @@ import '/common/overlay/message.dart';
 import '../../workspace/screen.dart';
 
 class WorkspaceTab extends TabItem {
-  WorkspaceTab({required int workspaceId})
+  final int workspaceId;
+
+  WorkspaceTab({required this.workspaceId})
       : super(
           tabBar: const Text('새 프로젝트'),
           tabContent: WorkspaceScreen(id: workspaceId),
@@ -24,7 +26,7 @@ class WorkspaceTab extends TabItem {
                 onConfirm: () async {
                   print('확인 선택됨');
                   Workspace.destroy(workspaceId);
-                  return true;
+                  return false;
                 },
                 onCancel: () async {
                   print('취소 선택됨');

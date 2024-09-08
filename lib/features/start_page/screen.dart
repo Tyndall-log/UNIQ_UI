@@ -124,15 +124,7 @@ class _StartPageState extends State<StartPage> {
                                     leftButton(
                                       '새로운\n작업공간\n생성',
                                       onPressed: () async {
-                                        var workspaceId = Workspace.create();
-                                        var re = context.read<TabBloc>();
-                                        re.add(
-                                          ReplaceTab(
-                                            index: re.state.currentIndex,
-                                            tabItem: WorkspaceTab(
-                                                workspaceId: workspaceId),
-                                          ),
-                                        );
+                                        Workspace.create();
                                       },
                                     ),
                                     leftButton(

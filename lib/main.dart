@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
           context: context,
           tabItems: [
             StartPageTab(),
-            WorkspaceTab(workspaceId: 999999),
+            // WorkspaceTab(workspaceId: 999999),
           ],
           tabAddCallback: (TabBar.TabBloc tabBloc) {
             tabBloc.add(TabBar.AddTab(
@@ -99,22 +99,52 @@ class _AppInitState extends State<_AppInit> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       UniqLibrary.loadCheck(context);
     });
-    CallbackManager.registerCallbackById(PreferredId.launchpadManager.index,
-        (ApiCallbackMessage message) {
-      final LaunchpadManagerConnectData data =
-          message.dataPtr.cast<LaunchpadManagerConnectData>().ref;
-      if (data.connectFlag) Launchpad.programModeSet(data.id, true);
-      SampleToast.show(
-        title: data.inputKindName.toDartString() +
-            (data.connectFlag ? ' 연결됨' : ' 해제됨'),
-        context: context,
-        description: "inputID: ${data.inputIdentifier.toDartString()}\n"
-            "outputID: ${data.outputIdentifier.toDartString()}\n"
-            "inputID: ${data.inputIdentifier.toDartString()}\n"
-            "outputID: ${data.outputIdentifier.toDartString()}",
-        type: ToastificationType.info,
-      );
-    });
+    CallbackManager.registerCallback(
+      preferredId: PreferredId.create,
+      funcIdName: 'uniq::workspace::workspace',
+      callback: (message) {
+        var data = message.dataPtr.cast<IdLifecycle>().ref;
+        var re = context.read<TabBar.TabBloc>();
+        re.add(
+          TabBar.ReplaceTab(
+            index: re.state.currentIndex,
+            tabItem: WorkspaceTab(workspaceId: data.id),
+          ),
+        );
+      },
+    );
+    CallbackManager.registerCallback(
+      preferredId: PreferredId.destroy,
+      funcIdName: 'uniq::workspace::workspace',
+      callback: (message) {
+        var data = message.dataPtr.cast<IdLifecycle>().ref;
+        var re = context.read<TabBar.TabBloc>();
+        re.add(
+          TabBar.RemoveTabByTabItem(
+            tabItem: re.state.tabItems.firstWhere(
+                (element) => (element as WorkspaceTab).workspaceId == data.id),
+          ),
+        );
+      },
+    );
+    CallbackManager.registerCallback(
+      preferredId: PreferredId.launchpadManager,
+      funcIdName: "static void uniq::launchpad::launchpad_manager::"
+          "RAC(const std::shared_ptr<launchpad> &, bool)",
+      callback: (ApiCallbackMessage message) {
+        final LaunchpadManagerConnectData data =
+            message.dataPtr.cast<LaunchpadManagerConnectData>().ref;
+        if (data.connectFlag) Launchpad.programModeSet(data.id, true);
+        SampleToast.show(
+          title: data.inputKindName.toDartString() +
+              (data.connectFlag ? ' 연결됨' : ' 해제됨'),
+          context: context,
+          description: "inputID: ${data.inputIdentifier.toDartString()}\n"
+              "outputID: ${data.outputIdentifier.toDartString()}",
+          type: ToastificationType.info,
+        );
+      },
+    );
   }
 
   @override

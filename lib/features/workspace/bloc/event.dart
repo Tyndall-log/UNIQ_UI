@@ -1,6 +1,7 @@
 // event.dart
 import 'package:flutter/material.dart';
 
+//========== WorkspaceViewEvent Start ==========
 sealed class WorkspaceViewEvent {
   const WorkspaceViewEvent();
 }
@@ -44,3 +45,4 @@ class TimeScaleEndEvent extends WorkspaceViewEvent {
 
   const TimeScaleEndEvent(this.details);
 }
+//========== WorkspaceViewEvent End ==========
