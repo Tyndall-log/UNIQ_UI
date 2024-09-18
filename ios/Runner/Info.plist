@@ -3,11 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>FLTEnableImpeller</key>
-    <false />
+    <true/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>앱에서 사용자가 사진을 선택하는 경우를 대비해 사진 라이브러리에 접근합니다.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Uniq Ui</string>
+	<string>UNIQ</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

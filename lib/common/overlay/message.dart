@@ -37,67 +37,69 @@ Future<bool?> message({
               top: y,
               left: x,
               child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {},
                 onPanUpdate: (details) {
                   x += details.delta.dx;
                   y += details.delta.dy;
                   overlayEntry!.markNeedsBuild();
                 },
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {},
-                  child: Container(
-                    width: 250,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 10.0,
-                          spreadRadius: 1.0,
-                          offset: Offset(0, 5),
+                child: Container(
+                  width: 250,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10.0,
+                        spreadRadius: 1.0,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (title != null)
+                        Text(
+                          title,
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (title != null)
-                          Text(
-                            title,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        if (text != null) const SizedBox(height: 10),
-                        if (text != null)
-                          Text(
-                            text,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        if (content != null) content,
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
+                      if (text != null) const SizedBox(height: 10),
+                      if (text != null)
+                        Text(
+                          text,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      if (content != null) content,
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (onCancel != null)
                             TextButton(
                               onPressed: () async {
                                 overlayEntry?.remove();
-                                completer.complete(await onCancel!());
+                                completer.complete(await onCancel());
                               },
                               child: const Text('취소'),
                             ),
+                          if (onConfirm != null && onCancel != null)
+                            const SizedBox(width: 10),
+                          if (onConfirm != null)
                             ElevatedButton(
                               onPressed: () async {
                                 overlayEntry?.remove();
-                                completer.complete(await onConfirm!());
+                                completer.complete(await onConfirm());
                               },
                               child: const Text('확인'),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),

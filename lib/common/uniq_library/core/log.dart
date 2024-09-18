@@ -5,8 +5,17 @@ typedef _Log = Pointer<Utf8> Function();
 
 extension Loger on UniqLibrary {
   static Timer? _logTimer;
+  static final List<Function> _logCallbackList = <Function>[];
   static final _Log _log =
       UniqLibrary._uniqLibrary!.lookupFunction<_LogC, _Log>('log_get');
+
+  static void addLogCallback(Function callback) {
+    _logCallbackList.add(callback);
+  }
+
+  static void removeLogCallback(Function callback) {
+    _logCallbackList.remove(callback);
+  }
 
   static void startLogTimer() {
     if (_logTimer != null) {
@@ -21,6 +30,9 @@ extension Loger on UniqLibrary {
       if (str.isEmpty) return;
       if (Platform.isIOS) {
         print(str);
+      }
+      for (var callback in _logCallbackList) {
+        callback(str);
       }
     });
   }

@@ -43,7 +43,8 @@ class UniqLibrary {
     } else if (Platform.isAndroid) {
       path = 'libUNIQ_Library.so';
     } else if (Platform.isIOS) {
-      path = 'libUNIQ_Library.dylib';
+      // path = 'libUNIQ_Library.dylib';
+      path = 'UNIQ_Library.framework/UNIQ_Library';
     } else {
       throw UnsupportedError('This platform is not supported.');
     }
