@@ -8,7 +8,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:fnv/fnv.dart';
 import 'package:uniq_ui/common/sample_toast.dart';
-import 'package:jni/jni.dart';
 import 'alias.dart';
 
 part 'core/callback_manager.dart';

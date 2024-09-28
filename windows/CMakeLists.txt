@@ -106,3 +106,7 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# exe 파일이 있는 위치로 DLL 파일을 복사
+install(FILES "${CMAKE_SOURCE_DIR}/../native_libs/windows/UNIQ_Library.dll"
+        DESTINATION "${BUILD_BUNDLE_DIR}" COMPONENT Runtime)

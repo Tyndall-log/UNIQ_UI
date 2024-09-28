@@ -28,9 +28,9 @@ extension Loger on UniqLibrary {
       }
       var str = logPtr.toDartString();
       if (str.isEmpty) return;
-      if (Platform.isIOS) {
-        print(str);
-      }
+      // if (Platform.isIOS) {
+      //   print(str);
+      // }
       for (var callback in _logCallbackList) {
         callback(str);
       }
@@ -43,5 +43,11 @@ extension Loger on UniqLibrary {
     }
     _logTimer!.cancel();
     _logTimer = null;
+  }
+
+  static void printLog(String str) {
+    for (var callback in _logCallbackList) {
+      callback(str);
+    }
   }
 }

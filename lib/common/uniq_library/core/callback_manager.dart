@@ -249,6 +249,7 @@ extension CallbackManager on UniqLibrary {
         if (callback != null) {
           callback(message);
         } else {
+          Loger.printLog('콜백을 찾을 수 없습니다: $message');
           count++;
         }
         _releaseMessage(messagePtr);

@@ -122,7 +122,14 @@ class _AppInitState extends State<_AppInit> {
         re.add(
           TabBar.RemoveTabByTabItem(
             tabItem: re.state.tabItems.firstWhere(
-                (element) => (element as WorkspaceTab).workspaceId == data.id),
+                // (element) => (element as WorkspaceTab).workspaceId == data.id),
+                (element) {
+                  if (element is WorkspaceTab) {
+                    return element.workspaceId == data.id;
+                  }
+                  return false;
+                },
+            ),
           ),
         );
       },
