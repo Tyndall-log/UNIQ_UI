@@ -1,38 +1,52 @@
-// state.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:flutter/material.dart';
 import '../widgets/project.dart';
 
-//========== WorkspaceViewState Start ==========
-sealed class WorkspaceViewState {
-  const WorkspaceViewState();
-}
+part 'state.freezed.dart';
 
-class TransformationState extends WorkspaceViewState {
+//========== WorkspaceViewState Start ==========
+// sealed class WorkspaceViewState {
+//   const WorkspaceViewState();
+// }
+
+// class TransformationState extends WorkspaceViewState {
+//   final Offset offset;
+//   final double scale;
+//   final double timeLength;
+//
+//   const TransformationState(
+//     this.offset,
+//     this.scale,
+//     this.timeLength,
+//   ) : super();
+// }
+
+// class TransformationInitial extends WorkspaceViewState {
+//   const TransformationInitial() : super();
+// }
+
+class WorkspaceViewState {
   final Offset offset;
   final double scale;
   final double timeLength;
 
-  const TransformationState(
+  const WorkspaceViewState(
     this.offset,
     this.scale,
     this.timeLength,
   ) : super();
 }
-
-class TransformationInitial extends WorkspaceViewState {
-  const TransformationInitial() : super();
-}
 //========== WorkspaceViewState End ==========
 
 //========== WorkspaceProjectManagerState Start ==========
-class WorkspaceProjectManagerState {
-  final int workspaceId;
-  final List<ProjectCubit> projects = [
-    // ProjectCubit(ProjectState(id: 0)),
-    // ProjectCubit(ProjectState(id: 1)),
-    // ProjectCubit(ProjectState(id: 2)),
-  ];
+@freezed
+class WorkspaceProjectManagerState with _$WorkspaceProjectManagerState {
+  const WorkspaceProjectManagerState._();
 
-  WorkspaceProjectManagerState({required this.workspaceId});
+  factory WorkspaceProjectManagerState({
+    required int workspaceId,
+    @Default([]) List<ProjectCubit> projects,
+  }) = _WorkspaceProjectManagerState;
 }
 //========== WorkspaceProjectManagerState End ==========

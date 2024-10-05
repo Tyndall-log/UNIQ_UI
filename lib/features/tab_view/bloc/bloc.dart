@@ -370,9 +370,11 @@ class TabBloc extends Bloc<TabEvent, TabState> {
           },
           child: SizedBox(
             height: _height,
+            // width: 500,
             child: Stack(
               children: [
                 ListView.builder(
+                  hitTestBehavior: HitTestBehavior.translucent,
                   key: _listViewKey,
                   scrollDirection: Axis.horizontal,
                   itemCount: _tabItems.length + 1,

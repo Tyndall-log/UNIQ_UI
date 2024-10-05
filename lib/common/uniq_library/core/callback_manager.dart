@@ -125,36 +125,6 @@ extension CallbackManager on UniqLibrary {
     (_callbackObjIdKeyMap[objId] ??= {}).add(key);
   }
 
-  // static void registerWorkspaceCallback(
-  //     int apiWorkspaceId, Function(ApiCallbackMessage) callback) {
-  //   _callbackWorkspaceIdMap[apiWorkspaceId] = callback;
-  // }
-
-  // static void registerCallbackById(
-  //     int objId, Function(ApiCallbackMessage) callback) {
-  //   _callbackIdMap[objId] = callback;
-  // }
-  //
-  // static void registerCallbackByName(
-  //     String funcName, Function(ApiCallbackMessage) callback) {
-  //   final objId = Hash.fnv1aHash(funcName);
-  //   _callbackIdMap[objId] = callback;
-  // }
-  //
-  // static void registerCallbackByPreferredId(PreferredId preferredId, int funcId,
-  //     Function(ApiCallbackMessage) callback) {
-  //   if (!_callbackPreferredIdMap.containsKey(preferredId)) {
-  //     _callbackPreferredIdMap[preferredId] = {};
-  //   }
-  //   _callbackPreferredIdMap[preferredId]![funcId] = callback;
-  // }
-  //
-  // static void registerCallbackByPreferredIdFuncName(PreferredId preferredId,
-  //     String funcName, Function(ApiCallbackMessage) callback) {
-  //   final objId = Hash.fnv1aHash(funcName);
-  //   registerCallbackByPreferredId(preferredId, objId, callback);
-  // }
-
   static void unregisterCallback({
     int? workspaceId,
     int? objId,
@@ -206,30 +176,6 @@ extension CallbackManager on UniqLibrary {
   static void unregisterCallbackByPreferredIdAll(PreferredId preferredId) {
     unregisterCallbackByObjIdAll(preferredId.index);
   }
-
-  // static void unregisterWorkspaceCallback(int apiWorkspaceId) {
-  //   _callbackWorkspaceIdMap.remove(apiWorkspaceId);
-  // }
-
-  // static void unregisterCallbackById(int objId) {
-  //   _callbackIdMap.remove(objId);
-  // }
-  //
-  // static void unregisterCallbackByName(String funcName) {
-  //   final objId = Hash.fnv1aHash(funcName);
-  //   _callbackIdMap.remove(objId);
-  // }
-  //
-  // static void unregisterCallbackByPreferredId(
-  //     PreferredId preferredId, int funcId) {
-  //   if (!_callbackPreferredIdMap.containsKey(preferredId)) {
-  //     return;
-  //   }
-  //   _callbackPreferredIdMap[preferredId]!.remove(funcId);
-  //   if (_callbackPreferredIdMap[preferredId]!.isEmpty) {
-  //     _callbackPreferredIdMap.remove(preferredId);
-  //   }
-  // }
 
   static int count = 0;
   static int lastCount = 0;

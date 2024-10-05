@@ -7,9 +7,6 @@ extension LaunchpadManager on UniqLibrary {
       UniqLibrary._uniqLibrary!.lookupFunction<
           Pointer<Uint64> Function(Pointer<Uint64>),
           Pointer<Uint64> Function(Pointer<Uint64>)>('launchpad_list_get');
-  static final void Function(Pointer<Uint64>) _launchpadListGetDelete =
-      UniqLibrary._uniqLibrary!.lookupFunction<Void Function(Pointer<Uint64>),
-          void Function(Pointer<Uint64>)>('launchpad_list_get_delete');
   static List<int> launchpadListGet() {
     return using((Arena arena) {
       final Pointer<Uint64> sizePtr = arena<Uint64>();
@@ -17,7 +14,7 @@ extension LaunchpadManager on UniqLibrary {
       final int size = sizePtr.value;
       final List<int> launchpadIds =
           List<int>.generate(size, (index) => listPtr[index]);
-      _launchpadListGetDelete(listPtr);
+      Api._idListDelete(listPtr);
       return launchpadIds;
     });
   }

@@ -61,21 +61,19 @@ class _MyAppState extends State<MyApp> {
           },
         ),
         child: Scaffold(
-            appBar: AppBar(
-              toolbarHeight: 0,
-              elevation: 0,
-              bottom: const TabBar.TabBarView(),
-            ),
-            body: _AppInit(child: TabBar.TabContentView())
-            // body: const _AppInit(
-            //   child: Column(
-            //     children: [
-            //       // TabBar.TabBarView(),
-            //       TabBar.TabContentView(),
-            //     ],
-            //   ),
-            // ),
-            ),
+          // appBar: AppBar(
+          //   toolbarHeight: 0,
+          //   elevation: 0,
+          //   bottom: const TabBar.TabBarView(),
+          //   backgroundColor: Colors.transparent,
+          // ),
+          body: Stack(
+            children: [
+              _AppInit(child: TabBar.TabContentView()),
+              const TabBar.TabBarView(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -122,13 +120,13 @@ class _AppInitState extends State<_AppInit> {
         re.add(
           TabBar.RemoveTabByTabItem(
             tabItem: re.state.tabItems.firstWhere(
-                // (element) => (element as WorkspaceTab).workspaceId == data.id),
-                (element) {
-                  if (element is WorkspaceTab) {
-                    return element.workspaceId == data.id;
-                  }
-                  return false;
-                },
+              // (element) => (element as WorkspaceTab).workspaceId == data.id),
+              (element) {
+                if (element is WorkspaceTab) {
+                  return element.workspaceId == data.id;
+                }
+                return false;
+              },
             ),
           ),
         );

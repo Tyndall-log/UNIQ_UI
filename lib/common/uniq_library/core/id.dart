@@ -1,18 +1,18 @@
 part of '../uniq.dart';
 
-mixin Id {
-  int id = 0;
+class Id {
+  final int id;
+  final int workspaceId;
+
+  Id({required this.id}) : workspaceId = IdManager.getWorkspaceId(id);
 }
 
-// extension IdManager on UniqLibrary {
-//   static final Map<int, Id> _idMap = {};
-//
-//   static Id getId(int id) {
-//     if (_idMap.containsKey(id)) {
-//       return _idMap[id]!;
-//     }
-//     final newId = Id(id);
-//     _idMap[id] = newId;
-//     return newId;
-//   }
-// }
+extension IdManager on UniqLibrary {
+  // get_workspace_ID
+  static final int Function(int) _getWorkspaceId = UniqLibrary._uniqLibrary!
+      .lookupFunction<Uint64 Function(Uint64), int Function(int)>(
+          'workspace_ID_get');
+  static int getWorkspaceId(int id) {
+    return _getWorkspaceId(id);
+  }
+}

@@ -69,7 +69,8 @@ class _StartPageState extends State<StartPage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0) +
+              const EdgeInsets.only(top: kToolbarHeight),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,

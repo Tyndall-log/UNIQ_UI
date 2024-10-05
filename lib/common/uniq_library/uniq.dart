@@ -10,12 +10,14 @@ import 'package:fnv/fnv.dart';
 import 'package:uniq_ui/common/sample_toast.dart';
 import 'alias.dart';
 
+part 'api/api.dart';
 part 'core/callback_manager.dart';
 part 'core/id.dart';
 part 'core/hash.dart';
 part 'core/log.dart';
 part 'workspace/workspace.dart';
 part 'project/project.dart';
+part 'project/timeline.dart';
 part 'unipack/unipack.dart';
 part 'launchpad/launchpad.dart';
 

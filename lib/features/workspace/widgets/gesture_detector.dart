@@ -98,26 +98,28 @@ class WorkspaceGestureDetector extends StatelessWidget {
   }
 
   void _showContextMenu(BuildContext context) async {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
+    // final RenderBox overlay =
+    //     Overlay.of(context).context.findRenderObject() as RenderBox;
 
     final value = await showMenu(
       context: context,
-      position: RelativeRect.fromRect(
-        _tapDownPosition & Size(40, 40),
-        Offset.zero & overlay.size,
+      position: RelativeRect.fromLTRB(
+        _tapDownPosition.dx,
+        _tapDownPosition.dy,
+        _tapDownPosition.dx,
+        _tapDownPosition.dy,
       ),
-      items: <PopupMenuEntry>[
+      items: const <PopupMenuEntry>[
         PopupMenuItem(
           child: Text('여기에 새 프로젝트 생성'),
           value: 1,
         ),
         PopupMenuItem(
-          child: Text('프로젝트 불러오기'),
+          child: Text('여기에 기존 프로젝트 불러오기'),
           value: 2,
         ),
         PopupMenuItem(
-          child: Text('유니팩 불러오기'),
+          child: Text('여기에 호환모드로 유니팩 불러오기'),
           value: 3,
         ),
       ],
@@ -126,12 +128,27 @@ class WorkspaceGestureDetector extends StatelessWidget {
     if (value == null) return;
     switch (value) {
       case 1:
-        SampleToast.show(
-          context: context,
-          title: '새 프로젝트 생성',
-          description: '아직 지원하지 않는 기능입니다.',
-          type: ToastificationType.error,
-        );
+        var workspaceId = context.read<WorkspaceViewBloc>().workspaceId;
+        var wpmc = context.read<WorkspaceProjectManagerCubit>();
+        var wvb = context.read<WorkspaceViewBloc>();
+        wpmc.projectPosition.add(wvb.mouseToOffset(_tapDownPosition));
+        var projectId = wpmc.createProject();
+        if (projectId == 0) {
+          SampleToast.show(
+            context: context,
+            title: '프로젝트 생성 실패',
+            description: '프로젝트를 생성하는 중 오류가 발생했습니다.',
+            type: ToastificationType.error,
+          );
+        } else {
+          var title = Project.titleGet(projectId);
+          SampleToast.show(
+            context: context,
+            title: '프로젝트 생성 성공',
+            description: '프로젝트 이름: $title',
+            type: ToastificationType.success,
+          );
+        }
         break;
       case 2:
         SampleToast.show(
@@ -157,7 +174,26 @@ class WorkspaceGestureDetector extends StatelessWidget {
           );
         } else {
           var workspaceId = context.read<WorkspaceViewBloc>().workspaceId;
-          Unipack.load(workspaceId, fpr.files.first.path!);
+          var wpmc = context.read<WorkspaceProjectManagerCubit>();
+          var wvb = context.read<WorkspaceViewBloc>();
+          wpmc.projectPosition.add(wvb.mouseToOffset(_tapDownPosition));
+          var projectId = Unipack.load(workspaceId, fpr.files.first.path!);
+          if (projectId == 0) {
+            SampleToast.show(
+              context: context,
+              title: '유니팩 불러오기 실패',
+              description: '유니팩을 불러오는 중 오류가 발생했습니다.',
+              type: ToastificationType.error,
+            );
+          } else {
+            var title = Project.titleGet(projectId);
+            SampleToast.show(
+              context: context,
+              title: '유니팩 불러오기 성공',
+              description: '유니팩 이름: $title',
+              type: ToastificationType.success,
+            );
+          }
         }
         break;
     }

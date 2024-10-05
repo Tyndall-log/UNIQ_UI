@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'dart:ffi';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
+import '../default_value.dart';
 import '../widgets/project.dart';
 
 import 'event.dart';
@@ -38,8 +39,11 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
       const AlwaysStoppedAnimation(Offset.zero);
   Animation<double> _scaleAnimation = const AlwaysStoppedAnimation(1.0);
 
-  WorkspaceViewBloc({required this.workspaceId, required TickerProvider vsync})
-      : super(const TransformationInitial()) {
+  WorkspaceViewBloc({
+    required this.workspaceId,
+    required TickerProvider vsync,
+    required WorkspaceViewState initialState,
+  }) : super(initialState) {
     print('WorkspaceViewBloc');
     _animationController = AnimationController(vsync: vsync)
       ..addListener(() => add(const ScaleAnimationEvent()));
@@ -97,7 +101,7 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
           (_offset.dx - controlPoint.dx / _viewScale) * (1 - timeScale), 0);
     }
 
-    emit(TransformationState(_offset, _viewScale, _timeLength));
+    emit(WorkspaceViewState(_offset, _viewScale, _timeLength));
   }
 
   void _onScaleAnimation(
@@ -224,7 +228,7 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
             emit, _previousLocalFocalPoint, _dragStart, currentPoint, scale, 1);
       }
     }
-    emit(TransformationState(_offset, _viewScale, _timeLength));
+    emit(WorkspaceViewState(_offset, _viewScale, _timeLength));
   }
 
   void _onTimeLengthEnd(
@@ -244,11 +248,21 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
       {double effectivelyMotionless = 10}) {
     return math.log(effectivelyMotionless / velocity) / math.log(drag / 100);
   }
+
+  Offset mouseToOffset(Offset mouse) {
+    return Offset(
+      (mouse.dx / state.scale - state.offset.dx) /
+          defaultTimeLength *
+          state.timeLength,
+      mouse.dy / state.scale - state.offset.dy,
+    );
+  }
 }
 //========== WorkspaceViewBloc End ==========
 
 //========== WorkspaceProjectManagerCubit Start ==========
 class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
+  List<Offset> projectPosition = [];
   WorkspaceProjectManagerCubit({required int workspaceId})
       : super(WorkspaceProjectManagerState(workspaceId: workspaceId)) {
     CallbackManager.registerCallback(
@@ -257,8 +271,17 @@ class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
       funcIdName: 'uniq::project::project',
       callback: (message) {
         var data = message.dataPtr.cast<IdLifecycle>().ref;
-        addProject(id: data.id);
-        Project.launchpadAutoConnect(data.id);
+        var id = data.id;
+        Offset offset = projectPosition.isEmpty
+            ? const Offset(0, 0)
+            : projectPosition.removeAt(0);
+        emit(state.copyWith(
+          projects: [
+            ...state.projects,
+            ProjectCubit(ProjectState(idInfo: Id(id: id), offset: offset)),
+          ],
+        ));
+        Project.launchpadAutoConnect(data.id); //임시
       },
     );
     CallbackManager.registerCallback(
@@ -267,7 +290,15 @@ class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
       funcIdName: 'uniq::project::project',
       callback: (message) {
         var data = message.dataPtr.cast<IdLifecycle>().ref;
-        removeProject(id: data.id);
+        var id = data.id;
+        final projectList = state.projects.where((project) {
+          if (project.state.idInfo.id == id) {
+            project.close();
+            return false;
+          }
+          return true;
+        }).toList();
+        emit(state.copyWith(projects: projectList));
       },
     );
   }
@@ -283,18 +314,9 @@ class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
     return super.close();
   }
 
-  void addProject({required int id}) {
-    state.projects.add(ProjectCubit(ProjectState(id: id)));
-    emit(state);
-  }
+  int createProject() => Workspace.projectCreate(state.workspaceId);
 
-  void removeProject({required int id}) {
-    print('removeProject: $id');
-    final project =
-        state.projects.firstWhere((element) => element.state.id == id);
-    project.close();
-    state.projects.remove(project);
-    emit(state);
-  }
+  bool removeProject({required int id}) =>
+      Workspace.projectRemove(state.workspaceId, id);
 }
 //========== WorkspaceProjectManagerCubit End ==========

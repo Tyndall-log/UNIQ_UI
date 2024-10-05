@@ -34,6 +34,11 @@ class WorkspaceScreenState extends State<WorkspaceScreen>
           create: (context) => WorkspaceViewBloc(
             workspaceId: widget.id,
             vsync: this,
+            initialState: WorkspaceViewState(
+              Offset(0, 0),
+              1,
+              defaultTimeLength,
+            ),
           ),
         ),
         BlocProvider(
@@ -70,25 +75,17 @@ class Bb2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WorkspaceViewBloc, WorkspaceViewState>(
       builder: (context, state) {
-        double currentX = 0;
-        double currentY = 0;
-        double currentScale = 1;
-        double currentTimeLength = defaultTimeLength; // 10ms (ns/pixel)
-        double currentTimeScale = 1;
-        Matrix4 matrixOnlyScale = Matrix4.identity();
-
-        if (state is TransformationState) {
-          currentX = state.offset.dx;
-          currentY = state.offset.dy;
-          currentScale = state.scale;
-          currentTimeLength = state.timeLength;
-          currentTimeScale = defaultTimeLength / currentTimeLength;
-          matrixOnlyScale.scale(state.scale);
-        }
+        double currentX = state.offset.dx;
+        double currentY = state.offset.dy;
+        double currentScale = state.scale;
+        double currentTimeLength = state.timeLength;
+        double currentTimeScale = defaultTimeLength / currentTimeLength;
+        Matrix4 matrixOnlyScale = Matrix4.identity()..scale(state.scale);
 
         final wpms = context.watch<WorkspaceProjectManagerCubit>().state;
 
         return Stack(
+          // clipBehavior: Clip.none,
           clipBehavior: Clip.hardEdge,
           children: [
             const SizedBox(
@@ -114,18 +111,19 @@ class Bb2 extends StatelessWidget {
               ),
             ),
             for (var i = 0; i < wpms.projects.length; i++)
-              BlocProvider.value(
-                value: wpms.projects[i],
-                child: BlocBuilder<ProjectCubit, ProjectState>(
-                  builder: (context, state) {
-                    return Positioned(
-                      left: (currentX) * currentScale,
-                      top: (currentY + 25 * i) * currentScale,
-                      child: Text('Project $i'),
-                    );
-                  },
-                ),
-              ),
+              ProjectWidget(projectCubit: wpms.projects[i]),
+            // BlocProvider.value(
+            //   value: wpms.projects[i],
+            //   child: BlocBuilder<ProjectCubit, ProjectState>(
+            //     builder: (context, state) {
+            //       return Positioned(
+            //         left: (currentX) * currentScale,
+            //         top: (currentY + 25 * i) * currentScale,
+            //         child: Text('Project $i'),
+            //       );
+            //     },
+            //   ),
+            // ),
             Positioned(
               left: currentX,
               top: currentY,
@@ -160,6 +158,16 @@ class Bb2 extends StatelessWidget {
               child: SelectableText(
                 '좌표: 100, 100',
                 style: TextStyle(fontSize: 14 * currentScale),
+              ),
+            ),
+            Positioned(
+              left: currentX + 200 * currentTimeScale,
+              top: currentY + 200,
+              child: Transform(
+                origin:
+                    -Offset(currentX + 200 * currentTimeScale, currentY + 200),
+                transform: matrixOnlyScale,
+                child: const Text('좌표: 200, 200'),
               ),
             ),
             Positioned(

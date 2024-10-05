@@ -12,7 +12,7 @@ class WorkspaceTab extends TabItem {
 
   WorkspaceTab({required this.workspaceId})
       : super(
-          tabBar: const Text('새 프로젝트'),
+          tabBar: const Text('새 작업공간'),
           tabContent: WorkspaceScreen(id: workspaceId),
           icon: Icons.work,
           onClose: (tabBloc) async {
