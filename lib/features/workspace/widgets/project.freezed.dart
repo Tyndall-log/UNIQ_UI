@@ -238,3 +238,153 @@ abstract class _ProjectState extends ProjectState {
   _$$ProjectStateImplCopyWith<_$ProjectStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$ProjectDragState {
+  ProjectCubit get projectCubit => throw _privateConstructorUsedError;
+  Offset get offset => throw _privateConstructorUsedError;
+
+  /// Create a copy of ProjectDragState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ProjectDragStateCopyWith<ProjectDragState> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ProjectDragStateCopyWith<$Res> {
+  factory $ProjectDragStateCopyWith(
+          ProjectDragState value, $Res Function(ProjectDragState) then) =
+      _$ProjectDragStateCopyWithImpl<$Res, ProjectDragState>;
+  @useResult
+  $Res call({ProjectCubit projectCubit, Offset offset});
+}
+
+/// @nodoc
+class _$ProjectDragStateCopyWithImpl<$Res, $Val extends ProjectDragState>
+    implements $ProjectDragStateCopyWith<$Res> {
+  _$ProjectDragStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ProjectDragState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? projectCubit = null,
+    Object? offset = null,
+  }) {
+    return _then(_value.copyWith(
+      projectCubit: null == projectCubit
+          ? _value.projectCubit
+          : projectCubit // ignore: cast_nullable_to_non_nullable
+              as ProjectCubit,
+      offset: null == offset
+          ? _value.offset
+          : offset // ignore: cast_nullable_to_non_nullable
+              as Offset,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ProjectDragStateImplCopyWith<$Res>
+    implements $ProjectDragStateCopyWith<$Res> {
+  factory _$$ProjectDragStateImplCopyWith(_$ProjectDragStateImpl value,
+          $Res Function(_$ProjectDragStateImpl) then) =
+      __$$ProjectDragStateImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({ProjectCubit projectCubit, Offset offset});
+}
+
+/// @nodoc
+class __$$ProjectDragStateImplCopyWithImpl<$Res>
+    extends _$ProjectDragStateCopyWithImpl<$Res, _$ProjectDragStateImpl>
+    implements _$$ProjectDragStateImplCopyWith<$Res> {
+  __$$ProjectDragStateImplCopyWithImpl(_$ProjectDragStateImpl _value,
+      $Res Function(_$ProjectDragStateImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of ProjectDragState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? projectCubit = null,
+    Object? offset = null,
+  }) {
+    return _then(_$ProjectDragStateImpl(
+      projectCubit: null == projectCubit
+          ? _value.projectCubit
+          : projectCubit // ignore: cast_nullable_to_non_nullable
+              as ProjectCubit,
+      offset: null == offset
+          ? _value.offset
+          : offset // ignore: cast_nullable_to_non_nullable
+              as Offset,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$ProjectDragStateImpl extends _ProjectDragState {
+  _$ProjectDragStateImpl({required this.projectCubit, required this.offset})
+      : super._();
+
+  @override
+  final ProjectCubit projectCubit;
+  @override
+  final Offset offset;
+
+  @override
+  String toString() {
+    return 'ProjectDragState(projectCubit: $projectCubit, offset: $offset)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ProjectDragStateImpl &&
+            (identical(other.projectCubit, projectCubit) ||
+                other.projectCubit == projectCubit) &&
+            (identical(other.offset, offset) || other.offset == offset));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, projectCubit, offset);
+
+  /// Create a copy of ProjectDragState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ProjectDragStateImplCopyWith<_$ProjectDragStateImpl> get copyWith =>
+      __$$ProjectDragStateImplCopyWithImpl<_$ProjectDragStateImpl>(
+          this, _$identity);
+}
+
+abstract class _ProjectDragState extends ProjectDragState {
+  factory _ProjectDragState(
+      {required final ProjectCubit projectCubit,
+      required final Offset offset}) = _$ProjectDragStateImpl;
+  _ProjectDragState._() : super._();
+
+  @override
+  ProjectCubit get projectCubit;
+  @override
+  Offset get offset;
+
+  /// Create a copy of ProjectDragState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ProjectDragStateImplCopyWith<_$ProjectDragStateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

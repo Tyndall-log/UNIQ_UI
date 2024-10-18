@@ -52,16 +52,16 @@ class ProjectCubit extends Cubit<ProjectState> {
         emit(state.copyWith(producerName: producerName));
       },
     );
-    //timeline_create
-    CallbackManager.registerCallback(
-      workspaceId: workspaceId,
-      objId: id,
-      funcIdName: 'void uniq::project::project::timeline_create()',
-      callback: (ApiCallbackMessage callback) {
-        var groupId = callback.dataPtr.cast<Int32>().value;
-        emit(state.copyWith(timeLine: [...state.timeLine, groupId]));
-      },
-    );
+    // //timeline_create
+    // CallbackManager.registerCallback(
+    //   workspaceId: workspaceId,
+    //   objId: id,
+    //   funcIdName: 'void uniq::project::project::timeline_create()',
+    //   callback: (ApiCallbackMessage callback) {
+    //     var groupId = callback.dataPtr.cast<Int32>().value;
+    //     emit(state.copyWith(timeLine: [...state.timeLine, groupId]));
+    //   },
+    // );
     // CallbackManager.registerCallback(
     //   workspaceId: workspaceId,
     //   objId: id,
@@ -71,6 +71,16 @@ class ProjectCubit extends Cubit<ProjectState> {
     //     emit(state.copyWith(timeLine: [...state.timeLine, groupId]));
     //   },
     // );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'std::shared_ptr<timeline> uniq::project::project::timeline_create(const std::string &)',
+      callback: (ApiCallbackMessage callback) {
+        var timelineId = callback.dataPtr.cast<Int32>().value;
+        emit(state.copyWith(timeLine: [...state.timeLine, timelineId]));
+      },
+    );
   }
 
   void setOffset(Offset offset) => emit(state.copyWith(offset: offset));
@@ -81,6 +91,21 @@ class ProjectCubit extends Cubit<ProjectState> {
     CallbackManager.unregisterCallbackByObjIdAll(state.idInfo.id);
     return super.close();
   }
+}
+
+@freezed
+class ProjectDragState with _$ProjectDragState {
+  const ProjectDragState._();
+  factory ProjectDragState({
+    required ProjectCubit projectCubit,
+    required Offset offset,
+  }) = _ProjectDragState;
+}
+
+class ProjectDragCubit extends Cubit<ProjectDragState> {
+  ProjectDragCubit(super.initialState);
+
+  void setOffset(Offset offset) => emit(state.copyWith(offset: offset));
 }
 
 class MoveDrag extends Drag {
@@ -124,15 +149,32 @@ class MoveDrag extends Drag {
   }
 }
 
-class ProjectWidget extends StatelessWidget {
+class ProjectWidget extends StatefulWidget {
   final ProjectCubit projectCubit;
 
   const ProjectWidget({required this.projectCubit, super.key});
 
   @override
+  State<ProjectWidget> createState() => _ProjectWidgetState();
+}
+
+class _ProjectWidgetState extends State<ProjectWidget> {
+  final Offset anchor = const Offset(40, 40);
+  late ProjectDragCubit projectDragCubit;
+
+  @override
+  void initState() {
+    projectDragCubit = ProjectDragCubit(ProjectDragState(
+      projectCubit: widget.projectCubit,
+      offset: Offset.zero,
+    ));
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: projectCubit,
+      value: widget.projectCubit,
       child: BlocBuilder<ProjectCubit, ProjectState>(
         builder: (context, state) {
           var wvbs = context.watch<WorkspaceViewBloc>().state;
@@ -146,39 +188,78 @@ class ProjectWidget extends StatelessWidget {
           // print(currentX + state.offset.dx * currentTimeScale);
           // print((currentX + state.offset.dx * currentTimeScale) * currentScale);
           // DragTarget
+          final _ProjectWidget projectWidget =
+              _ProjectWidget(projectCubit: widget.projectCubit);
+
           return Positioned(
-            left: currentX + state.offset.dx * currentTimeScale - 40,
-            top: currentY + state.offset.dy - 40,
+            left: currentX + state.offset.dx * currentTimeScale - anchor.dx,
+            top: currentY + state.offset.dy - anchor.dy,
             child: Transform(
-              origin: -Offset(
-                currentX + state.offset.dx * currentTimeScale - 40,
-                currentY + state.offset.dy - 40,
-              ),
+              origin: anchor -
+                  Offset(
+                    currentX + state.offset.dx * currentTimeScale,
+                    currentY + state.offset.dy,
+                  ),
               transform: matrixOnlyScale,
               child: Column(
                 children: [
-                  RawGestureDetector(
-                    gestures: <Type, GestureRecognizerFactory>{
-                      DelayedMultiDragGestureRecognizer:
-                          GestureRecognizerFactoryWithHandlers<
-                              DelayedMultiDragGestureRecognizer>(
-                        () => DelayedMultiDragGestureRecognizer(
-                          delay: Duration(milliseconds: 100),
+                  // RawGestureDetector(
+                  //   gestures: <Type, GestureRecognizerFactory>{
+                  //     DelayedMultiDragGestureRecognizer:
+                  //         GestureRecognizerFactoryWithHandlers<
+                  //             DelayedMultiDragGestureRecognizer>(
+                  //       () => DelayedMultiDragGestureRecognizer(
+                  //         delay: Duration(milliseconds: 100),
+                  //       ),
+                  //       (DelayedMultiDragGestureRecognizer instance) {
+                  //         instance.onStart = (Offset offset) {
+                  //           return MoveDrag(
+                  //             projectCubit: projectCubit,
+                  //             workspaceViewBloc:
+                  //                 context.read<WorkspaceViewBloc>(),
+                  //             mouseGlobalPosition: offset,
+                  //             initialOffset: state.offset,
+                  //           );
+                  //         };
+                  //       },
+                  //     ),
+                  //   },
+                  //   child: _ProjectWidget(projectCubit: projectCubit),
+                  // ),
+                  LongPressDraggable<ProjectDragCubit>(
+                    data: ProjectDragCubit(ProjectDragState(
+                      projectCubit: widget.projectCubit,
+                      offset: state.offset,
+                    )),
+                    feedback: Opacity(
+                      opacity: 1,
+                      child: Transform(
+                        // origin: -Offset(
+                        //   currentX + state.offset.dx * currentTimeScale - 40,
+                        //   currentY + state.offset.dy - 40,
+                        // ),
+                        transform: matrixOnlyScale,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: projectWidget,
                         ),
-                        (DelayedMultiDragGestureRecognizer instance) {
-                          instance.onStart = (Offset offset) {
-                            return MoveDrag(
-                              projectCubit: projectCubit,
-                              workspaceViewBloc:
-                                  context.read<WorkspaceViewBloc>(),
-                              mouseGlobalPosition: offset,
-                              initialOffset: state.offset,
-                            );
-                          };
-                        },
                       ),
+                    ),
+                    dragAnchorStrategy: (draggable, context, position) {
+                      Offset offset =
+                          childDragAnchorStrategy(draggable, context, position);
+                      projectDragCubit.setOffset(offset);
+                      return offset * currentScale;
                     },
-                    child: _ProjectWidget(projectCubit: projectCubit),
+                    delay: const Duration(milliseconds: 200),
+                    childWhenDragging: Opacity(
+                      opacity: 0.2,
+                      child: projectWidget,
+                    ),
+                    onDragUpdate: (details) {
+                      // print(details.globalPosition);
+                    },
+                    child: projectWidget,
                   ),
                   // for (var id in state.timeLine)
                   //   Container(

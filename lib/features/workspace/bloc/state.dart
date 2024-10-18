@@ -39,6 +39,10 @@ class WorkspaceViewState {
 }
 //========== WorkspaceViewState End ==========
 
+//========== WorkspaceManagerState Start ==========
+
+//========== WorkspaceManagerState End ==========
+
 //========== WorkspaceProjectManagerState Start ==========
 @freezed
 class WorkspaceProjectManagerState with _$WorkspaceProjectManagerState {

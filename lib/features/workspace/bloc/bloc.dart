@@ -1,4 +1,6 @@
 // bloc.dart
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -51,6 +53,8 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
     on<ScaleUpdateEvent>(_onScaleUpdate);
     on<ScaleEndEvent>(_onScaleEnd);
     on<ScaleAnimationEvent>(_onScaleAnimation);
+    on<ScaleTickEvent>(_onScaleTick);
+    on<MoveTickEvent>(_onMoveTick);
     on<TimeScaleStartEvent>(_onTimeLengthStart);
     on<TimeScaleUpdateEvent>(_onTimeLengthUpdate);
     on<TimeScaleEndEvent>(_onTimeLengthEnd);
@@ -183,6 +187,18 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
     _previousOffset = _offset;
   }
 
+  void _onScaleTick(ScaleTickEvent event, Emitter<WorkspaceViewState> emit) {
+    _panAndZoomStart(emit, event.focalPoint, _viewScale);
+    _panAndZoomUpdate(emit, event.focalPoint, event.focalPoint,
+        event.focalPoint, event.scale, 1);
+  }
+
+  void _onMoveTick(MoveTickEvent event, Emitter<WorkspaceViewState> emit) {
+    _panAndZoomStart(emit, _lastLocalFocalPoint, _viewScale);
+    _panAndZoomUpdate(emit, _lastLocalFocalPoint, _lastLocalFocalPoint,
+        _lastLocalFocalPoint - event.offset, 1, 1);
+  }
+
   void _onTimeLengthStart(
       TimeScaleStartEvent event, Emitter<WorkspaceViewState> emit) {
     final details = event.details;
@@ -259,6 +275,58 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
   }
 }
 //========== WorkspaceViewBloc End ==========
+
+// //========== WorkspaceManagerCubit Start ==========
+// class WorkspaceManagerCubit extends Cubit<WorkspaceManagerState> {
+//   WorkspaceManagerCubit() : super(WorkspaceManagerState()) {
+//     CallbackManager.registerCallback(
+//       workspaceId: state.workspaceId,
+//       preferredId: PreferredId.create,
+//       funcIdName: 'uniq::workspace::workspace',
+//       callback: (message) {
+//         var data = message.dataPtr.cast<IdLifecycle>().ref;
+//         var id = data.id;
+//         emit(state.copyWith(
+//           workspaces: [
+//             ...state.workspaces,
+//             WorkspaceCubit(WorkspaceState(idInfo: Id(id: id))),
+//           ],
+//         ));
+//       },
+//     );
+//     CallbackManager.registerCallback(
+//       workspaceId: state.workspaceId,
+//       preferredId: PreferredId.destroy,
+//       funcIdName: 'uniq::workspace::workspace',
+//       callback: (message) {
+//         var data = message.dataPtr.cast<IdLifecycle>().ref;
+//         var id = data.id;
+//         final workspaceList = state.workspaces.where((workspace) {
+//           if (workspace.state.idInfo.id == id) {
+//             workspace.close();
+//             return false;
+//           }
+//           return true;
+//         }).toList();
+//         emit(state.copyWith(workspaces: workspaceList));
+//       },
+//     );
+//   }
+//
+//   @override
+//   Future<void> close() {
+//     for (var workspace in state.workspaces) {
+//       workspace.close();
+//     }
+//     state.workspaces.clear();
+//     CallbackManager.unregisterCallbackByWorkspaceIdAll(state.workspaceId);
+//     return super.close();
+//   }
+//
+//   int createWorkspace() => Workspace.workspaceCreate();
+//
+//   bool removeWorkspace({required int id}) => Workspace.workspaceRemove(id);
+// }
 
 //========== WorkspaceProjectManagerCubit Start ==========
 class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {

@@ -44,6 +44,18 @@ class TimelineCubit extends Cubit<TimelineState> {
       funcIdName: 'void uniq::timeline::timeline::group_add(const id_t)',
       callback: (ApiCallbackMessage callback) {
         var groupId = callback.dataPtr.cast<Int32>().value;
+        print('group_add: $groupId');
+        emit(state.copyWith(timeLineGroup: [...state.timeLineGroup, groupId]));
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'bool uniq::project::timeline::group_add(const std::shared_ptr<timeline_group> &)',
+      callback: (ApiCallbackMessage callback) {
+        var groupId = callback.dataPtr.cast<Int32>().value;
+        print('group_add: $groupId');
         emit(state.copyWith(timeLineGroup: [...state.timeLineGroup, groupId]));
       },
     );
@@ -83,12 +95,24 @@ class TimelineWidget extends StatelessWidget {
       create: (context) => cubit,
       child: BlocBuilder<TimelineCubit, TimelineState>(
         builder: (context, state) {
-          return Container(
-            child: Column(
-              children: [
-                Text(state.name),
-                Text(state.timeLineGroup.toString()),
-              ],
+          var wvbs = context.watch<WorkspaceViewBloc>().state;
+          double currentX = wvbs.offset.dx;
+          double currentY = wvbs.offset.dy;
+          double currentScale = wvbs.scale;
+          double currentTimeLength = wvbs.timeLength;
+          double currentTimeScale = defaultTimeLength / currentTimeLength;
+          Matrix4 matrixOnlyScale = Matrix4.identity()..scale(currentScale);
+
+          return Positioned(
+            left: state.offset.dx * currentScale + currentX,
+            top: state.offset.dy * currentScale + currentY,
+            child: Container(
+              child: Column(
+                children: [
+                  Text(state.name),
+                  Text(state.timeLineGroup.toString()),
+                ],
+              ),
             ),
           );
         },

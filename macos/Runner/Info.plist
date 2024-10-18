@@ -21,7 +21,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FLTEnableImpeller</key>
-	<true/>
+	<false/>
 	<key>LSApplicationCategoryType</key>
     <string>public.app-category.music</string>
 	<key>LSMinimumSystemVersion</key>

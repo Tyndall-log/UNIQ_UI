@@ -1,73 +1,145 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: DragDetectionWidget(),
-  ));
-}
+void main() => runApp(MyApp());
 
-class DragDetectionWidget extends StatefulWidget {
+class MoveDrag extends Drag {
+  Offset mouseGlobalPosition;
+  Offset initialOffset;
+
+  MoveDrag({required this.mouseGlobalPosition, required this.initialOffset});
+
   @override
-  _DragDetectionWidgetState createState() => _DragDetectionWidgetState();
+  void cancel() {
+    // print('cancel');
+  }
+
+  @override
+  void end(DragEndDetails details) {
+    // print('end');
+  }
+
+  @override
+  void update(DragUpdateDetails details) {
+    print('update');
+  }
 }
 
-class _DragDetectionWidgetState extends State<DragDetectionWidget> {
-  bool isDragging = false;
-  bool isPointerInRegion = false;
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('Drag & Listener Example')),
+        body: DragListenerExample(),
+      ),
+    );
+  }
+}
+
+class DragListenerExample extends StatefulWidget {
+  @override
+  _DragListenerExampleState createState() => _DragListenerExampleState();
+}
+
+class _DragListenerExampleState extends State<DragListenerExample> {
+  Offset _dragPosition = Offset(100, 100);
+  bool _isInsideTarget = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Listener(
-          onPointerDown: (event) {
-            print('onPointerDown');
-            setState(() {
-              isDragging = true;
-            });
-          },
-          onPointerUp: (event) {
-            print('onPointerUp');
-            setState(() {
-              isDragging = false;
-              isPointerInRegion = false;
-            });
-          },
+    return Stack(
+      children: [
+        // Target area to detect if draggable enters
+        Listener(
           onPointerMove: (event) {
-            print('onPointerMove');
-            if (isDragging) {
-              setState(() {
-                // 포인터가 드래그 중일 때
-              });
-            }
+            setState(() {
+              _isInsideTarget = _checkIfInsideTarget(event.position);
+            });
           },
-          child: MouseRegion(
-            onEnter: (event) {
-              if (isDragging) {
-                setState(() {
-                  isPointerInRegion = true;
-                });
-              }
-            },
-            onExit: (event) {
-              setState(() {
-                isPointerInRegion = false;
-              });
-            },
-            child: Container(
-              width: 200,
-              height: 200,
-              color: isPointerInRegion ? Colors.green : Colors.red,
-              child: Center(
-                child: Text(
-                  isPointerInRegion ? '포인터가 영역 안에 있어요' : '포인터가 영역 밖에 있어요',
-                  style: TextStyle(color: Colors.white),
-                ),
+          onPointerHover: (event) {
+            // setState(() {
+            //   _isInsideTarget = _checkIfInsideTarget(event.position);
+            // });
+            print('onPointerHover');
+          },
+          onPointerSignal: (event) {
+            print('onPointerSignal');
+          },
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: Container(
+                key: _targetKey,
+                width: 150,
+                height: 150,
+                color: _isInsideTarget ? Colors.green : Colors.red,
+                child: Center(child: Text('Target Area')),
               ),
             ),
           ),
         ),
-      ),
+        Positioned(
+          left: 200,
+          top: 200,
+          child: RawGestureDetector(
+            gestures: <Type, GestureRecognizerFactory>{
+              DelayedMultiDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                      DelayedMultiDragGestureRecognizer>(
+                () => DelayedMultiDragGestureRecognizer(
+                  delay: Duration(milliseconds: 100),
+                ),
+                (DelayedMultiDragGestureRecognizer instance) {
+                  instance.onStart = (Offset offset) {
+                    return MoveDrag(
+                      mouseGlobalPosition: offset,
+                      initialOffset: offset,
+                    );
+                  };
+                },
+              ),
+            },
+            child: Container(
+              width: 100,
+              height: 100,
+              color: Colors.blue,
+            ),
+          ),
+        ),
+
+        // Draggable widget
+        Positioned(
+          left: _dragPosition.dx,
+          top: _dragPosition.dy,
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              setState(() {
+                _dragPosition += details.delta;
+              });
+            },
+            child: Container(
+              width: 100,
+              height: 100,
+              color: Colors.blue,
+              child: Center(child: Text('Drag me')),
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  final GlobalKey _targetKey = GlobalKey();
+
+  bool _checkIfInsideTarget(Offset position) {
+    final RenderBox targetRenderBox =
+        _targetKey.currentContext!.findRenderObject() as RenderBox;
+    final targetPosition = targetRenderBox.localToGlobal(Offset.zero);
+    final targetSize = targetRenderBox.size;
+    final targetRect = targetPosition & targetSize;
+
+    return targetRect.contains(position);
   }
 }

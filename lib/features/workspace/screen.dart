@@ -84,104 +84,137 @@ class Bb2 extends StatelessWidget {
 
         final wpms = context.watch<WorkspaceProjectManagerCubit>().state;
 
-        return Stack(
-          // clipBehavior: Clip.none,
-          clipBehavior: Clip.hardEdge,
-          children: [
-            const SizedBox(
-              width: double.maxFinite,
-              height: double.maxFinite,
-            ),
-            Positioned(
-              left: currentX,
-              top: currentY,
-              child: Transform(
-                origin: Offset(-currentX, -currentY),
-                transform: matrixOnlyScale,
-                child: RepaintBoundary(
-                  child: Container(
-                    width: 30000 * currentTimeScale, //(300s = 5m)
-                    height: 1000,
-                    color: Colors.orange[50],
-                    child: CustomPaint(
-                      painter: GridPainter(currentTimeLength),
+        return DragTarget<ProjectCubit>(
+          builder: (context, candidateData, rejectedData) {
+            print(candidateData);
+            print(rejectedData);
+            return Stack(
+              // clipBehavior: Clip.none,
+              clipBehavior: Clip.hardEdge,
+              children: [
+                const SizedBox(
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                ),
+                Positioned(
+                  left: currentX,
+                  top: currentY,
+                  child: Transform(
+                    origin: Offset(-currentX, -currentY),
+                    transform: matrixOnlyScale,
+                    child: RepaintBoundary(
+                      child: Container(
+                        width: 30000 * currentTimeScale, //(300s = 5m)
+                        height: 1000,
+                        color: Colors.orange[50],
+                        child: CustomPaint(
+                          painter: GridPainter(currentTimeLength),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            for (var i = 0; i < wpms.projects.length; i++)
-              ProjectWidget(projectCubit: wpms.projects[i]),
-            // BlocProvider.value(
-            //   value: wpms.projects[i],
-            //   child: BlocBuilder<ProjectCubit, ProjectState>(
-            //     builder: (context, state) {
-            //       return Positioned(
-            //         left: (currentX) * currentScale,
-            //         top: (currentY + 25 * i) * currentScale,
-            //         child: Text('Project $i'),
-            //       );
-            //     },
-            //   ),
-            // ),
-            Positioned(
-              left: currentX,
-              top: currentY,
-              child: Transform(
-                origin: Offset(-currentX, -currentY),
-                transform: matrixOnlyScale,
-                child: const SelectableText(
-                  '좌표: 0, 0',
+                for (var i = 0; i < wpms.projects.length; i++)
+                  ProjectWidget(projectCubit: wpms.projects[i]),
+                // for (var i = 0; i < wpms.timeline.length; i++)
+                //   TimelineWidget(cubit: wpms.timeline[i]),
+                // BlocProvider.value(
+                //   value: wpms.projects[i],
+                //   child: BlocBuilder<ProjectCubit, ProjectState>(
+                //     builder: (context, state) {
+                //       return Positioned(
+                //         left: (currentX) * currentScale,
+                //         top: (currentY + 25 * i) * currentScale,
+                //         child: Text('Project $i'),
+                //       );
+                //     },
+                //   ),
+                // ),
+                Positioned(
+                  left: currentX,
+                  top: currentY,
+                  child: Transform(
+                    origin: Offset(-currentX, -currentY),
+                    transform: matrixOnlyScale,
+                    child: const SelectableText(
+                      '좌표: 0, 0',
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Positioned(
-              left: currentX * currentScale,
-              top: (currentY + 100) * currentScale,
-              child: SelectableText(
-                '좌표: 0, 100',
-                style: TextStyle(fontSize: 14 * currentScale),
-              ),
-            ),
-            Positioned(
-              left: currentX + 100 * currentTimeScale,
-              top: currentY,
-              child: Transform(
-                origin: -Offset(currentX + 100 * currentTimeScale, currentY),
-                transform: matrixOnlyScale,
-                child: const Text('좌표: 100, 0'),
-              ),
-            ),
-            Positioned(
-              left: (currentX + 100 * currentTimeScale) * currentScale,
-              top: (currentY + 100) * currentScale,
-              child: SelectableText(
-                '좌표: 100, 100',
-                style: TextStyle(fontSize: 14 * currentScale),
-              ),
-            ),
-            Positioned(
-              left: currentX + 200 * currentTimeScale,
-              top: currentY + 200,
-              child: Transform(
-                origin:
-                    -Offset(currentX + 200 * currentTimeScale, currentY + 200),
-                transform: matrixOnlyScale,
-                child: const Text('좌표: 200, 200'),
-              ),
-            ),
-            Positioned(
-              left: currentX - 10,
-              top: currentY + 990,
-              child: Transform(
-                origin: Offset(-currentX + 10, -currentY - 990),
-                transform: matrixOnlyScale,
-                child: const SelectableText(
-                  '좌표: -10, 990',
+                Positioned(
+                  left: currentX * currentScale,
+                  top: (currentY + 100) * currentScale,
+                  child: SelectableText(
+                    '좌표: 0, 100',
+                    style: TextStyle(fontSize: 14 * currentScale),
+                  ),
                 ),
-              ),
-            ),
-          ],
+                Positioned(
+                  left: currentX + 100 * currentTimeScale,
+                  top: currentY,
+                  child: Transform(
+                    origin:
+                        -Offset(currentX + 100 * currentTimeScale, currentY),
+                    transform: matrixOnlyScale,
+                    child: const Text('좌표: 100, 0'),
+                  ),
+                ),
+                Positioned(
+                  left: (currentX + 100 * currentTimeScale) * currentScale,
+                  top: (currentY + 100) * currentScale,
+                  child: SelectableText(
+                    '좌표: 100, 100',
+                    style: TextStyle(fontSize: 14 * currentScale),
+                  ),
+                ),
+                Positioned(
+                  left: currentX + 200 * currentTimeScale,
+                  top: currentY + 200,
+                  child: Transform(
+                    origin: -Offset(
+                        currentX + 200 * currentTimeScale, currentY + 200),
+                    transform: matrixOnlyScale,
+                    child: const Text('좌표: 200, 200'),
+                  ),
+                ),
+                Positioned(
+                  left: currentX - 10,
+                  top: currentY + 990,
+                  child: Transform(
+                    origin: Offset(-currentX + 10, -currentY - 990),
+                    transform: matrixOnlyScale,
+                    child: const SelectableText(
+                      '좌표: -10, 990',
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+          onWillAcceptWithDetails: (data) {
+            return true;
+          },
+          onAcceptWithDetails: (data) {
+            var projectCubit = data.data;
+            print(data.offset);
+            print(
+              "? ${Offset(
+                data.offset.dx / currentScale / currentTimeScale,
+                data.offset.dy / currentScale,
+              )}",
+            );
+            // projectCubit.setOffset(
+            //   projectCubit.state.offset +
+            //       Offset(
+            //         data.offset.dx / currentScale / currentTimeScale,
+            //         data.offset.dy / currentScale,
+            //       ),
+            // );
+            print('onAcceptWithDetails');
+          },
+          onLeave: (data) {
+            print('onLeave');
+          },
         );
       },
     );

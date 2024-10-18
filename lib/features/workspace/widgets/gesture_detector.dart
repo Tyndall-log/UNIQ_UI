@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:uniq_ui/common/platform.dart';
@@ -22,78 +24,100 @@ class WorkspaceGestureDetector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Listener(
       behavior: HitTestBehavior.translucent,
-      onScaleStart: (details) {
-        if (_tapDragFlag && details.pointerCount == 1) {
-          details = ScaleStartDetails(
-            focalPoint: _tapDownLocalPosition,
-            localFocalPoint: _tapDownLocalPosition,
-            pointerCount: details.pointerCount,
-            sourceTimeStamp: details.sourceTimeStamp,
-          );
-          context.read<WorkspaceViewBloc>().add(TimeScaleStartEvent(details));
-        } else {
-          _tapDragFlag = false;
-          context.read<WorkspaceViewBloc>().add(ScaleStartEvent(details));
+      onPointerSignal: (event) {
+        if (event is PointerScrollEvent) {
+          bool isCtrlPressed = HardwareKeyboard.instance.isControlPressed;
+          if (isCtrlPressed) {
+            context.read<WorkspaceViewBloc>().add(ScaleTickEvent(
+                1.0 - event.scrollDelta.dy / 500, event.position));
+          } else {
+            bool isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+            if (isShiftPressed) {
+              context.read<WorkspaceViewBloc>().add(MoveTickEvent(
+                  Offset(event.scrollDelta.dy, event.scrollDelta.dx)));
+            } else {
+              context
+                  .read<WorkspaceViewBloc>()
+                  .add(MoveTickEvent(event.scrollDelta));
+            }
+          }
         }
       },
-      onScaleUpdate: (details) {
-        if (_tapDragFlag) {
-          if (details.pointerCount == 1) {
-            context
-                .read<WorkspaceViewBloc>()
-                .add(TimeScaleUpdateEvent(details));
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onScaleStart: (details) {
+          if (_tapDragFlag && details.pointerCount == 1) {
+            details = ScaleStartDetails(
+              focalPoint: _tapDownLocalPosition,
+              localFocalPoint: _tapDownLocalPosition,
+              pointerCount: details.pointerCount,
+              sourceTimeStamp: details.sourceTimeStamp,
+            );
+            context.read<WorkspaceViewBloc>().add(TimeScaleStartEvent(details));
           } else {
             _tapDragFlag = false;
-            context.read<WorkspaceViewBloc>().add(TimeScaleEndEvent(
-                  ScaleEndDetails(),
-                ));
+            context.read<WorkspaceViewBloc>().add(ScaleStartEvent(details));
           }
-        } else {
-          context.read<WorkspaceViewBloc>().add(ScaleUpdateEvent(details));
-        }
-      },
-      onScaleEnd: (details) {
-        if (_tapDragFlag) {
+        },
+        onScaleUpdate: (details) {
+          if (_tapDragFlag) {
+            if (details.pointerCount == 1) {
+              context
+                  .read<WorkspaceViewBloc>()
+                  .add(TimeScaleUpdateEvent(details));
+            } else {
+              _tapDragFlag = false;
+              context.read<WorkspaceViewBloc>().add(TimeScaleEndEvent(
+                    ScaleEndDetails(),
+                  ));
+            }
+          } else {
+            context.read<WorkspaceViewBloc>().add(ScaleUpdateEvent(details));
+          }
+        },
+        onScaleEnd: (details) {
+          if (_tapDragFlag) {
+            _tapDragFlag = false;
+            context.read<WorkspaceViewBloc>().add(TimeScaleEndEvent(details));
+          } else {
+            context.read<WorkspaceViewBloc>().add(ScaleEndEvent(details));
+          }
+        },
+        onTap: () => print('Tapped'),
+        // onTapCancel: () {
+        //   print('Tap Cancel');
+        // },
+        onDoubleTap: () {
           _tapDragFlag = false;
-          context.read<WorkspaceViewBloc>().add(TimeScaleEndEvent(details));
-        } else {
-          context.read<WorkspaceViewBloc>().add(ScaleEndEvent(details));
-        }
-      },
-      onTap: () => print('Tapped'),
-      // onTapCancel: () {
-      //   print('Tap Cancel');
-      // },
-      onDoubleTap: () {
-        _tapDragFlag = false;
-        print('Double Tapped');
-      },
-      onLongPress: () => _showContextMenu(context),
-      // onHorizontalDragStart: (_) => print('Horizontal Drag Start'),
-      onLongPressStart: (details) {
-        _tapDragFlag = false;
-      },
-      onLongPressDown: (details) {
-        var now = DateTime.now().millisecondsSinceEpoch;
-        var limit = desktopPlatform ? 10 : 50;
-        if (now - _tapDownTime < _tapDragTimeDeadline &&
-            (_tapDownPosition - details.globalPosition).distance < limit) {
-          _tapDragFlag = true;
-          return;
-        }
-        _tapDownTime = now;
-        _tapDownPosition = details.globalPosition;
-        _tapDownLocalPosition = details.localPosition;
-      },
-      onSecondaryTapDown: (details) {
-        _tapDragFlag = false;
-        _tapDownPosition = details.globalPosition;
-        _tapDownLocalPosition = details.localPosition;
-        _showContextMenu(context);
-      },
-      child: child,
+          print('Double Tapped');
+        },
+        onLongPress: () => _showContextMenu(context),
+        // onHorizontalDragStart: (_) => print('Horizontal Drag Start'),
+        onLongPressStart: (details) {
+          _tapDragFlag = false;
+        },
+        onLongPressDown: (details) {
+          var now = DateTime.now().millisecondsSinceEpoch;
+          var limit = desktopPlatform ? 10 : 50;
+          if (now - _tapDownTime < _tapDragTimeDeadline &&
+              (_tapDownPosition - details.globalPosition).distance < limit) {
+            _tapDragFlag = true;
+            return;
+          }
+          _tapDownTime = now;
+          _tapDownPosition = details.globalPosition;
+          _tapDownLocalPosition = details.localPosition;
+        },
+        onSecondaryTapDown: (details) {
+          _tapDragFlag = false;
+          _tapDownPosition = details.globalPosition;
+          _tapDownLocalPosition = details.localPosition;
+          _showContextMenu(context);
+        },
+        child: child,
+      ),
     );
   }
 
