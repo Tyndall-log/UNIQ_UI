@@ -8,6 +8,8 @@ import 'package:uniq_ui/common/test/children_controlled_layout.dart';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
+import 'package:uniq_ui/features/workspace/widgets/cue.dart';
+import 'package:uniq_ui/features/workspace/widgets/event_block.dart';
 
 import '../bloc/state.dart';
 import '../default_value.dart';
@@ -21,7 +23,7 @@ class TimelineGroupState with _$TimelineGroupState {
   factory TimelineGroupState({
     required Id idInfo,
     required Offset offset,
-    // @Default([]) List<int> timeLineGroup,
+    @Default([]) List<EventBlockCubit> eventList,
   }) = _TimelineGroupState;
 }
 
@@ -29,16 +31,17 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
   TimelineGroupCubit(super.initialState) {
     var id = state.idInfo.id;
     var workspaceId = state.idInfo.workspaceId;
-    // CallbackManager.registerCallback(
-    //   workspaceId: workspaceId,
-    //   objId: id,
-    //   funcIdName: 'void uniq::project::timeline::name_set(const string &)',
-    //   callback: (ApiCallbackMessage callback) {
-    //     var name =
-    //         callback.dataPtr.cast<ffi.Pointer<ffi.Utf8>>().value.toDartString();
-    //     emit(state.copyWith(name: name));
-    //   },
-    // );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::project::timeline_group::start_cue_set(const std::shared_ptr<timeline_cue> &)',
+      callback: (ApiCallbackMessage callback) {
+        var timelineCueId = callback.dataPtr.cast<ffi.Int32>().value;
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.resetParentId(parentId: id, id: timelineCueId);
+      },
+    );
     // CallbackManager.registerCallback(
     //   workspaceId: workspaceId,
     //   objId: id,
@@ -96,10 +99,13 @@ class TimelineGroupWidget extends StatelessWidget {
 
           // left: state.offset.dx * currentScale + currentX,
           // top: state.offset.dy * currentScale + currentY,
-          return Container(
-            width: 100,
-            height: 100,
-            color: Colors.red,
+          return Transform(
+            transform: matrixOnlyScale,
+            child: Container(
+              width: 100,
+              height: 100,
+              color: Colors.red,
+            ),
           );
         },
       ),

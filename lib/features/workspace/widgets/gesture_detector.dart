@@ -162,10 +162,12 @@ class WorkspaceGestureDetector extends StatelessWidget {
     switch (value) {
       case 1:
         var workspaceId = context.read<WorkspaceViewBloc>().workspaceId;
-        var wpmc = context.read<WorkspaceProjectManagerCubit>();
+        var wwmc = context.read<WorkspaceWidgetManagerCubit>();
         var wvb = context.read<WorkspaceViewBloc>();
-        wpmc.projectPosition.add(wvb.mouseToOffset(_tapDownPosition));
-        var projectId = wpmc.createProject();
+        wwmc.projectPosition.add(wvb.mouseToOffset(_tapDownPosition));
+
+        // var projectId = wpmc.createProject();
+        var projectId = Workspace.projectCreate(workspaceId);
         if (projectId == 0) {
           SampleToast.show(
             context: context,
@@ -207,9 +209,9 @@ class WorkspaceGestureDetector extends StatelessWidget {
           );
         } else {
           var workspaceId = context.read<WorkspaceViewBloc>().workspaceId;
-          var wpmc = context.read<WorkspaceProjectManagerCubit>();
+          var wwmc = context.read<WorkspaceWidgetManagerCubit>();
           var wvb = context.read<WorkspaceViewBloc>();
-          wpmc.projectPosition.add(wvb.mouseToOffset(_tapDownPosition));
+          wwmc.projectPosition.add(wvb.mouseToOffset(_tapDownPosition));
           var projectId = Unipack.load(workspaceId, fpr.files.first.path!);
           if (projectId == 0) {
             SampleToast.show(

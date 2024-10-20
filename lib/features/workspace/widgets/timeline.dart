@@ -8,6 +8,7 @@ import 'package:uniq_ui/common/test/children_controlled_layout.dart';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
+import 'package:uniq_ui/features/workspace/widgets/cue.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline_group.dart';
 
 import '../bloc/state.dart';
@@ -48,12 +49,8 @@ class TimelineCubit extends Cubit<TimelineState> {
           'bool uniq::project::timeline::group_add(const std::shared_ptr<timeline_group> &)',
       callback: (ApiCallbackMessage callback) {
         var groupId = callback.dataPtr.cast<ffi.Int32>().value;
-        emit(state.copyWith(timelineGroupList: [
-          ...state.timelineGroupList,
-          TimelineGroupCubit(
-            TimelineGroupState(idInfo: Id(id: groupId), offset: Offset.zero),
-          )
-        ]));
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.resetParentId(parentId: id, id: groupId);
       },
     );
     CallbackManager.registerCallback(
@@ -102,13 +99,22 @@ class TimelineWidget extends StatelessWidget {
           double currentTimeScale = defaultTimeLength / currentTimeLength;
           Matrix4 matrixOnlyScale = Matrix4.identity()..scale(currentScale);
 
+          var timelineGroupList =
+              context.select((WorkspaceWidgetManagerCubit w) {
+            return (w.state.objects[TimelineGroupCubit] ?? [])
+                .where((pair) => pair.parentId == state.idInfo.id)
+                .toList();
+          });
+
           // left: state.offset.dx * currentScale + currentX,
           // top: state.offset.dy * currentScale + currentY,
           return ChildrenControlledLayout(
             delegate: TimelineLayoutDelegate(
               workspaceViewBloc: wvb,
               timelineCubit: cubit,
-              timelineGroupList: state.timelineGroupList,
+              timelineGroupList: timelineGroupList
+                  .map((e) => e.cubit as TimelineGroupCubit)
+                  .toList(),
             ),
             children: [
               LayoutId(
@@ -151,10 +157,10 @@ class TimelineWidget extends StatelessWidget {
               //     ),
               //   ),
               // ),
-              for (var timelineGroup in state.timelineGroupList)
+              for (var pair in timelineGroupList)
                 LayoutId(
-                  id: timelineGroup,
-                  child: TimelineGroupWidget(cubit: timelineGroup),
+                  id: pair.cubit,
+                  child: pair.widget!,
                 ),
               // Text(state.timeLineGroup.toString()),
             ],
@@ -189,6 +195,8 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
     double currentTimeScale = defaultTimeLength / currentTimeLength;
     lastScale = currentScale;
     lastTimeLength = currentTimeLength;
+    var wwmc = WorkspaceWidgetManagerCubit.getInstance(
+        timelineCubit.state.idInfo.workspaceId);
 
     Size layoutSize = layoutChild(0, BoxConstraints.tightFor());
     positionChild(0, offset);
@@ -198,9 +206,17 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
     // positionChild(1, offset);
     // offset += Offset(0, layoutSize.height);
     for (var timelineGroup in timelineGroupList) {
+      var point = ((wwmc!.state.objects[TimelineCueCubit] ?? [])
+              .where((pair) => pair.parentId == timelineGroup.state.idInfo.id)
+              .toList()[0]
+              .cubit
+              .state as TimelineCueState)
+          .point
+          .toDouble();
       layoutSize = layoutChild(timelineGroup,
           BoxConstraints.loose(Size(double.maxFinite, timelineAllHeight)));
-      positionChild(timelineGroup, Offset(00, offset.dy));
+      point *= currentScale / currentTimeLength;
+      positionChild(timelineGroup, Offset(point, offset.dy));
     }
     offset += Offset(0, timelineAllHeight);
     return Size(size.width == double.infinity ? layoutSize.width : size.width,

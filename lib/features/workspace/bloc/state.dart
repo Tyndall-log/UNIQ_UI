@@ -65,13 +65,26 @@ class WorkspaceProjectManagerState with _$WorkspaceProjectManagerState {
 //========== WorkspaceProjectManagerState End ==========
 
 //========== WorkspaceCubitManagerState Start ==========
+class WorkspaceWidgetManagerPair {
+  final Widget? widget;
+  final Cubit cubit;
+  int parentId;
+
+  WorkspaceWidgetManagerPair({
+    required this.widget,
+    required this.cubit,
+    this.parentId = 0,
+  });
+}
+
 @freezed
 class WorkspaceWidgetManagerState with _$WorkspaceWidgetManagerState {
   const WorkspaceWidgetManagerState._();
 
   factory WorkspaceWidgetManagerState({
     required int workspaceId,
-    @Default({}) Map<int, Widget> widgets,
+    @Default({}) Map<int, WorkspaceWidgetManagerPair> widgets,
+    @Default({}) Map<Type, List<WorkspaceWidgetManagerPair>> objects,
   }) = _WorkspaceWidgetManagerState;
 }
 //========== WorkspaceCubitManagerState End ==========

@@ -85,17 +85,8 @@ class ProjectCubit extends Cubit<ProjectState> {
           'std::shared_ptr<timeline> uniq::project::project::timeline_create(const std::string &)',
       callback: (ApiCallbackMessage callback) {
         var timelineId = callback.dataPtr.cast<ffi.Int32>().value;
-        // emit(state.copyWith(timeLine: [...state.timeLine, timelineId]));
-        emit(state.copyWith(timeLineList: [
-          ...state.timeLineList,
-          TimelineCubit(
-            TimelineState(
-              idInfo: Id(id: timelineId),
-              name: '타임라인',
-              offset: Offset.zero,
-            ),
-          ),
-        ]));
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.resetParentId(parentId: id, id: timelineId);
       },
     );
   }
@@ -195,6 +186,12 @@ class _ProjectWidgetState extends State<ProjectWidget> {
           double currentTimeScale = defaultTimeLength / currentTimeLength;
           Matrix4 matrixOnlyScale = Matrix4.identity()..scale(currentScale);
 
+          var timeLineList = context.select((WorkspaceWidgetManagerCubit w) {
+            return (w.state.objects[TimelineCubit] ?? [])
+                .where((pair) => pair.parentId == state.idInfo.id)
+                .toList();
+          });
+
           // print(currentX + state.offset.dx * currentTimeScale);
           // print((currentX + state.offset.dx * currentTimeScale) * currentScale);
           // DragTarget
@@ -207,7 +204,9 @@ class _ProjectWidgetState extends State<ProjectWidget> {
                 delegate: ProjectLayoutDelegate(
                   workspaceViewBloc: wvb,
                   state: state,
-                  timelineList: state.timeLineList,
+                  timelineList: timeLineList
+                      .map((e) => e.cubit as TimelineCubit)
+                      .toList(),
                 ),
                 children: [
                   LayoutId(
@@ -228,12 +227,10 @@ class _ProjectWidgetState extends State<ProjectWidget> {
                       ),
                     ),
                   ),
-                  for (var cubit in state.timeLineList)
+                  for (var pair in timeLineList)
                     LayoutId(
-                      id: cubit,
-                      child: TimelineWidget(
-                        cubit: cubit,
-                      ),
+                      id: pair.cubit,
+                      child: pair.widget!,
                     ),
                   LayoutId(
                     id: _ProjectLayout.timelinePreview,
@@ -430,9 +427,11 @@ class _ProjectWidget extends StatelessWidget {
                         constraints: BoxConstraints(),
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          final bool r = context
-                              .read<WorkspaceProjectManagerCubit>()
-                              .removeProject(id: state.idInfo.id);
+                          // final bool r = context
+                          //     .read<WorkspaceProjectManagerCubit>()
+                          //     .removeProject(id: state.idInfo.id);
+                          final bool r = Workspace.projectRemove(
+                              state.idInfo.workspaceId, state.idInfo.id);
                           if (r) {
                             SampleToast.show(
                               context: context,

@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$TimelineGroupState {
   Id get idInfo => throw _privateConstructorUsedError;
   Offset get offset => throw _privateConstructorUsedError;
+  List<EventBlockCubit> get eventList => throw _privateConstructorUsedError;
 
   /// Create a copy of TimelineGroupState
   /// with the given fields replaced by the non-null parameter values.
@@ -32,7 +33,7 @@ abstract class $TimelineGroupStateCopyWith<$Res> {
           TimelineGroupState value, $Res Function(TimelineGroupState) then) =
       _$TimelineGroupStateCopyWithImpl<$Res, TimelineGroupState>;
   @useResult
-  $Res call({Id idInfo, Offset offset});
+  $Res call({Id idInfo, Offset offset, List<EventBlockCubit> eventList});
 }
 
 /// @nodoc
@@ -52,6 +53,7 @@ class _$TimelineGroupStateCopyWithImpl<$Res, $Val extends TimelineGroupState>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? eventList = null,
   }) {
     return _then(_value.copyWith(
       idInfo: null == idInfo
@@ -62,6 +64,10 @@ class _$TimelineGroupStateCopyWithImpl<$Res, $Val extends TimelineGroupState>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      eventList: null == eventList
+          ? _value.eventList
+          : eventList // ignore: cast_nullable_to_non_nullable
+              as List<EventBlockCubit>,
     ) as $Val);
   }
 }
@@ -74,7 +80,7 @@ abstract class _$$TimelineGroupStateImplCopyWith<$Res>
       __$$TimelineGroupStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Id idInfo, Offset offset});
+  $Res call({Id idInfo, Offset offset, List<EventBlockCubit> eventList});
 }
 
 /// @nodoc
@@ -92,6 +98,7 @@ class __$$TimelineGroupStateImplCopyWithImpl<$Res>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? eventList = null,
   }) {
     return _then(_$TimelineGroupStateImpl(
       idInfo: null == idInfo
@@ -102,6 +109,10 @@ class __$$TimelineGroupStateImplCopyWithImpl<$Res>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      eventList: null == eventList
+          ? _value._eventList
+          : eventList // ignore: cast_nullable_to_non_nullable
+              as List<EventBlockCubit>,
     ));
   }
 }
@@ -109,17 +120,29 @@ class __$$TimelineGroupStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$TimelineGroupStateImpl extends _TimelineGroupState {
-  _$TimelineGroupStateImpl({required this.idInfo, required this.offset})
-      : super._();
+  _$TimelineGroupStateImpl(
+      {required this.idInfo,
+      required this.offset,
+      final List<EventBlockCubit> eventList = const []})
+      : _eventList = eventList,
+        super._();
 
   @override
   final Id idInfo;
   @override
   final Offset offset;
+  final List<EventBlockCubit> _eventList;
+  @override
+  @JsonKey()
+  List<EventBlockCubit> get eventList {
+    if (_eventList is EqualUnmodifiableListView) return _eventList;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_eventList);
+  }
 
   @override
   String toString() {
-    return 'TimelineGroupState(idInfo: $idInfo, offset: $offset)';
+    return 'TimelineGroupState(idInfo: $idInfo, offset: $offset, eventList: $eventList)';
   }
 
   @override
@@ -128,11 +151,14 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
         (other.runtimeType == runtimeType &&
             other is _$TimelineGroupStateImpl &&
             (identical(other.idInfo, idInfo) || other.idInfo == idInfo) &&
-            (identical(other.offset, offset) || other.offset == offset));
+            (identical(other.offset, offset) || other.offset == offset) &&
+            const DeepCollectionEquality()
+                .equals(other._eventList, _eventList));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, idInfo, offset);
+  int get hashCode => Object.hash(runtimeType, idInfo, offset,
+      const DeepCollectionEquality().hash(_eventList));
 
   /// Create a copy of TimelineGroupState
   /// with the given fields replaced by the non-null parameter values.
@@ -147,13 +173,16 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
 abstract class _TimelineGroupState extends TimelineGroupState {
   factory _TimelineGroupState(
       {required final Id idInfo,
-      required final Offset offset}) = _$TimelineGroupStateImpl;
+      required final Offset offset,
+      final List<EventBlockCubit> eventList}) = _$TimelineGroupStateImpl;
   _TimelineGroupState._() : super._();
 
   @override
   Id get idInfo;
   @override
   Offset get offset;
+  @override
+  List<EventBlockCubit> get eventList;
 
   /// Create a copy of TimelineGroupState
   /// with the given fields replaced by the non-null parameter values.

@@ -34,4 +34,11 @@ class TimelineCueCubit extends Cubit<TimelineCueState> {
   }
 
   void setPoint(int point) => TimelineCue.cuePointSet(state.idInfo.id, point);
+
+  @override
+  @override
+  Future<void> close() {
+    CallbackManager.unregisterCallbackByObjIdAll(state.idInfo.id);
+    return super.close();
+  }
 }

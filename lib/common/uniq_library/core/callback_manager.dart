@@ -73,6 +73,11 @@ class CallbackKey {
 
   @override
   int get hashCode => workspaceId ^ (objId << 32 | objId >> 32) ^ funcId;
+
+  @override
+  String toString() {
+    return 'CallbackKey{workspaceId: $workspaceId, objId: $objId, funcId: $funcId}';
+  }
 }
 
 typedef ApiCallback = void Function(ApiCallbackMessage);

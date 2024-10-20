@@ -8,6 +8,9 @@ import 'dart:math' as math;
 import 'dart:ffi';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
+import 'package:uniq_ui/features/workspace/widgets/cue.dart';
+import 'package:uniq_ui/features/workspace/widgets/timeline.dart';
+import 'package:uniq_ui/features/workspace/widgets/timeline_group.dart';
 import '../default_value.dart';
 import '../widgets/project.dart';
 
@@ -335,141 +338,229 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
 // }
 
 //========== WorkspaceProjectManagerCubit Start ==========
-class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
-  List<Offset> projectPosition = [];
-  WorkspaceProjectManagerCubit({required int workspaceId})
-      : super(WorkspaceProjectManagerState(workspaceId: workspaceId)) {
-    // CallbackManager.registerCallback(
-    //   workspaceId: state.workspaceId,
-    //   preferredId: PreferredId.create,
-    //   funcIdName: 'uniq::project::project',
-    //   callback: (message) {
-    //     var data = message.dataPtr.cast<IdLifecycle>().ref;
-    //     var id = data.id;
-    //     Offset offset = projectPosition.isEmpty
-    //         ? const Offset(0, 0)
-    //         : projectPosition.removeAt(0);
-    //     emit(state.copyWith(
-    //       projects: [
-    //         ...state.projects,
-    //         ProjectCubit(ProjectState(idInfo: Id(id: id), offset: offset)),
-    //       ],
-    //     ));
-    //     Project.launchpadAutoConnect(data.id); //임시
-    //   },
-    // );
-    // CallbackManager.registerCallback(
-    //   workspaceId: state.workspaceId,
-    //   preferredId: PreferredId.destroy,
-    //   funcIdName: 'uniq::project::project',
-    //   callback: (message) {
-    //     var data = message.dataPtr.cast<IdLifecycle>().ref;
-    //     var id = data.id;
-    //     final projectList = state.projects.where((project) {
-    //       if (project.state.idInfo.id == id) {
-    //         project.close();
-    //         return false;
-    //       }
-    //       return true;
-    //     }).toList();
-    //     emit(state.copyWith(projects: projectList));
-    //   },
-    // );
-  }
-
-  @override
-  Future<void> close() {
-    // print('WorkspaceProjectManagerCubit close() called');
-    for (var project in state.projects) {
-      project.close();
-    }
-    // state.projects.clear();
-    emit(state.copyWith(projects: []));
-    CallbackManager.unregisterCallbackByWorkspaceIdAll(state.workspaceId);
-    return super.close();
-  }
-
-  int createProject() => Workspace.projectCreate(state.workspaceId);
-
-  bool removeProject({required int id}) =>
-      Workspace.projectRemove(state.workspaceId, id);
-}
+// class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
+//   List<Offset> projectPosition = [];
+//   WorkspaceProjectManagerCubit({required int workspaceId})
+//       : super(WorkspaceProjectManagerState(workspaceId: workspaceId)) {
+//     CallbackManager.registerCallback(
+//       workspaceId: state.workspaceId,
+//       preferredId: PreferredId.create,
+//       funcIdName: 'uniq::project::project',
+//       callback: (message) {
+//         var data = message.dataPtr.cast<IdLifecycle>().ref;
+//         var id = data.id;
+//         Offset offset = projectPosition.isEmpty
+//             ? const Offset(0, 0)
+//             : projectPosition.removeAt(0);
+//         emit(state.copyWith(
+//           projects: [
+//             ...state.projects,
+//             ProjectCubit(ProjectState(idInfo: Id(id: id), offset: offset)),
+//           ],
+//         ));
+//         Project.launchpadAutoConnect(data.id); //임시
+//       },
+//     );
+//     CallbackManager.registerCallback(
+//       workspaceId: state.workspaceId,
+//       preferredId: PreferredId.destroy,
+//       funcIdName: 'uniq::project::project',
+//       callback: (message) {
+//         var data = message.dataPtr.cast<IdLifecycle>().ref;
+//         var id = data.id;
+//         final projectList = state.projects.where((project) {
+//           if (project.state.idInfo.id == id) {
+//             project.close();
+//             return false;
+//           }
+//           return true;
+//         }).toList();
+//         emit(state.copyWith(projects: projectList));
+//       },
+//     );
+//   }
+//
+//   @override
+//   Future<void> close() {
+//     // print('WorkspaceProjectManagerCubit close() called');
+//     for (var project in state.projects) {
+//       project.close();
+//     }
+//     // state.projects.clear();
+//     emit(state.copyWith(projects: []));
+//     CallbackManager.unregisterCallbackByWorkspaceIdAll(state.workspaceId);
+//     return super.close();
+//   }
+//
+//   int createProject() => Workspace.projectCreate(state.workspaceId);
+//
+//   bool removeProject({required int id}) =>
+//       Workspace.projectRemove(state.workspaceId, id);
+// }
 //========== WorkspaceProjectManagerCubit End ==========
 
 //========== WorkspaceCubitManagerCubit Start ==========
 class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
+  static Map<int, WorkspaceWidgetManagerCubit> _instances = {};
   List<Offset> projectPosition = [];
   WorkspaceWidgetManagerCubit(super.initialState) {
     var workspaceId = state.workspaceId;
+    _instances[workspaceId] = this;
     // ---------- Project Start ----------
-    CallbackManager.registerCallback(
-      workspaceId: workspaceId,
-      preferredId: PreferredId.create,
+    _registerLifecycle(
       funcIdName: 'uniq::project::project',
-      callback: (message) {
-        var data = message.dataPtr.cast<IdLifecycle>().ref;
-        var id = data.id;
+      createCallback: (message) {
+        var id = _getIdFromCallback(message);
         Offset offset = projectPosition.isEmpty
             ? const Offset(0, 0)
             : projectPosition.removeAt(0);
-        emit(state.copyWith(
-          widgets: {
-            ...state.widgets,
-            id: ProjectWidget(
-              projectCubit: ProjectCubit(
-                ProjectState(idInfo: Id(id: id), offset: offset),
-              ),
-            ),
-          },
-        ));
+        var cubit =
+            ProjectCubit(ProjectState(idInfo: Id(id: id), offset: offset));
+        addWidget(id, cubit, ProjectWidget(projectCubit: cubit));
         Project.launchpadAutoConnect(id); //임시
-      },
-    );
-    CallbackManager.registerCallback(
-      workspaceId: workspaceId,
-      preferredId: PreferredId.destroy,
-      funcIdName: 'uniq::project::project',
-      callback: (message) {
-        var data = message.dataPtr.cast<IdLifecycle>().ref;
-        var id = data.id;
-        var newWidgets = state.widgets;
-        var removeWidget = newWidgets.remove(id);
-        if (removeWidget != null && removeWidget is ProjectWidget) {
-          removeWidget.projectCubit.close();
-        }
-        emit(state.copyWith(widgets: newWidgets));
       },
     );
     // ---------- Project End ----------
     // ---------- Timeline Start ----------
-    CallbackManager.registerCallback(
-      workspaceId: workspaceId,
-      objId: id,
-      funcIdName:
-          'std::shared_ptr<timeline> uniq::project::project::timeline_create(const std::string &)',
-      callback: (ApiCallbackMessage callback) {
-        var timelineId = callback.dataPtr.cast<ffi.Int32>().value;
-        // emit(state.copyWith(timeLine: [...state.timeLine, timelineId]));
-        emit(state.copyWith(timeLineList: [
-          ...state.timeLineList,
-          TimelineCubit(
-            TimelineState(
-              idInfo: Id(id: timelineId),
-              name: '타임라인',
-              offset: Offset.zero,
-            ),
+    _registerLifecycle(
+      funcIdName: 'uniq::project::timeline',
+      createCallback: (message) {
+        var id = _getIdFromCallback(message);
+        var cubit = TimelineCubit(
+          TimelineState(
+            idInfo: Id(id: id),
+            name: '타임라인',
+            offset: Offset.zero,
           ),
-        ]));
+        );
+        addWidget(id, cubit, TimelineWidget(cubit: cubit));
       },
+    );
+    // ---------- Timeline End ----------
+    // ---------- TimelineGroup Start ----------
+    _registerLifecycle(
+      funcIdName: 'uniq::project::timeline_group',
+      createCallback: (message) {
+        var id = _getIdFromCallback(message);
+        var cubit = TimelineGroupCubit(
+          TimelineGroupState(idInfo: Id(id: id), offset: Offset.zero),
+        );
+        addWidget(id, cubit, TimelineGroupWidget(cubit: cubit));
+      },
+    );
+    // ---------- TimelineGroup End ----------
+    // ---------- TimelineCue Start ----------
+    _registerLifecycle(
+      funcIdName: 'uniq::project::timeline_cue',
+      createCallback: (message) {
+        var id = _getIdFromCallback(message);
+        var cubit = TimelineCueCubit(
+          TimelineCueState(idInfo: Id(id: id), point: 0),
+        );
+        addWidget(id, cubit, null);
+      },
+    );
+    // ---------- TimelineCue End ----------
+    // ---------- AudioSegment Start ----------
+    // _registerLifecycle(
+    //   funcIdName: 'uniq::audio_segment',
+    //   createCallback: (message) {
+    //     var id = _getIdFromCallback(message);
+    //     var cubit = AudioSegmentCubit(
+    //       AudioSegmentState(idInfo: Id(id: id), offset: Offset.zero),
+    //     );
+    //     addWidget(id, cubit, AudioSegmentWidget(cubit: cubit));
+    //   },
+    // );
+    // ---------- AudioSegment End ----------
+    // ---------- LightShow Start ----------
+    // _registerLifecycle(
+    //   funcIdName: 'uniq::lightshow::lightshow_data',
+    //   createCallback: (message) {
+    //     var id = _getIdFromCallback(message);
+    //     var cubit = LightShowCubit(
+    //       LightShowState(idInfo: Id(id: id), offset: Offset.zero),
+    //     );
+    //     addWidget(id, cubit, LightShowWidget(cubit: cubit));
+    //   },
+    // );
+    // ---------- LightShow End ----------
+  }
+
+  static WorkspaceWidgetManagerCubit? getInstance(int workspaceId) =>
+      _instances[workspaceId];
+
+  void addWidget(int id, Cubit cubit, Widget? widget) {
+    var pair = WorkspaceWidgetManagerPair(widget: widget, cubit: cubit);
+    emit(state.copyWith(
+      widgets: {
+        ...state.widgets,
+        id: pair,
+      },
+      objects: {
+        ...state.objects,
+        cubit.runtimeType: [
+          ...(state.objects[cubit.runtimeType] ?? []),
+          pair,
+        ],
+      },
+    ));
+  }
+
+  void removeWidget(int id) {
+    var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
+    var removeWidget = newWidgets.remove(id);
+    if (removeWidget == null) return;
+    var newObjects = Map<Type, List<WorkspaceWidgetManagerPair>>.from(
+      state.objects,
+    );
+    var removeWidgetList = newObjects[removeWidget.cubit.runtimeType] ?? [];
+    removeWidgetList.remove(removeWidget);
+    removeWidget.cubit.close();
+    emit(state.copyWith(widgets: newWidgets));
+  }
+
+  void resetParentId({required int id, int parentId = 0}) {
+    var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
+    var pair = newWidgets[id];
+    pair?.parentId = parentId;
+    emit(state.copyWith(widgets: newWidgets));
+  }
+
+  int _getIdFromCallback(ApiCallbackMessage message) {
+    return message.dataPtr.cast<IdLifecycle>().ref.id;
+  }
+
+  void _registerLifecycle({
+    required String funcIdName,
+    required void Function(ApiCallbackMessage) createCallback,
+    void Function(ApiCallbackMessage)? destroyCallback,
+  }) {
+    CallbackManager.registerCallback(
+      workspaceId: state.workspaceId,
+      preferredId: PreferredId.create,
+      funcIdName: funcIdName,
+      callback: createCallback,
+    );
+    CallbackManager.registerCallback(
+      workspaceId: state.workspaceId,
+      preferredId: PreferredId.destroy,
+      funcIdName: funcIdName,
+      callback: destroyCallback ??
+          (ApiCallbackMessage callback) {
+            var id = _getIdFromCallback(callback);
+            removeWidget(id);
+          },
     );
   }
 
   @override
   Future<void> close() {
-    for (var workspace in state.workspaces) {
-      workspace.close();
+    for (var pair in state.widgets.values) {
+      pair.cubit.close();
     }
-    state.workspaces.clear();
+    _instances.remove(state.workspaceId);
+    emit(state.copyWith(widgets: {}));
     CallbackManager.unregisterCallbackByWorkspaceIdAll(state.workspaceId);
     return super.close();
   }

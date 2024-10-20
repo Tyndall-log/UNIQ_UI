@@ -185,7 +185,10 @@ abstract class _WorkspaceProjectManagerState
 /// @nodoc
 mixin _$WorkspaceWidgetManagerState {
   int get workspaceId => throw _privateConstructorUsedError;
-  Map<int, Widget> get widgets => throw _privateConstructorUsedError;
+  Map<int, WorkspaceWidgetManagerPair> get widgets =>
+      throw _privateConstructorUsedError;
+  Map<Type, List<WorkspaceWidgetManagerPair>> get objects =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of WorkspaceWidgetManagerState
   /// with the given fields replaced by the non-null parameter values.
@@ -202,7 +205,10 @@ abstract class $WorkspaceWidgetManagerStateCopyWith<$Res> {
       _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
           WorkspaceWidgetManagerState>;
   @useResult
-  $Res call({int workspaceId, Map<int, Widget> widgets});
+  $Res call(
+      {int workspaceId,
+      Map<int, WorkspaceWidgetManagerPair> widgets,
+      Map<Type, List<WorkspaceWidgetManagerPair>> objects});
 }
 
 /// @nodoc
@@ -223,6 +229,7 @@ class _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
   $Res call({
     Object? workspaceId = null,
     Object? widgets = null,
+    Object? objects = null,
   }) {
     return _then(_value.copyWith(
       workspaceId: null == workspaceId
@@ -232,7 +239,11 @@ class _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
       widgets: null == widgets
           ? _value.widgets
           : widgets // ignore: cast_nullable_to_non_nullable
-              as Map<int, Widget>,
+              as Map<int, WorkspaceWidgetManagerPair>,
+      objects: null == objects
+          ? _value.objects
+          : objects // ignore: cast_nullable_to_non_nullable
+              as Map<Type, List<WorkspaceWidgetManagerPair>>,
     ) as $Val);
   }
 }
@@ -246,7 +257,10 @@ abstract class _$$WorkspaceWidgetManagerStateImplCopyWith<$Res>
       __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int workspaceId, Map<int, Widget> widgets});
+  $Res call(
+      {int workspaceId,
+      Map<int, WorkspaceWidgetManagerPair> widgets,
+      Map<Type, List<WorkspaceWidgetManagerPair>> objects});
 }
 
 /// @nodoc
@@ -266,6 +280,7 @@ class __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>
   $Res call({
     Object? workspaceId = null,
     Object? widgets = null,
+    Object? objects = null,
   }) {
     return _then(_$WorkspaceWidgetManagerStateImpl(
       workspaceId: null == workspaceId
@@ -275,7 +290,11 @@ class __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>
       widgets: null == widgets
           ? _value._widgets
           : widgets // ignore: cast_nullable_to_non_nullable
-              as Map<int, Widget>,
+              as Map<int, WorkspaceWidgetManagerPair>,
+      objects: null == objects
+          ? _value._objects
+          : objects // ignore: cast_nullable_to_non_nullable
+              as Map<Type, List<WorkspaceWidgetManagerPair>>,
     ));
   }
 }
@@ -284,24 +303,36 @@ class __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>
 
 class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
   _$WorkspaceWidgetManagerStateImpl(
-      {required this.workspaceId, final Map<int, Widget> widgets = const {}})
+      {required this.workspaceId,
+      final Map<int, WorkspaceWidgetManagerPair> widgets = const {},
+      final Map<Type, List<WorkspaceWidgetManagerPair>> objects = const {}})
       : _widgets = widgets,
+        _objects = objects,
         super._();
 
   @override
   final int workspaceId;
-  final Map<int, Widget> _widgets;
+  final Map<int, WorkspaceWidgetManagerPair> _widgets;
   @override
   @JsonKey()
-  Map<int, Widget> get widgets {
+  Map<int, WorkspaceWidgetManagerPair> get widgets {
     if (_widgets is EqualUnmodifiableMapView) return _widgets;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_widgets);
   }
 
+  final Map<Type, List<WorkspaceWidgetManagerPair>> _objects;
+  @override
+  @JsonKey()
+  Map<Type, List<WorkspaceWidgetManagerPair>> get objects {
+    if (_objects is EqualUnmodifiableMapView) return _objects;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_objects);
+  }
+
   @override
   String toString() {
-    return 'WorkspaceWidgetManagerState(workspaceId: $workspaceId, widgets: $widgets)';
+    return 'WorkspaceWidgetManagerState(workspaceId: $workspaceId, widgets: $widgets, objects: $objects)';
   }
 
   @override
@@ -311,12 +342,16 @@ class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
             other is _$WorkspaceWidgetManagerStateImpl &&
             (identical(other.workspaceId, workspaceId) ||
                 other.workspaceId == workspaceId) &&
-            const DeepCollectionEquality().equals(other._widgets, _widgets));
+            const DeepCollectionEquality().equals(other._widgets, _widgets) &&
+            const DeepCollectionEquality().equals(other._objects, _objects));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, workspaceId, const DeepCollectionEquality().hash(_widgets));
+      runtimeType,
+      workspaceId,
+      const DeepCollectionEquality().hash(_widgets),
+      const DeepCollectionEquality().hash(_objects));
 
   /// Create a copy of WorkspaceWidgetManagerState
   /// with the given fields replaced by the non-null parameter values.
@@ -331,14 +366,18 @@ class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
 abstract class _WorkspaceWidgetManagerState
     extends WorkspaceWidgetManagerState {
   factory _WorkspaceWidgetManagerState(
-      {required final int workspaceId,
-      final Map<int, Widget> widgets}) = _$WorkspaceWidgetManagerStateImpl;
+          {required final int workspaceId,
+          final Map<int, WorkspaceWidgetManagerPair> widgets,
+          final Map<Type, List<WorkspaceWidgetManagerPair>> objects}) =
+      _$WorkspaceWidgetManagerStateImpl;
   _WorkspaceWidgetManagerState._() : super._();
 
   @override
   int get workspaceId;
   @override
-  Map<int, Widget> get widgets;
+  Map<int, WorkspaceWidgetManagerPair> get widgets;
+  @override
+  Map<Type, List<WorkspaceWidgetManagerPair>> get objects;
 
   /// Create a copy of WorkspaceWidgetManagerState
   /// with the given fields replaced by the non-null parameter values.

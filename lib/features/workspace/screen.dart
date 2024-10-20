@@ -43,8 +43,10 @@ class WorkspaceScreenState extends State<WorkspaceScreen>
           ),
         ),
         BlocProvider(
-          create: (context) => WorkspaceProjectManagerCubit(
-            workspaceId: widget.id,
+          create: (context) => WorkspaceWidgetManagerCubit(
+            WorkspaceWidgetManagerState(
+              workspaceId: widget.id,
+            ),
           ),
         ),
       ],
@@ -84,7 +86,11 @@ class Bb2 extends StatelessWidget {
         double currentTimeScale = defaultTimeLength / currentTimeLength;
         Matrix4 matrixOnlyScale = Matrix4.identity()..scale(state.scale);
 
-        final wpms = context.watch<WorkspaceProjectManagerCubit>().state;
+        // final wwms = context.watch<WorkspaceWidgetManagerCubit>().state;
+        final projectList = context.select(
+          (WorkspaceWidgetManagerCubit cubit) =>
+              cubit.state.objects[ProjectCubit] ?? [],
+        );
         return DragTarget<WorkspaceDragCubit<ProjectCubit>>(
           builder: (context, candidateData, rejectedData) {
             // print(candidateData);
@@ -142,9 +148,12 @@ class Bb2 extends StatelessWidget {
                     ],
                   ),
                 ),
-                for (var i = 0; i < wpms.projects.length; i++)
-                  ProjectWidget(
-                      projectCubit: wpms.projects[i], key: Key('projects_$i')),
+                // for (var i = 0; i < wwms.widgets.length; i++)
+                //   if (wwms.widgets[i]?.widget is ProjectWidget)
+                //     wwms.widgets[i]?.widget,
+                for (var pair in projectList)
+                  if (pair.widget is ProjectWidget) pair.widget!,
+
                 // for (var i = 0; i < wpms.timeline.length; i++)
                 //   TimelineWidget(cubit: wpms.timeline[i]),
                 // BlocProvider.value(
