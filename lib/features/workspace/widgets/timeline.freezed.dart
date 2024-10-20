@@ -19,7 +19,8 @@ mixin _$TimelineState {
   Id get idInfo => throw _privateConstructorUsedError;
   Offset get offset => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  List<int> get timeLineGroup => throw _privateConstructorUsedError;
+  List<TimelineGroupCubit> get timelineGroupList =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of TimelineState
   /// with the given fields replaced by the non-null parameter values.
@@ -34,7 +35,11 @@ abstract class $TimelineStateCopyWith<$Res> {
           TimelineState value, $Res Function(TimelineState) then) =
       _$TimelineStateCopyWithImpl<$Res, TimelineState>;
   @useResult
-  $Res call({Id idInfo, Offset offset, String name, List<int> timeLineGroup});
+  $Res call(
+      {Id idInfo,
+      Offset offset,
+      String name,
+      List<TimelineGroupCubit> timelineGroupList});
 }
 
 /// @nodoc
@@ -55,7 +60,7 @@ class _$TimelineStateCopyWithImpl<$Res, $Val extends TimelineState>
     Object? idInfo = null,
     Object? offset = null,
     Object? name = null,
-    Object? timeLineGroup = null,
+    Object? timelineGroupList = null,
   }) {
     return _then(_value.copyWith(
       idInfo: null == idInfo
@@ -70,31 +75,35 @@ class _$TimelineStateCopyWithImpl<$Res, $Val extends TimelineState>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      timeLineGroup: null == timeLineGroup
-          ? _value.timeLineGroup
-          : timeLineGroup // ignore: cast_nullable_to_non_nullable
-              as List<int>,
+      timelineGroupList: null == timelineGroupList
+          ? _value.timelineGroupList
+          : timelineGroupList // ignore: cast_nullable_to_non_nullable
+              as List<TimelineGroupCubit>,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$TimeLineStateImplCopyWith<$Res>
+abstract class _$$TimelineStateImplCopyWith<$Res>
     implements $TimelineStateCopyWith<$Res> {
-  factory _$$TimeLineStateImplCopyWith(
-          _$TimeLineStateImpl value, $Res Function(_$TimeLineStateImpl) then) =
-      __$$TimeLineStateImplCopyWithImpl<$Res>;
+  factory _$$TimelineStateImplCopyWith(
+          _$TimelineStateImpl value, $Res Function(_$TimelineStateImpl) then) =
+      __$$TimelineStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Id idInfo, Offset offset, String name, List<int> timeLineGroup});
+  $Res call(
+      {Id idInfo,
+      Offset offset,
+      String name,
+      List<TimelineGroupCubit> timelineGroupList});
 }
 
 /// @nodoc
-class __$$TimeLineStateImplCopyWithImpl<$Res>
-    extends _$TimelineStateCopyWithImpl<$Res, _$TimeLineStateImpl>
-    implements _$$TimeLineStateImplCopyWith<$Res> {
-  __$$TimeLineStateImplCopyWithImpl(
-      _$TimeLineStateImpl _value, $Res Function(_$TimeLineStateImpl) _then)
+class __$$TimelineStateImplCopyWithImpl<$Res>
+    extends _$TimelineStateCopyWithImpl<$Res, _$TimelineStateImpl>
+    implements _$$TimelineStateImplCopyWith<$Res> {
+  __$$TimelineStateImplCopyWithImpl(
+      _$TimelineStateImpl _value, $Res Function(_$TimelineStateImpl) _then)
       : super(_value, _then);
 
   /// Create a copy of TimelineState
@@ -105,9 +114,9 @@ class __$$TimeLineStateImplCopyWithImpl<$Res>
     Object? idInfo = null,
     Object? offset = null,
     Object? name = null,
-    Object? timeLineGroup = null,
+    Object? timelineGroupList = null,
   }) {
-    return _then(_$TimeLineStateImpl(
+    return _then(_$TimelineStateImpl(
       idInfo: null == idInfo
           ? _value.idInfo
           : idInfo // ignore: cast_nullable_to_non_nullable
@@ -120,23 +129,23 @@ class __$$TimeLineStateImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      timeLineGroup: null == timeLineGroup
-          ? _value._timeLineGroup
-          : timeLineGroup // ignore: cast_nullable_to_non_nullable
-              as List<int>,
+      timelineGroupList: null == timelineGroupList
+          ? _value._timelineGroupList
+          : timelineGroupList // ignore: cast_nullable_to_non_nullable
+              as List<TimelineGroupCubit>,
     ));
   }
 }
 
 /// @nodoc
 
-class _$TimeLineStateImpl extends _TimeLineState {
-  _$TimeLineStateImpl(
+class _$TimelineStateImpl extends _TimelineState {
+  _$TimelineStateImpl(
       {required this.idInfo,
       required this.offset,
       this.name = "타임라인 이름",
-      final List<int> timeLineGroup = const []})
-      : _timeLineGroup = timeLineGroup,
+      final List<TimelineGroupCubit> timelineGroupList = const []})
+      : _timelineGroupList = timelineGroupList,
         super._();
 
   @override
@@ -146,52 +155,53 @@ class _$TimeLineStateImpl extends _TimeLineState {
   @override
   @JsonKey()
   final String name;
-  final List<int> _timeLineGroup;
+  final List<TimelineGroupCubit> _timelineGroupList;
   @override
   @JsonKey()
-  List<int> get timeLineGroup {
-    if (_timeLineGroup is EqualUnmodifiableListView) return _timeLineGroup;
+  List<TimelineGroupCubit> get timelineGroupList {
+    if (_timelineGroupList is EqualUnmodifiableListView)
+      return _timelineGroupList;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_timeLineGroup);
+    return EqualUnmodifiableListView(_timelineGroupList);
   }
 
   @override
   String toString() {
-    return 'TimelineState(idInfo: $idInfo, offset: $offset, name: $name, timeLineGroup: $timeLineGroup)';
+    return 'TimelineState(idInfo: $idInfo, offset: $offset, name: $name, timelineGroupList: $timelineGroupList)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$TimeLineStateImpl &&
+            other is _$TimelineStateImpl &&
             (identical(other.idInfo, idInfo) || other.idInfo == idInfo) &&
             (identical(other.offset, offset) || other.offset == offset) &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality()
-                .equals(other._timeLineGroup, _timeLineGroup));
+                .equals(other._timelineGroupList, _timelineGroupList));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, idInfo, offset, name,
-      const DeepCollectionEquality().hash(_timeLineGroup));
+      const DeepCollectionEquality().hash(_timelineGroupList));
 
   /// Create a copy of TimelineState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$TimeLineStateImplCopyWith<_$TimeLineStateImpl> get copyWith =>
-      __$$TimeLineStateImplCopyWithImpl<_$TimeLineStateImpl>(this, _$identity);
+  _$$TimelineStateImplCopyWith<_$TimelineStateImpl> get copyWith =>
+      __$$TimelineStateImplCopyWithImpl<_$TimelineStateImpl>(this, _$identity);
 }
 
-abstract class _TimeLineState extends TimelineState {
-  factory _TimeLineState(
+abstract class _TimelineState extends TimelineState {
+  factory _TimelineState(
       {required final Id idInfo,
       required final Offset offset,
       final String name,
-      final List<int> timeLineGroup}) = _$TimeLineStateImpl;
-  _TimeLineState._() : super._();
+      final List<TimelineGroupCubit> timelineGroupList}) = _$TimelineStateImpl;
+  _TimelineState._() : super._();
 
   @override
   Id get idInfo;
@@ -200,12 +210,12 @@ abstract class _TimeLineState extends TimelineState {
   @override
   String get name;
   @override
-  List<int> get timeLineGroup;
+  List<TimelineGroupCubit> get timelineGroupList;
 
   /// Create a copy of TimelineState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$TimeLineStateImplCopyWith<_$TimeLineStateImpl> get copyWith =>
+  _$$TimelineStateImplCopyWith<_$TimelineStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

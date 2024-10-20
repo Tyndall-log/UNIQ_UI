@@ -19,8 +19,9 @@ mixin _$ProjectState {
   Id get idInfo => throw _privateConstructorUsedError;
   Offset get offset => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
-  String get producerName => throw _privateConstructorUsedError;
-  List<int> get timeLine => throw _privateConstructorUsedError;
+  String get producerName =>
+      throw _privateConstructorUsedError; // @Default([]) List<int> timeLine,
+  List<TimelineCubit> get timeLineList => throw _privateConstructorUsedError;
 
   /// Create a copy of ProjectState
   /// with the given fields replaced by the non-null parameter values.
@@ -40,7 +41,7 @@ abstract class $ProjectStateCopyWith<$Res> {
       Offset offset,
       String title,
       String producerName,
-      List<int> timeLine});
+      List<TimelineCubit> timeLineList});
 }
 
 /// @nodoc
@@ -62,7 +63,7 @@ class _$ProjectStateCopyWithImpl<$Res, $Val extends ProjectState>
     Object? offset = null,
     Object? title = null,
     Object? producerName = null,
-    Object? timeLine = null,
+    Object? timeLineList = null,
   }) {
     return _then(_value.copyWith(
       idInfo: null == idInfo
@@ -81,10 +82,10 @@ class _$ProjectStateCopyWithImpl<$Res, $Val extends ProjectState>
           ? _value.producerName
           : producerName // ignore: cast_nullable_to_non_nullable
               as String,
-      timeLine: null == timeLine
-          ? _value.timeLine
-          : timeLine // ignore: cast_nullable_to_non_nullable
-              as List<int>,
+      timeLineList: null == timeLineList
+          ? _value.timeLineList
+          : timeLineList // ignore: cast_nullable_to_non_nullable
+              as List<TimelineCubit>,
     ) as $Val);
   }
 }
@@ -102,7 +103,7 @@ abstract class _$$ProjectStateImplCopyWith<$Res>
       Offset offset,
       String title,
       String producerName,
-      List<int> timeLine});
+      List<TimelineCubit> timeLineList});
 }
 
 /// @nodoc
@@ -122,7 +123,7 @@ class __$$ProjectStateImplCopyWithImpl<$Res>
     Object? offset = null,
     Object? title = null,
     Object? producerName = null,
-    Object? timeLine = null,
+    Object? timeLineList = null,
   }) {
     return _then(_$ProjectStateImpl(
       idInfo: null == idInfo
@@ -141,10 +142,10 @@ class __$$ProjectStateImplCopyWithImpl<$Res>
           ? _value.producerName
           : producerName // ignore: cast_nullable_to_non_nullable
               as String,
-      timeLine: null == timeLine
-          ? _value._timeLine
-          : timeLine // ignore: cast_nullable_to_non_nullable
-              as List<int>,
+      timeLineList: null == timeLineList
+          ? _value._timeLineList
+          : timeLineList // ignore: cast_nullable_to_non_nullable
+              as List<TimelineCubit>,
     ));
   }
 }
@@ -157,8 +158,8 @@ class _$ProjectStateImpl extends _ProjectState {
       required this.offset,
       this.title = "새 프로젝트",
       this.producerName = "제작자 이름",
-      final List<int> timeLine = const []})
-      : _timeLine = timeLine,
+      final List<TimelineCubit> timeLineList = const []})
+      : _timeLineList = timeLineList,
         super._();
 
   @override
@@ -171,18 +172,20 @@ class _$ProjectStateImpl extends _ProjectState {
   @override
   @JsonKey()
   final String producerName;
-  final List<int> _timeLine;
+// @Default([]) List<int> timeLine,
+  final List<TimelineCubit> _timeLineList;
+// @Default([]) List<int> timeLine,
   @override
   @JsonKey()
-  List<int> get timeLine {
-    if (_timeLine is EqualUnmodifiableListView) return _timeLine;
+  List<TimelineCubit> get timeLineList {
+    if (_timeLineList is EqualUnmodifiableListView) return _timeLineList;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_timeLine);
+    return EqualUnmodifiableListView(_timeLineList);
   }
 
   @override
   String toString() {
-    return 'ProjectState(idInfo: $idInfo, offset: $offset, title: $title, producerName: $producerName, timeLine: $timeLine)';
+    return 'ProjectState(idInfo: $idInfo, offset: $offset, title: $title, producerName: $producerName, timeLineList: $timeLineList)';
   }
 
   @override
@@ -195,12 +198,13 @@ class _$ProjectStateImpl extends _ProjectState {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.producerName, producerName) ||
                 other.producerName == producerName) &&
-            const DeepCollectionEquality().equals(other._timeLine, _timeLine));
+            const DeepCollectionEquality()
+                .equals(other._timeLineList, _timeLineList));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, idInfo, offset, title,
-      producerName, const DeepCollectionEquality().hash(_timeLine));
+      producerName, const DeepCollectionEquality().hash(_timeLineList));
 
   /// Create a copy of ProjectState
   /// with the given fields replaced by the non-null parameter values.
@@ -217,7 +221,7 @@ abstract class _ProjectState extends ProjectState {
       required final Offset offset,
       final String title,
       final String producerName,
-      final List<int> timeLine}) = _$ProjectStateImpl;
+      final List<TimelineCubit> timeLineList}) = _$ProjectStateImpl;
   _ProjectState._() : super._();
 
   @override
@@ -227,164 +231,14 @@ abstract class _ProjectState extends ProjectState {
   @override
   String get title;
   @override
-  String get producerName;
+  String get producerName; // @Default([]) List<int> timeLine,
   @override
-  List<int> get timeLine;
+  List<TimelineCubit> get timeLineList;
 
   /// Create a copy of ProjectState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ProjectStateImplCopyWith<_$ProjectStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-mixin _$ProjectDragState {
-  ProjectCubit get projectCubit => throw _privateConstructorUsedError;
-  Offset get offset => throw _privateConstructorUsedError;
-
-  /// Create a copy of ProjectDragState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProjectDragStateCopyWith<ProjectDragState> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $ProjectDragStateCopyWith<$Res> {
-  factory $ProjectDragStateCopyWith(
-          ProjectDragState value, $Res Function(ProjectDragState) then) =
-      _$ProjectDragStateCopyWithImpl<$Res, ProjectDragState>;
-  @useResult
-  $Res call({ProjectCubit projectCubit, Offset offset});
-}
-
-/// @nodoc
-class _$ProjectDragStateCopyWithImpl<$Res, $Val extends ProjectDragState>
-    implements $ProjectDragStateCopyWith<$Res> {
-  _$ProjectDragStateCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of ProjectDragState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? projectCubit = null,
-    Object? offset = null,
-  }) {
-    return _then(_value.copyWith(
-      projectCubit: null == projectCubit
-          ? _value.projectCubit
-          : projectCubit // ignore: cast_nullable_to_non_nullable
-              as ProjectCubit,
-      offset: null == offset
-          ? _value.offset
-          : offset // ignore: cast_nullable_to_non_nullable
-              as Offset,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$ProjectDragStateImplCopyWith<$Res>
-    implements $ProjectDragStateCopyWith<$Res> {
-  factory _$$ProjectDragStateImplCopyWith(_$ProjectDragStateImpl value,
-          $Res Function(_$ProjectDragStateImpl) then) =
-      __$$ProjectDragStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({ProjectCubit projectCubit, Offset offset});
-}
-
-/// @nodoc
-class __$$ProjectDragStateImplCopyWithImpl<$Res>
-    extends _$ProjectDragStateCopyWithImpl<$Res, _$ProjectDragStateImpl>
-    implements _$$ProjectDragStateImplCopyWith<$Res> {
-  __$$ProjectDragStateImplCopyWithImpl(_$ProjectDragStateImpl _value,
-      $Res Function(_$ProjectDragStateImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of ProjectDragState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? projectCubit = null,
-    Object? offset = null,
-  }) {
-    return _then(_$ProjectDragStateImpl(
-      projectCubit: null == projectCubit
-          ? _value.projectCubit
-          : projectCubit // ignore: cast_nullable_to_non_nullable
-              as ProjectCubit,
-      offset: null == offset
-          ? _value.offset
-          : offset // ignore: cast_nullable_to_non_nullable
-              as Offset,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$ProjectDragStateImpl extends _ProjectDragState {
-  _$ProjectDragStateImpl({required this.projectCubit, required this.offset})
-      : super._();
-
-  @override
-  final ProjectCubit projectCubit;
-  @override
-  final Offset offset;
-
-  @override
-  String toString() {
-    return 'ProjectDragState(projectCubit: $projectCubit, offset: $offset)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ProjectDragStateImpl &&
-            (identical(other.projectCubit, projectCubit) ||
-                other.projectCubit == projectCubit) &&
-            (identical(other.offset, offset) || other.offset == offset));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, projectCubit, offset);
-
-  /// Create a copy of ProjectDragState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ProjectDragStateImplCopyWith<_$ProjectDragStateImpl> get copyWith =>
-      __$$ProjectDragStateImplCopyWithImpl<_$ProjectDragStateImpl>(
-          this, _$identity);
-}
-
-abstract class _ProjectDragState extends ProjectDragState {
-  factory _ProjectDragState(
-      {required final ProjectCubit projectCubit,
-      required final Offset offset}) = _$ProjectDragStateImpl;
-  _ProjectDragState._() : super._();
-
-  @override
-  ProjectCubit get projectCubit;
-  @override
-  Offset get offset;
-
-  /// Create a copy of ProjectDragState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ProjectDragStateImplCopyWith<_$ProjectDragStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

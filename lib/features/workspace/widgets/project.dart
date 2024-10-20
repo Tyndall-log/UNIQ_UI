@@ -1,6 +1,5 @@
-import 'dart:ffi';
-
-import 'package:ffi/ffi.dart';
+import 'dart:ffi' as ffi;
+import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,11 +8,17 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uniq_ui/common/sample_toast.dart';
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
+import 'package:uniq_ui/features/workspace/widgets/timeline.dart';
 
 import '../bloc/state.dart';
 import '../default_value.dart';
+import 'draggable.dart';
 
 part 'project.freezed.dart';
+
+class ProjectGlobal {
+  static const Offset anchor = Offset(40, 40);
+}
 
 @freezed
 class ProjectState with _$ProjectState {
@@ -24,7 +29,8 @@ class ProjectState with _$ProjectState {
     required Offset offset,
     @Default("새 프로젝트") String title,
     @Default("제작자 이름") String producerName,
-    @Default([]) List<int> timeLine,
+    // @Default([]) List<int> timeLine,
+    @Default([]) List<TimelineCubit> timeLineList,
   }) = _ProjectState;
 }
 
@@ -37,7 +43,8 @@ class ProjectCubit extends Cubit<ProjectState> {
       objId: id,
       funcIdName: 'void uniq::project::project::title_set(const string &)',
       callback: (ApiCallbackMessage callback) {
-        var title = callback.dataPtr.cast<Pointer<Utf8>>().value.toDartString();
+        var title =
+            callback.dataPtr.cast<ffi.Pointer<ffi.Utf8>>().value.toDartString();
         emit(state.copyWith(title: title));
       },
     );
@@ -48,7 +55,7 @@ class ProjectCubit extends Cubit<ProjectState> {
           'void uniq::project::project::producer_name_set(const string &)',
       callback: (ApiCallbackMessage callback) {
         var producerName =
-            callback.dataPtr.cast<Pointer<Utf8>>().value.toDartString();
+            callback.dataPtr.cast<ffi.Pointer<ffi.Utf8>>().value.toDartString();
         emit(state.copyWith(producerName: producerName));
       },
     );
@@ -77,8 +84,18 @@ class ProjectCubit extends Cubit<ProjectState> {
       funcIdName:
           'std::shared_ptr<timeline> uniq::project::project::timeline_create(const std::string &)',
       callback: (ApiCallbackMessage callback) {
-        var timelineId = callback.dataPtr.cast<Int32>().value;
-        emit(state.copyWith(timeLine: [...state.timeLine, timelineId]));
+        var timelineId = callback.dataPtr.cast<ffi.Int32>().value;
+        // emit(state.copyWith(timeLine: [...state.timeLine, timelineId]));
+        emit(state.copyWith(timeLineList: [
+          ...state.timeLineList,
+          TimelineCubit(
+            TimelineState(
+              idInfo: Id(id: timelineId),
+              name: '타임라인',
+              offset: Offset.zero,
+            ),
+          ),
+        ]));
       },
     );
   }
@@ -91,21 +108,6 @@ class ProjectCubit extends Cubit<ProjectState> {
     CallbackManager.unregisterCallbackByObjIdAll(state.idInfo.id);
     return super.close();
   }
-}
-
-@freezed
-class ProjectDragState with _$ProjectDragState {
-  const ProjectDragState._();
-  factory ProjectDragState({
-    required ProjectCubit projectCubit,
-    required Offset offset,
-  }) = _ProjectDragState;
-}
-
-class ProjectDragCubit extends Cubit<ProjectDragState> {
-  ProjectDragCubit(super.initialState);
-
-  void setOffset(Offset offset) => emit(state.copyWith(offset: offset));
 }
 
 class MoveDrag extends Drag {
@@ -149,23 +151,30 @@ class MoveDrag extends Drag {
   }
 }
 
+enum _ProjectLayout {
+  main,
+  timelinePreview,
+  end,
+}
+
 class ProjectWidget extends StatefulWidget {
   final ProjectCubit projectCubit;
 
   const ProjectWidget({required this.projectCubit, super.key});
 
   @override
-  State<ProjectWidget> createState() => _ProjectWidgetState();
+  State<ProjectWidget> createState() {
+    return _ProjectWidgetState();
+  }
 }
 
 class _ProjectWidgetState extends State<ProjectWidget> {
-  final Offset anchor = const Offset(40, 40);
-  late ProjectDragCubit projectDragCubit;
+  late WorkspaceDragCubit<ProjectCubit> projectDragCubit;
 
   @override
   void initState() {
-    projectDragCubit = ProjectDragCubit(ProjectDragState(
-      projectCubit: widget.projectCubit,
+    projectDragCubit = WorkspaceDragCubit(WorkspaceDragState(
+      cubit: widget.projectCubit,
       offset: Offset.zero,
     ));
     super.initState();
@@ -177,6 +186,7 @@ class _ProjectWidgetState extends State<ProjectWidget> {
       value: widget.projectCubit,
       child: BlocBuilder<ProjectCubit, ProjectState>(
         builder: (context, state) {
+          var wvb = context.watch<WorkspaceViewBloc>();
           var wvbs = context.watch<WorkspaceViewBloc>().state;
           double currentX = wvbs.offset.dx;
           double currentY = wvbs.offset.dy;
@@ -188,88 +198,75 @@ class _ProjectWidgetState extends State<ProjectWidget> {
           // print(currentX + state.offset.dx * currentTimeScale);
           // print((currentX + state.offset.dx * currentTimeScale) * currentScale);
           // DragTarget
-          final _ProjectWidget projectWidget =
-              _ProjectWidget(projectCubit: widget.projectCubit);
-
-          return Positioned(
-            left: currentX + state.offset.dx * currentTimeScale - anchor.dx,
-            top: currentY + state.offset.dy - anchor.dy,
-            child: Transform(
-              origin: anchor -
-                  Offset(
-                    currentX + state.offset.dx * currentTimeScale,
-                    currentY + state.offset.dy,
-                  ),
-              transform: matrixOnlyScale,
-              child: Column(
+          // final _ProjectWidget projectWidget =
+          //     _ProjectWidget(projectCubit: widget.projectCubit);
+          // final _TesttWidget projectWidget = _TesttWidget();
+          return Positioned.fill(
+            child: RepaintBoundary(
+              child: CustomMultiChildLayout(
+                delegate: ProjectLayoutDelegate(
+                  workspaceViewBloc: wvb,
+                  state: state,
+                  timelineList: state.timeLineList,
+                ),
                 children: [
-                  // RawGestureDetector(
-                  //   gestures: <Type, GestureRecognizerFactory>{
-                  //     DelayedMultiDragGestureRecognizer:
-                  //         GestureRecognizerFactoryWithHandlers<
-                  //             DelayedMultiDragGestureRecognizer>(
-                  //       () => DelayedMultiDragGestureRecognizer(
-                  //         delay: Duration(milliseconds: 100),
-                  //       ),
-                  //       (DelayedMultiDragGestureRecognizer instance) {
-                  //         instance.onStart = (Offset offset) {
-                  //           return MoveDrag(
-                  //             projectCubit: projectCubit,
-                  //             workspaceViewBloc:
-                  //                 context.read<WorkspaceViewBloc>(),
-                  //             mouseGlobalPosition: offset,
-                  //             initialOffset: state.offset,
-                  //           );
-                  //         };
-                  //       },
-                  //     ),
-                  //   },
-                  //   child: _ProjectWidget(projectCubit: projectCubit),
-                  // ),
-                  LongPressDraggable<ProjectDragCubit>(
-                    data: ProjectDragCubit(ProjectDragState(
-                      projectCubit: widget.projectCubit,
-                      offset: state.offset,
-                    )),
-                    feedback: Opacity(
-                      opacity: 1,
-                      child: Transform(
-                        // origin: -Offset(
-                        //   currentX + state.offset.dx * currentTimeScale - 40,
-                        //   currentY + state.offset.dy - 40,
-                        // ),
-                        transform: matrixOnlyScale,
-                        child: Material(
-                          color: Colors.transparent,
-                          child: projectWidget,
+                  LayoutId(
+                    id: _ProjectLayout.main,
+                    child: Transform(
+                      origin: ProjectGlobal.anchor -
+                          Offset(
+                            currentX + state.offset.dx * currentTimeScale,
+                            currentY + state.offset.dy,
+                          ),
+                      transform: matrixOnlyScale,
+                      child: WorkspaceDraggable<ProjectCubit>(
+                        cubit: projectDragCubit,
+                        wvb: wvb,
+                        currentScale: currentScale,
+                        child:
+                            _ProjectWidget(projectCubit: widget.projectCubit),
+                      ),
+                    ),
+                  ),
+                  for (var cubit in state.timeLineList)
+                    LayoutId(
+                      id: cubit,
+                      child: TimelineWidget(
+                        cubit: cubit,
+                      ),
+                    ),
+                  LayoutId(
+                    id: _ProjectLayout.timelinePreview,
+                    child: Transform(
+                      transform: matrixOnlyScale,
+                      child: Container(
+                        width: 200,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 2,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text('타임라인 미리보기'),
                         ),
                       ),
                     ),
-                    dragAnchorStrategy: (draggable, context, position) {
-                      Offset offset =
-                          childDragAnchorStrategy(draggable, context, position);
-                      projectDragCubit.setOffset(offset);
-                      return offset * currentScale;
-                    },
-                    delay: const Duration(milliseconds: 200),
-                    childWhenDragging: Opacity(
-                      opacity: 0.2,
-                      child: projectWidget,
-                    ),
-                    onDragUpdate: (details) {
-                      // print(details.globalPosition);
-                    },
-                    child: projectWidget,
                   ),
-                  // for (var id in state.timeLine)
-                  //   Container(
-                  //     width: 10,
-                  //     height: 10,
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.blue,
-                  //       shape: BoxShape.circle,
-                  //     ),
-                  //   ),
+                  LayoutId(
+                    id: _ProjectLayout.end,
+                    child: Transform(
+                      transform: matrixOnlyScale,
+                      child: Text('end'),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -277,6 +274,60 @@ class _ProjectWidgetState extends State<ProjectWidget> {
         },
       ),
     );
+  }
+}
+
+class ProjectLayoutDelegate extends MultiChildLayoutDelegate {
+  final WorkspaceViewBloc workspaceViewBloc;
+  final ProjectState state;
+  final List<TimelineCubit> timelineList;
+
+  ProjectLayoutDelegate({
+    required this.workspaceViewBloc,
+    required this.state,
+    required this.timelineList,
+  });
+  @override
+  void performLayout(Size size) {
+    var wvbs = workspaceViewBloc.state;
+    double currentX = wvbs.offset.dx;
+    double currentY = wvbs.offset.dy;
+    double currentScale = wvbs.scale;
+    double currentTimeLength = wvbs.timeLength;
+    double currentTimeScale = defaultTimeLength / currentTimeLength;
+    Offset offset = Offset(
+      currentX + state.offset.dx * currentTimeScale - ProjectGlobal.anchor.dx,
+      currentY + state.offset.dy - ProjectGlobal.anchor.dy,
+    );
+    var layoutSize =
+        layoutChild(_ProjectLayout.main, BoxConstraints.tightFor());
+    positionChild(_ProjectLayout.main, offset);
+    offset = Offset(
+      (currentX + state.offset.dx * currentTimeScale) * currentScale,
+      (currentY + state.offset.dy - ProjectGlobal.anchor.dy) * currentScale,
+    );
+    offset += Offset(0, layoutSize.height * currentScale + 10 * currentScale);
+    var timelinePreviewOffset = offset;
+    offset += Offset(0, 60 * currentScale);
+    for (var timelineCubit in timelineList) {
+      // layoutSize = layoutChild(timelineCubit, BoxConstraints.loose(size));
+      layoutSize = layoutChild(timelineCubit, BoxConstraints.tightFor());
+      positionChild(timelineCubit, Offset(offset.dx, offset.dy));
+      offset += Offset(0, layoutSize.height * currentScale);
+    }
+    layoutSize = layoutChild(_ProjectLayout.timelinePreview,
+        BoxConstraints.loose(Size(size.width, double.infinity)));
+    positionChild(
+        _ProjectLayout.timelinePreview, Offset(0, timelinePreviewOffset.dy));
+    layoutSize = layoutChild(_ProjectLayout.end, BoxConstraints.loose(size));
+    positionChild(_ProjectLayout.end, offset);
+    // layoutChild(_ProjectLayout.timelinePreview, BoxConstraints.loose(size));
+    // positionChild(0, Offset.zero);
+  }
+
+  @override
+  bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) {
+    return true;
   }
 }
 

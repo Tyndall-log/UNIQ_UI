@@ -25,16 +25,23 @@ class ScaleEndEvent extends WorkspaceViewEvent {
 }
 
 class ScaleTickEvent extends WorkspaceViewEvent {
-  final double scale;
+  final double delta;
   final Offset focalPoint;
 
-  const ScaleTickEvent(this.scale, this.focalPoint);
+  const ScaleTickEvent(this.delta, this.focalPoint);
 }
 
 class MoveTickEvent extends WorkspaceViewEvent {
   final Offset offset;
 
   const MoveTickEvent(this.offset);
+}
+
+class TimeScaleTickEvent extends WorkspaceViewEvent {
+  final double delta;
+  final Offset focalPoint;
+
+  const TimeScaleTickEvent(this.delta, this.focalPoint);
 }
 
 class ScaleAnimationEvent extends WorkspaceViewEvent {

@@ -30,7 +30,7 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
   double _maxTimeLength = 1000 * 1000; // 1s (ns/pixel)
   double _minTimeLength = 10; // 10ns (ns/pixel)
 
-  double _dragThreshold = 30;
+  double _dragThreshold = 10; // 드래그 시작 임계값(pixel)
   Offset _dragStart = Offset.zero;
   bool _horizontalDrag = false;
   bool _verticalDrag = false;
@@ -55,6 +55,7 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
     on<ScaleAnimationEvent>(_onScaleAnimation);
     on<ScaleTickEvent>(_onScaleTick);
     on<MoveTickEvent>(_onMoveTick);
+    on<TimeScaleTickEvent>(_onTimeLengthTick);
     on<TimeScaleStartEvent>(_onTimeLengthStart);
     on<TimeScaleUpdateEvent>(_onTimeLengthUpdate);
     on<TimeScaleEndEvent>(_onTimeLengthEnd);
@@ -189,14 +190,23 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
 
   void _onScaleTick(ScaleTickEvent event, Emitter<WorkspaceViewState> emit) {
     _panAndZoomStart(emit, event.focalPoint, _viewScale);
-    _panAndZoomUpdate(emit, event.focalPoint, event.focalPoint,
-        event.focalPoint, event.scale, 1);
+    var scale = _deltaToScale(-event.delta / 5);
+    _panAndZoomUpdate(
+        emit, event.focalPoint, event.focalPoint, event.focalPoint, scale, 1);
   }
 
   void _onMoveTick(MoveTickEvent event, Emitter<WorkspaceViewState> emit) {
     _panAndZoomStart(emit, _lastLocalFocalPoint, _viewScale);
     _panAndZoomUpdate(emit, _lastLocalFocalPoint, _lastLocalFocalPoint,
         _lastLocalFocalPoint - event.offset, 1, 1);
+  }
+
+  void _onTimeLengthTick(
+      TimeScaleTickEvent event, Emitter<WorkspaceViewState> emit) {
+    _panAndZoomStart(emit, event.focalPoint, _viewScale);
+    var timeScale = _deltaToScale(-event.delta / 5);
+    _panAndZoomUpdate(emit, event.focalPoint, event.focalPoint,
+        event.focalPoint, 1, timeScale);
   }
 
   void _onTimeLengthStart(
@@ -225,8 +235,8 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
     }
 
     if (_horizontalDrag) {
-      var timeScale =
-          math.exp((details.localFocalPoint.dx - _dragStart.dx) / 100);
+      var timeScale = _deltaToScale(details.localFocalPoint.dx - _dragStart.dx);
+      // math.exp((details.localFocalPoint.dx - _dragStart.dx) / 100);
       var currentPoint = Offset(_dragStart.dx, details.localFocalPoint.dy);
       _panAndZoomUpdate(emit, _previousLocalFocalPoint, _dragStart,
           currentPoint, 1, timeScale);
@@ -237,8 +247,7 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
         _panAndZoomUpdate(
             emit, _dragStart, _dragStart, details.localFocalPoint, scale, 1);
       } else {
-        var scale =
-            math.exp((details.localFocalPoint.dy - _dragStart.dy) / 100);
+        var scale = _deltaToScale(details.localFocalPoint.dy - _dragStart.dy);
         var currentPoint = Offset(details.localFocalPoint.dx, _dragStart.dy);
         _panAndZoomUpdate(
             emit, _previousLocalFocalPoint, _dragStart, currentPoint, scale, 1);
@@ -246,6 +255,8 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
     }
     emit(WorkspaceViewState(_offset, _viewScale, _timeLength));
   }
+
+  double _deltaToScale(double delta) => math.exp(delta / 100);
 
   void _onTimeLengthEnd(
       TimeScaleEndEvent event, Emitter<WorkspaceViewState> emit) {
@@ -266,12 +277,7 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
   }
 
   Offset mouseToOffset(Offset mouse) {
-    return Offset(
-      (mouse.dx / state.scale - state.offset.dx) /
-          defaultTimeLength *
-          state.timeLength,
-      mouse.dy / state.scale - state.offset.dy,
-    );
+    return state.mouseToOffset(mouse);
   }
 }
 //========== WorkspaceViewBloc End ==========
@@ -333,42 +339,42 @@ class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
   List<Offset> projectPosition = [];
   WorkspaceProjectManagerCubit({required int workspaceId})
       : super(WorkspaceProjectManagerState(workspaceId: workspaceId)) {
-    CallbackManager.registerCallback(
-      workspaceId: state.workspaceId,
-      preferredId: PreferredId.create,
-      funcIdName: 'uniq::project::project',
-      callback: (message) {
-        var data = message.dataPtr.cast<IdLifecycle>().ref;
-        var id = data.id;
-        Offset offset = projectPosition.isEmpty
-            ? const Offset(0, 0)
-            : projectPosition.removeAt(0);
-        emit(state.copyWith(
-          projects: [
-            ...state.projects,
-            ProjectCubit(ProjectState(idInfo: Id(id: id), offset: offset)),
-          ],
-        ));
-        Project.launchpadAutoConnect(data.id); //임시
-      },
-    );
-    CallbackManager.registerCallback(
-      workspaceId: state.workspaceId,
-      preferredId: PreferredId.destroy,
-      funcIdName: 'uniq::project::project',
-      callback: (message) {
-        var data = message.dataPtr.cast<IdLifecycle>().ref;
-        var id = data.id;
-        final projectList = state.projects.where((project) {
-          if (project.state.idInfo.id == id) {
-            project.close();
-            return false;
-          }
-          return true;
-        }).toList();
-        emit(state.copyWith(projects: projectList));
-      },
-    );
+    // CallbackManager.registerCallback(
+    //   workspaceId: state.workspaceId,
+    //   preferredId: PreferredId.create,
+    //   funcIdName: 'uniq::project::project',
+    //   callback: (message) {
+    //     var data = message.dataPtr.cast<IdLifecycle>().ref;
+    //     var id = data.id;
+    //     Offset offset = projectPosition.isEmpty
+    //         ? const Offset(0, 0)
+    //         : projectPosition.removeAt(0);
+    //     emit(state.copyWith(
+    //       projects: [
+    //         ...state.projects,
+    //         ProjectCubit(ProjectState(idInfo: Id(id: id), offset: offset)),
+    //       ],
+    //     ));
+    //     Project.launchpadAutoConnect(data.id); //임시
+    //   },
+    // );
+    // CallbackManager.registerCallback(
+    //   workspaceId: state.workspaceId,
+    //   preferredId: PreferredId.destroy,
+    //   funcIdName: 'uniq::project::project',
+    //   callback: (message) {
+    //     var data = message.dataPtr.cast<IdLifecycle>().ref;
+    //     var id = data.id;
+    //     final projectList = state.projects.where((project) {
+    //       if (project.state.idInfo.id == id) {
+    //         project.close();
+    //         return false;
+    //       }
+    //       return true;
+    //     }).toList();
+    //     emit(state.copyWith(projects: projectList));
+    //   },
+    // );
   }
 
   @override
@@ -377,7 +383,8 @@ class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
     for (var project in state.projects) {
       project.close();
     }
-    state.projects.clear();
+    // state.projects.clear();
+    emit(state.copyWith(projects: []));
     CallbackManager.unregisterCallbackByWorkspaceIdAll(state.workspaceId);
     return super.close();
   }
@@ -388,3 +395,83 @@ class WorkspaceProjectManagerCubit extends Cubit<WorkspaceProjectManagerState> {
       Workspace.projectRemove(state.workspaceId, id);
 }
 //========== WorkspaceProjectManagerCubit End ==========
+
+//========== WorkspaceCubitManagerCubit Start ==========
+class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
+  List<Offset> projectPosition = [];
+  WorkspaceWidgetManagerCubit(super.initialState) {
+    var workspaceId = state.workspaceId;
+    // ---------- Project Start ----------
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      preferredId: PreferredId.create,
+      funcIdName: 'uniq::project::project',
+      callback: (message) {
+        var data = message.dataPtr.cast<IdLifecycle>().ref;
+        var id = data.id;
+        Offset offset = projectPosition.isEmpty
+            ? const Offset(0, 0)
+            : projectPosition.removeAt(0);
+        emit(state.copyWith(
+          widgets: {
+            ...state.widgets,
+            id: ProjectWidget(
+              projectCubit: ProjectCubit(
+                ProjectState(idInfo: Id(id: id), offset: offset),
+              ),
+            ),
+          },
+        ));
+        Project.launchpadAutoConnect(id); //임시
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      preferredId: PreferredId.destroy,
+      funcIdName: 'uniq::project::project',
+      callback: (message) {
+        var data = message.dataPtr.cast<IdLifecycle>().ref;
+        var id = data.id;
+        var newWidgets = state.widgets;
+        var removeWidget = newWidgets.remove(id);
+        if (removeWidget != null && removeWidget is ProjectWidget) {
+          removeWidget.projectCubit.close();
+        }
+        emit(state.copyWith(widgets: newWidgets));
+      },
+    );
+    // ---------- Project End ----------
+    // ---------- Timeline Start ----------
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'std::shared_ptr<timeline> uniq::project::project::timeline_create(const std::string &)',
+      callback: (ApiCallbackMessage callback) {
+        var timelineId = callback.dataPtr.cast<ffi.Int32>().value;
+        // emit(state.copyWith(timeLine: [...state.timeLine, timelineId]));
+        emit(state.copyWith(timeLineList: [
+          ...state.timeLineList,
+          TimelineCubit(
+            TimelineState(
+              idInfo: Id(id: timelineId),
+              name: '타임라인',
+              offset: Offset.zero,
+            ),
+          ),
+        ]));
+      },
+    );
+  }
+
+  @override
+  Future<void> close() {
+    for (var workspace in state.workspaces) {
+      workspace.close();
+    }
+    state.workspaces.clear();
+    CallbackManager.unregisterCallbackByWorkspaceIdAll(state.workspaceId);
+    return super.close();
+  }
+}
+//========== WorkspaceCubitManagerCubit End ==========

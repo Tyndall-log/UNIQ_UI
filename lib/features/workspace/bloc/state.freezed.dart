@@ -181,3 +181,169 @@ abstract class _WorkspaceProjectManagerState
           _$WorkspaceProjectManagerStateImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$WorkspaceWidgetManagerState {
+  int get workspaceId => throw _privateConstructorUsedError;
+  Map<int, Widget> get widgets => throw _privateConstructorUsedError;
+
+  /// Create a copy of WorkspaceWidgetManagerState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $WorkspaceWidgetManagerStateCopyWith<WorkspaceWidgetManagerState>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $WorkspaceWidgetManagerStateCopyWith<$Res> {
+  factory $WorkspaceWidgetManagerStateCopyWith(
+          WorkspaceWidgetManagerState value,
+          $Res Function(WorkspaceWidgetManagerState) then) =
+      _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
+          WorkspaceWidgetManagerState>;
+  @useResult
+  $Res call({int workspaceId, Map<int, Widget> widgets});
+}
+
+/// @nodoc
+class _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
+        $Val extends WorkspaceWidgetManagerState>
+    implements $WorkspaceWidgetManagerStateCopyWith<$Res> {
+  _$WorkspaceWidgetManagerStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of WorkspaceWidgetManagerState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? workspaceId = null,
+    Object? widgets = null,
+  }) {
+    return _then(_value.copyWith(
+      workspaceId: null == workspaceId
+          ? _value.workspaceId
+          : workspaceId // ignore: cast_nullable_to_non_nullable
+              as int,
+      widgets: null == widgets
+          ? _value.widgets
+          : widgets // ignore: cast_nullable_to_non_nullable
+              as Map<int, Widget>,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$WorkspaceWidgetManagerStateImplCopyWith<$Res>
+    implements $WorkspaceWidgetManagerStateCopyWith<$Res> {
+  factory _$$WorkspaceWidgetManagerStateImplCopyWith(
+          _$WorkspaceWidgetManagerStateImpl value,
+          $Res Function(_$WorkspaceWidgetManagerStateImpl) then) =
+      __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({int workspaceId, Map<int, Widget> widgets});
+}
+
+/// @nodoc
+class __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>
+    extends _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
+        _$WorkspaceWidgetManagerStateImpl>
+    implements _$$WorkspaceWidgetManagerStateImplCopyWith<$Res> {
+  __$$WorkspaceWidgetManagerStateImplCopyWithImpl(
+      _$WorkspaceWidgetManagerStateImpl _value,
+      $Res Function(_$WorkspaceWidgetManagerStateImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of WorkspaceWidgetManagerState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? workspaceId = null,
+    Object? widgets = null,
+  }) {
+    return _then(_$WorkspaceWidgetManagerStateImpl(
+      workspaceId: null == workspaceId
+          ? _value.workspaceId
+          : workspaceId // ignore: cast_nullable_to_non_nullable
+              as int,
+      widgets: null == widgets
+          ? _value._widgets
+          : widgets // ignore: cast_nullable_to_non_nullable
+              as Map<int, Widget>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
+  _$WorkspaceWidgetManagerStateImpl(
+      {required this.workspaceId, final Map<int, Widget> widgets = const {}})
+      : _widgets = widgets,
+        super._();
+
+  @override
+  final int workspaceId;
+  final Map<int, Widget> _widgets;
+  @override
+  @JsonKey()
+  Map<int, Widget> get widgets {
+    if (_widgets is EqualUnmodifiableMapView) return _widgets;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_widgets);
+  }
+
+  @override
+  String toString() {
+    return 'WorkspaceWidgetManagerState(workspaceId: $workspaceId, widgets: $widgets)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$WorkspaceWidgetManagerStateImpl &&
+            (identical(other.workspaceId, workspaceId) ||
+                other.workspaceId == workspaceId) &&
+            const DeepCollectionEquality().equals(other._widgets, _widgets));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, workspaceId, const DeepCollectionEquality().hash(_widgets));
+
+  /// Create a copy of WorkspaceWidgetManagerState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$WorkspaceWidgetManagerStateImplCopyWith<_$WorkspaceWidgetManagerStateImpl>
+      get copyWith => __$$WorkspaceWidgetManagerStateImplCopyWithImpl<
+          _$WorkspaceWidgetManagerStateImpl>(this, _$identity);
+}
+
+abstract class _WorkspaceWidgetManagerState
+    extends WorkspaceWidgetManagerState {
+  factory _WorkspaceWidgetManagerState(
+      {required final int workspaceId,
+      final Map<int, Widget> widgets}) = _$WorkspaceWidgetManagerStateImpl;
+  _WorkspaceWidgetManagerState._() : super._();
+
+  @override
+  int get workspaceId;
+  @override
+  Map<int, Widget> get widgets;
+
+  /// Create a copy of WorkspaceWidgetManagerState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$WorkspaceWidgetManagerStateImplCopyWith<_$WorkspaceWidgetManagerStateImpl>
+      get copyWith => throw _privateConstructorUsedError;
+}

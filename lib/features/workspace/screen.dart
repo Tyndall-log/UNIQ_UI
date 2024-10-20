@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uniq_ui/common/platform.dart';
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
+import 'package:uniq_ui/features/workspace/widgets/draggable.dart';
 import 'default_value.dart';
 import 'widgets/grid.dart';
 import 'widgets/gesture_detector.dart';
@@ -35,7 +36,7 @@ class WorkspaceScreenState extends State<WorkspaceScreen>
             workspaceId: widget.id,
             vsync: this,
             initialState: WorkspaceViewState(
-              Offset(0, 0),
+              const Offset(0, 0),
               1,
               defaultTimeLength,
             ),
@@ -50,8 +51,6 @@ class WorkspaceScreenState extends State<WorkspaceScreen>
       child: const Stack(
         children: [
           Positioned.fill(
-            left: 0,
-            top: 0,
             child: WorkspaceGestureDetector(
               child: Bb2(),
             ),
@@ -74,6 +73,9 @@ class Bb2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WorkspaceViewBloc, WorkspaceViewState>(
+      // buildWhen: (previous, current) {
+      //   return false;
+      // },
       builder: (context, state) {
         double currentX = state.offset.dx;
         double currentY = state.offset.dy;
@@ -83,19 +85,18 @@ class Bb2 extends StatelessWidget {
         Matrix4 matrixOnlyScale = Matrix4.identity()..scale(state.scale);
 
         final wpms = context.watch<WorkspaceProjectManagerCubit>().state;
-
-        return DragTarget<ProjectCubit>(
+        return DragTarget<WorkspaceDragCubit<ProjectCubit>>(
           builder: (context, candidateData, rejectedData) {
-            print(candidateData);
-            print(rejectedData);
+            // print(candidateData);
+            // print(rejectedData);
             return Stack(
               // clipBehavior: Clip.none,
               clipBehavior: Clip.hardEdge,
               children: [
-                const SizedBox(
-                  width: double.maxFinite,
-                  height: double.maxFinite,
-                ),
+                // const SizedBox(
+                //   width: double.maxFinite,
+                //   height: double.maxFinite,
+                // ),
                 Positioned(
                   left: currentX,
                   top: currentY,
@@ -114,8 +115,36 @@ class Bb2 extends StatelessWidget {
                     ),
                   ),
                 ),
+                Positioned(
+                  left: currentX - 99999999999,
+                  top: currentY,
+                  width: 1000,
+                  height: 800,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        left: 99999999999 -
+                            currentX +
+                            (currentX + 30000 * currentTimeScale) *
+                                currentScale,
+                        top: -currentY + (currentY + 200) * currentScale,
+                        // child: SelectableText(
+                        //   '좌표: 30000, 200',
+                        //   style: TextStyle(fontSize: 14 * currentScale),
+                        // ),
+                        child: Container(
+                          width: 10 * currentScale,
+                          height: 10 * currentScale,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 for (var i = 0; i < wpms.projects.length; i++)
-                  ProjectWidget(projectCubit: wpms.projects[i]),
+                  ProjectWidget(
+                      projectCubit: wpms.projects[i], key: Key('projects_$i')),
                 // for (var i = 0; i < wpms.timeline.length; i++)
                 //   TimelineWidget(cubit: wpms.timeline[i]),
                 // BlocProvider.value(
@@ -188,6 +217,14 @@ class Bb2 extends StatelessWidget {
                     ),
                   ),
                 ),
+                Positioned(
+                  left: (currentX + 30000 * currentTimeScale) * currentScale,
+                  top: (currentY + 100) * currentScale,
+                  child: SelectableText(
+                    '좌표: 30000, 100',
+                    style: TextStyle(fontSize: 14 * currentScale),
+                  ),
+                ),
               ],
             );
           },
@@ -195,22 +232,10 @@ class Bb2 extends StatelessWidget {
             return true;
           },
           onAcceptWithDetails: (data) {
-            var projectCubit = data.data;
-            print(data.offset);
-            print(
-              "? ${Offset(
-                data.offset.dx / currentScale / currentTimeScale,
-                data.offset.dy / currentScale,
-              )}",
-            );
-            // projectCubit.setOffset(
-            //   projectCubit.state.offset +
-            //       Offset(
-            //         data.offset.dx / currentScale / currentTimeScale,
-            //         data.offset.dy / currentScale,
-            //       ),
-            // );
-            print('onAcceptWithDetails');
+            var projectCubit = data.data.state.cubit;
+            projectCubit.setOffset(state.mouseToOffset(data.offset) +
+                Offset(ProjectGlobal.anchor.dx / currentTimeScale,
+                    ProjectGlobal.anchor.dy));
           },
           onLeave: (data) {
             print('onLeave');

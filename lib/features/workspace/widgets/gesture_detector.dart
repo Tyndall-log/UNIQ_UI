@@ -29,11 +29,17 @@ class WorkspaceGestureDetector extends StatelessWidget {
       onPointerSignal: (event) {
         if (event is PointerScrollEvent) {
           bool isCtrlPressed = HardwareKeyboard.instance.isControlPressed;
+          bool isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
           if (isCtrlPressed) {
-            context.read<WorkspaceViewBloc>().add(ScaleTickEvent(
-                1.0 - event.scrollDelta.dy / 500, event.position));
+            if (isShiftPressed) {
+              context.read<WorkspaceViewBloc>().add(
+                  TimeScaleTickEvent(event.scrollDelta.dy, event.position));
+            } else {
+              context
+                  .read<WorkspaceViewBloc>()
+                  .add(ScaleTickEvent(event.scrollDelta.dy, event.position));
+            }
           } else {
-            bool isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
             if (isShiftPressed) {
               context.read<WorkspaceViewBloc>().add(MoveTickEvent(
                   Offset(event.scrollDelta.dy, event.scrollDelta.dx)));
@@ -85,7 +91,10 @@ class WorkspaceGestureDetector extends StatelessWidget {
             context.read<WorkspaceViewBloc>().add(ScaleEndEvent(details));
           }
         },
-        onTap: () => print('Tapped'),
+        onTapDown: (details) {
+          print(
+              'Tap Down(${context.read<WorkspaceViewBloc>().mouseToOffset(details.localPosition)})');
+        },
         // onTapCancel: () {
         //   print('Tap Cancel');
         // },

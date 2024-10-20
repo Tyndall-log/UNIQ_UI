@@ -109,26 +109,27 @@ class _AppInitState extends State<_AppInit> {
             tabItem: WorkspaceTab(workspaceId: data.id),
           ),
         );
-      },
-    );
-    CallbackManager.registerCallback(
-      preferredId: PreferredId.destroy,
-      funcIdName: 'uniq::workspace::workspace',
-      callback: (message) {
-        var data = message.dataPtr.cast<IdLifecycle>().ref;
-        var re = context.read<TabBar.TabBloc>();
-        re.add(
-          TabBar.RemoveTabByTabItem(
-            tabItem: re.state.tabItems.firstWhere(
-              // (element) => (element as WorkspaceTab).workspaceId == data.id),
-              (element) {
-                if (element is WorkspaceTab) {
-                  return element.workspaceId == data.id;
-                }
-                return false;
-              },
-            ),
-          ),
+        CallbackManager.registerCallback(
+          workspaceId: data.id,
+          preferredId: PreferredId.destroy,
+          funcIdName: 'uniq::workspace::workspace',
+          callback: (message) {
+            var data = message.dataPtr.cast<IdLifecycle>().ref;
+            var re = context.read<TabBar.TabBloc>();
+            re.add(
+              TabBar.RemoveTabByTabItem(
+                tabItem: re.state.tabItems.firstWhere(
+                  // (element) => (element as WorkspaceTab).workspaceId == data.id),
+                  (element) {
+                    if (element is WorkspaceTab) {
+                      return element.workspaceId == data.id;
+                    }
+                    return false;
+                  },
+                ),
+              ),
+            );
+          },
         );
       },
     );

@@ -11,22 +11,23 @@ import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
 
 import '../bloc/state.dart';
 import '../default_value.dart';
+import 'common_block.dart';
 
-part 'timeline_group.freezed.dart';
+part 'event_block.freezed.dart';
 
 @freezed
-class TimelineGroupState with _$TimelineGroupState {
-  const TimelineGroupState._();
+class EventBlockState with _$EventBlockState {
+  const EventBlockState._();
 
-  factory TimelineGroupState({
+  factory EventBlockState({
     required Id idInfo,
     required Offset offset,
     // @Default([]) List<int> timeLineGroup,
-  }) = _TimelineGroupState;
+  }) = _EventBlockState;
 }
 
-class TimelineGroupCubit extends Cubit<TimelineGroupState> {
-  TimelineGroupCubit(super.initialState) {
+class EventBlockCubit extends Cubit<EventBlockState> {
+  EventBlockCubit(super.initialState) {
     var id = state.idInfo.id;
     var workspaceId = state.idInfo.workspaceId;
     // CallbackManager.registerCallback(
@@ -75,31 +76,19 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
       Timeline.groupRemove(state.idInfo.id, groupId);
 }
 
-class TimelineGroupWidget extends StatelessWidget {
-  final TimelineGroupCubit cubit;
-  const TimelineGroupWidget({super.key, required this.cubit});
+class EventBlockWidget extends StatelessWidget {
+  final EventBlockCubit cubit;
+  const EventBlockWidget({super.key, required this.cubit});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TimelineGroupCubit>(
+    return BlocProvider<EventBlockCubit>(
       create: (context) => cubit,
-      child: BlocBuilder<TimelineGroupCubit, TimelineGroupState>(
+      child: BlocBuilder<EventBlockCubit, EventBlockState>(
         builder: (context, state) {
-          var wvb = context.watch<WorkspaceViewBloc>();
-          var wvbs = context.watch<WorkspaceViewBloc>().state;
-          double currentX = wvbs.offset.dx;
-          double currentY = wvbs.offset.dy;
-          double currentScale = wvbs.scale;
-          double currentTimeLength = wvbs.timeLength;
-          double currentTimeScale = defaultTimeLength / currentTimeLength;
-          Matrix4 matrixOnlyScale = Matrix4.identity()..scale(currentScale);
-
-          // left: state.offset.dx * currentScale + currentX,
-          // top: state.offset.dy * currentScale + currentY,
-          return Container(
-            width: 100,
-            height: 100,
-            color: Colors.red,
+          return CommonBlock(
+            color: Colors.blue,
+            child: Text('0, 0'),
           );
         },
       ),

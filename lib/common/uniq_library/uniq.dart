@@ -18,6 +18,8 @@ part 'core/log.dart';
 part 'workspace/workspace.dart';
 part 'project/project.dart';
 part 'project/timeline.dart';
+part 'project/timeline_cue.dart';
+part 'project/timeline_group.dart';
 part 'unipack/unipack.dart';
 part 'launchpad/launchpad.dart';
 

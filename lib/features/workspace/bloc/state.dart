@@ -1,6 +1,8 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:flutter/material.dart';
+import '../default_value.dart';
 import '../widgets/project.dart';
 
 part 'state.freezed.dart';
@@ -36,6 +38,13 @@ class WorkspaceViewState {
     this.scale,
     this.timeLength,
   ) : super();
+
+  Offset mouseToOffset(Offset mouse) {
+    return Offset(
+      (mouse.dx / scale - offset.dx) / defaultTimeLength * timeLength,
+      mouse.dy / scale - offset.dy,
+    );
+  }
 }
 //========== WorkspaceViewState End ==========
 
@@ -54,3 +63,15 @@ class WorkspaceProjectManagerState with _$WorkspaceProjectManagerState {
   }) = _WorkspaceProjectManagerState;
 }
 //========== WorkspaceProjectManagerState End ==========
+
+//========== WorkspaceCubitManagerState Start ==========
+@freezed
+class WorkspaceWidgetManagerState with _$WorkspaceWidgetManagerState {
+  const WorkspaceWidgetManagerState._();
+
+  factory WorkspaceWidgetManagerState({
+    required int workspaceId,
+    @Default({}) Map<int, Widget> widgets,
+  }) = _WorkspaceWidgetManagerState;
+}
+//========== WorkspaceCubitManagerState End ==========
