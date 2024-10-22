@@ -8,10 +8,13 @@ import 'dart:math' as math;
 import 'dart:ffi';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
-import 'package:uniq_ui/features/workspace/widgets/cue.dart';
+import 'package:uniq_ui/features/workspace/widgets/timeline_cue.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline_group.dart';
 import '../default_value.dart';
+import '../widgets/audio_block.dart';
+import '../widgets/audio_cue.dart';
+import '../widgets/audio_source.dart';
 import '../widgets/project.dart';
 
 import 'event.dart';
@@ -462,16 +465,16 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
     );
     // ---------- TimelineCue End ----------
     // ---------- AudioSegment Start ----------
-    // _registerLifecycle(
-    //   funcIdName: 'uniq::audio_segment',
-    //   createCallback: (message) {
-    //     var id = _getIdFromCallback(message);
-    //     var cubit = AudioSegmentCubit(
-    //       AudioSegmentState(idInfo: Id(id: id), offset: Offset.zero),
-    //     );
-    //     addWidget(id, cubit, AudioSegmentWidget(cubit: cubit));
-    //   },
-    // );
+    _registerLifecycle(
+      funcIdName: 'uniq::audio_segment',
+      createCallback: (message) {
+        var id = _getIdFromCallback(message);
+        var cubit = AudioBlockCubit(
+          AudioBlockState(idInfo: Id(id: id), offset: Offset.zero),
+        );
+        addWidget(id, cubit, AudioBlockWidget(cubit: cubit));
+      },
+    );
     // ---------- AudioSegment End ----------
     // ---------- LightShow Start ----------
     // _registerLifecycle(
@@ -485,6 +488,30 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
     //   },
     // );
     // ---------- LightShow End ----------
+    // ---------- AudioCue Start ----------
+    _registerLifecycle(
+      funcIdName: 'uniq::audio_cue',
+      createCallback: (message) {
+        var id = _getIdFromCallback(message);
+        var cubit = AudioCueCubit(
+          AudioCueState(idInfo: Id(id: id), point: 0),
+        );
+        addWidget(id, cubit, null);
+      },
+    );
+    // ---------- AudioCue End ----------
+    // ---------- AudioSource Start ----------
+    _registerLifecycle(
+      funcIdName: 'uniq::audio_source',
+      createCallback: (message) {
+        var id = _getIdFromCallback(message);
+        var cubit = AudioSourceCubit(
+          AudioSourceState(idInfo: Id(id: id), offset: Offset.zero),
+        );
+        addWidget(id, cubit, null);
+      },
+    );
+    // ---------- AudioSource End ----------
   }
 
   static WorkspaceWidgetManagerCubit? getInstance(int workspaceId) =>

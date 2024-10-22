@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'cue.dart';
+part of 'audio_cue.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -15,37 +15,37 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
-mixin _$TimelineCueState {
+mixin _$AudioCueState {
   Id get idInfo => throw _privateConstructorUsedError;
   int get point => throw _privateConstructorUsedError;
 
-  /// Create a copy of TimelineCueState
+  /// Create a copy of AudioCueState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $TimelineCueStateCopyWith<TimelineCueState> get copyWith =>
+  $AudioCueStateCopyWith<AudioCueState> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $TimelineCueStateCopyWith<$Res> {
-  factory $TimelineCueStateCopyWith(
-          TimelineCueState value, $Res Function(TimelineCueState) then) =
-      _$TimelineCueStateCopyWithImpl<$Res, TimelineCueState>;
+abstract class $AudioCueStateCopyWith<$Res> {
+  factory $AudioCueStateCopyWith(
+          AudioCueState value, $Res Function(AudioCueState) then) =
+      _$AudioCueStateCopyWithImpl<$Res, AudioCueState>;
   @useResult
   $Res call({Id idInfo, int point});
 }
 
 /// @nodoc
-class _$TimelineCueStateCopyWithImpl<$Res, $Val extends TimelineCueState>
-    implements $TimelineCueStateCopyWith<$Res> {
-  _$TimelineCueStateCopyWithImpl(this._value, this._then);
+class _$AudioCueStateCopyWithImpl<$Res, $Val extends AudioCueState>
+    implements $AudioCueStateCopyWith<$Res> {
+  _$AudioCueStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of TimelineCueState
+  /// Create a copy of AudioCueState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -68,7 +68,7 @@ class _$TimelineCueStateCopyWithImpl<$Res, $Val extends TimelineCueState>
 
 /// @nodoc
 abstract class _$$TimelineCueStateImplCopyWith<$Res>
-    implements $TimelineCueStateCopyWith<$Res> {
+    implements $AudioCueStateCopyWith<$Res> {
   factory _$$TimelineCueStateImplCopyWith(_$TimelineCueStateImpl value,
           $Res Function(_$TimelineCueStateImpl) then) =
       __$$TimelineCueStateImplCopyWithImpl<$Res>;
@@ -79,13 +79,13 @@ abstract class _$$TimelineCueStateImplCopyWith<$Res>
 
 /// @nodoc
 class __$$TimelineCueStateImplCopyWithImpl<$Res>
-    extends _$TimelineCueStateCopyWithImpl<$Res, _$TimelineCueStateImpl>
+    extends _$AudioCueStateCopyWithImpl<$Res, _$TimelineCueStateImpl>
     implements _$$TimelineCueStateImplCopyWith<$Res> {
   __$$TimelineCueStateImplCopyWithImpl(_$TimelineCueStateImpl _value,
       $Res Function(_$TimelineCueStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of TimelineCueState
+  /// Create a copy of AudioCueState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -119,7 +119,7 @@ class _$TimelineCueStateImpl extends _TimelineCueState {
 
   @override
   String toString() {
-    return 'TimelineCueState(idInfo: $idInfo, point: $point)';
+    return 'AudioCueState(idInfo: $idInfo, point: $point)';
   }
 
   @override
@@ -134,7 +134,7 @@ class _$TimelineCueStateImpl extends _TimelineCueState {
   @override
   int get hashCode => Object.hash(runtimeType, idInfo, point);
 
-  /// Create a copy of TimelineCueState
+  /// Create a copy of AudioCueState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
@@ -144,7 +144,7 @@ class _$TimelineCueStateImpl extends _TimelineCueState {
           this, _$identity);
 }
 
-abstract class _TimelineCueState extends TimelineCueState {
+abstract class _TimelineCueState extends AudioCueState {
   factory _TimelineCueState({required final Id idInfo, final int point}) =
       _$TimelineCueStateImpl;
   _TimelineCueState._() : super._();
@@ -154,7 +154,7 @@ abstract class _TimelineCueState extends TimelineCueState {
   @override
   int get point;
 
-  /// Create a copy of TimelineCueState
+  /// Create a copy of AudioCueState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)

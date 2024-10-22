@@ -8,11 +8,13 @@ import 'package:uniq_ui/common/test/children_controlled_layout.dart';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
-import 'package:uniq_ui/features/workspace/widgets/cue.dart';
+import 'package:uniq_ui/features/workspace/widgets/audio_block.dart';
+import 'package:uniq_ui/features/workspace/widgets/timeline_cue.dart';
 import 'package:uniq_ui/features/workspace/widgets/event_block.dart';
 
 import '../bloc/state.dart';
 import '../default_value.dart';
+import 'common_block.dart';
 
 part 'timeline_group.freezed.dart';
 
@@ -23,7 +25,9 @@ class TimelineGroupState with _$TimelineGroupState {
   factory TimelineGroupState({
     required Id idInfo,
     required Offset offset,
-    @Default([]) List<EventBlockCubit> eventList,
+    @Default(100 * 1000) int eventDuration,
+    // @Default([]) List<EventBlockCubit> eventList,
+    @Default([]) List<AudioBlockCubit> audioBlockList,
   }) = _TimelineGroupState;
 }
 
@@ -37,9 +41,33 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
       funcIdName:
           'void uniq::project::timeline_group::start_cue_set(const std::shared_ptr<timeline_cue> &)',
       callback: (ApiCallbackMessage callback) {
-        var timelineCueId = callback.dataPtr.cast<ffi.Int32>().value;
+        var timelineCueId = callback.dataPtr.cast<ffi.Uint64>().value;
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
         wwmc?.resetParentId(parentId: id, id: timelineCueId);
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::project::timeline_group::press_duration_set(press_duration_t)',
+      callback: (ApiCallbackMessage callback) {
+        var eventDuration = callback.dataPtr.cast<ffi.Int64>().value;
+        if (eventDuration < 1000 * 100) {
+          eventDuration = 1000 * 100; // 임시로 최소값 설정
+        }
+        emit(state.copyWith(eventDuration: eventDuration));
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::project::timeline_group::segment_set(const std::shared_ptr<audio_segment> &)',
+      callback: (ApiCallbackMessage callback) {
+        var segmentId = callback.dataPtr.cast<ffi.Int32>().value;
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.resetParentId(parentId: id, id: segmentId);
       },
     );
     // CallbackManager.registerCallback(
@@ -97,18 +125,46 @@ class TimelineGroupWidget extends StatelessWidget {
           double currentTimeScale = defaultTimeLength / currentTimeLength;
           Matrix4 matrixOnlyScale = Matrix4.identity()..scale(currentScale);
 
+          var AudioBlockList = context.select((WorkspaceWidgetManagerCubit w) {
+            return (w.state.objects[AudioBlockCubit] ?? [])
+                .where((pair) => pair.parentId == state.idInfo.id)
+                .toList();
+          });
+
           // left: state.offset.dx * currentScale + currentX,
           // top: state.offset.dy * currentScale + currentY,
           return Transform(
             transform: matrixOnlyScale,
-            child: Container(
-              width: 100,
-              height: 100,
-              color: Colors.red,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: timelineSpace,
+              children: [
+                SizedBox(
+                  width: state.eventDuration *
+                      currentTimeScale /
+                      defaultTimeLength,
+                  height: timelineEventHeight,
+                  // color: Colors.red,
+                  child: EventBlockWidget(),
+                ),
+                for (var pair in AudioBlockList) pair.widget!,
+              ],
             ),
           );
         },
       ),
+    );
+  }
+}
+
+class EventBlockWidget extends StatelessWidget {
+  const EventBlockWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonBlock(
+      color: Colors.indigoAccent.shade100,
+      child: Text('0, 0'),
     );
   }
 }

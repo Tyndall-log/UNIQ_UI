@@ -8,7 +8,7 @@ import 'package:uniq_ui/common/test/children_controlled_layout.dart';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
-import 'package:uniq_ui/features/workspace/widgets/cue.dart';
+import 'package:uniq_ui/features/workspace/widgets/timeline_cue.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline_group.dart';
 
 import '../bloc/state.dart';
@@ -206,15 +206,18 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
     // positionChild(1, offset);
     // offset += Offset(0, layoutSize.height);
     for (var timelineGroup in timelineGroupList) {
-      var point = ((wwmc!.state.objects[TimelineCueCubit] ?? [])
-              .where((pair) => pair.parentId == timelineGroup.state.idInfo.id)
-              .toList()[0]
-              .cubit
-              .state as TimelineCueState)
-          .point
-          .toDouble();
       layoutSize = layoutChild(timelineGroup,
           BoxConstraints.loose(Size(double.maxFinite, timelineAllHeight)));
+      WorkspaceWidgetManagerPair timelineCue;
+      try {
+        timelineCue = (wwmc!.state.objects[TimelineCueCubit] ?? []).firstWhere(
+            (pair) => pair.parentId == timelineGroup.state.idInfo.id);
+      } catch (e) {
+        print("TimelineCueCubit not found"); //TODO: 문제 해결
+        continue;
+      }
+      var point =
+          (timelineCue.cubit.state as TimelineCueState).point.toDouble();
       point *= currentScale / currentTimeLength;
       positionChild(timelineGroup, Offset(point, offset.dy));
     }
