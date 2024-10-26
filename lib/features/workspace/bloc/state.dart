@@ -68,12 +68,13 @@ class WorkspaceProjectManagerState with _$WorkspaceProjectManagerState {
 class WorkspaceWidgetManagerPair {
   final Widget? widget;
   final Cubit cubit;
-  int parentId;
+  // int parentId;
+  List<int> parentIds;
 
   WorkspaceWidgetManagerPair({
     required this.widget,
     required this.cubit,
-    this.parentId = 0,
+    this.parentIds = const [],
   });
 }
 
@@ -84,7 +85,9 @@ class WorkspaceWidgetManagerState with _$WorkspaceWidgetManagerState {
   factory WorkspaceWidgetManagerState({
     required int workspaceId,
     @Default({}) Map<int, WorkspaceWidgetManagerPair> widgets,
-    @Default({}) Map<Type, List<WorkspaceWidgetManagerPair>> objects,
+    // @Default({}) Map<Type, List<WorkspaceWidgetManagerPair>> objects,
+    @Default({})
+    Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>> parentObjects,
   }) = _WorkspaceWidgetManagerState;
 }
 //========== WorkspaceCubitManagerState End ==========

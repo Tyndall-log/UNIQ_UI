@@ -197,11 +197,15 @@ extension CallbackManager on UniqLibrary {
         final message = messagePtr.ref;
         final callback = _callbackKeyMap[
             CallbackKey(message.apiWorkspaceId, message.objId, message.funcId)];
-        if (callback != null) {
-          callback(message);
+        if (message.objId > 11068 && message.objId < 1070) {
+          print('callback: $message');
         } else {
-          Loger.printLog('콜백을 찾을 수 없습니다: $message');
-          count++;
+          if (callback != null) {
+            callback(message);
+          } else {
+            Loger.printLog('콜백을 찾을 수 없습니다: $message');
+            count++;
+          }
         }
         _releaseMessage(messagePtr);
       } while (stopwatch.elapsed < timeLimit);

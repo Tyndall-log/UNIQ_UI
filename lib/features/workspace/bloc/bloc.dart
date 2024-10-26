@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'dart:math' as math;
-import 'dart:ffi';
+import 'dart:ffi' as ffi;
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline_cue.dart';
@@ -446,7 +446,8 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
       createCallback: (message) {
         var id = _getIdFromCallback(message);
         var cubit = TimelineGroupCubit(
-          TimelineGroupState(idInfo: Id(id: id), offset: Offset.zero),
+          TimelineGroupState(
+              idInfo: Id(id: id), offset: Offset.zero, size: Size.zero),
         );
         addWidget(id, cubit, TimelineGroupWidget(cubit: cubit));
       },
@@ -470,7 +471,11 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
       createCallback: (message) {
         var id = _getIdFromCallback(message);
         var cubit = AudioBlockCubit(
-          AudioBlockState(idInfo: Id(id: id), offset: Offset.zero),
+          AudioBlockState(
+            idInfo: Id(id: id),
+            offset: Offset.zero,
+            size: Size.zero,
+          ),
         );
         addWidget(id, cubit, AudioBlockWidget(cubit: cubit));
       },
@@ -517,41 +522,155 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
   static WorkspaceWidgetManagerCubit? getInstance(int workspaceId) =>
       _instances[workspaceId];
 
-  void addWidget(int id, Cubit cubit, Widget? widget) {
+  void addWidget(int id, Cubit cubit, Widget? widget, {int parentId = 0}) {
     var pair = WorkspaceWidgetManagerPair(widget: widget, cubit: cubit);
-    emit(state.copyWith(
-      widgets: {
-        ...state.widgets,
-        id: pair,
-      },
-      objects: {
-        ...state.objects,
-        cubit.runtimeType: [
-          ...(state.objects[cubit.runtimeType] ?? []),
-          pair,
-        ],
-      },
-    ));
+    emit(
+      state.copyWith(
+        widgets: {
+          ...state.widgets,
+          id: pair,
+        },
+        parentObjects: {
+          ...state.parentObjects,
+          parentId: {
+            ...state.parentObjects[parentId] ?? {},
+            cubit.runtimeType: [
+              ...(state.parentObjects[parentId]?[cubit.runtimeType] ?? []),
+              pair,
+            ],
+          },
+        },
+      ),
+    );
   }
 
   void removeWidget(int id) {
     var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
     var removeWidget = newWidgets.remove(id);
     if (removeWidget == null) return;
-    var newObjects = Map<Type, List<WorkspaceWidgetManagerPair>>.from(
-      state.objects,
-    );
-    var removeWidgetList = newObjects[removeWidget.cubit.runtimeType] ?? [];
-    removeWidgetList.remove(removeWidget);
+    var newParentObjects =
+        Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>>.from(
+            state.parentObjects);
+    for (var parentId in removeWidget.parentIds) {
+      var parentObjects = newParentObjects[parentId];
+      if (parentObjects == null) continue;
+      var cubit = removeWidget.cubit;
+      parentObjects[cubit.runtimeType]?.removeWhere((pair) {
+        return pair.cubit == cubit;
+      });
+      // var newParentObjectsList = parentObjects[cubit.runtimeType]?.where((pair) {
+      //   return pair.cubit != cubit;
+      // }).toList();
+      // if (newParentObjectsList == null) continue;
+      // parentObjects[cubit.runtimeType] = newParentObjectsList;
+    }
+    removeWidget.parentIds.clear();
     removeWidget.cubit.close();
+    emit(state.copyWith(widgets: newWidgets, parentObjects: newParentObjects));
+  }
+
+  // void resetParentId({required int id, int parentId = 0}) {
+  //   var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
+  //   var pair = newWidgets[id];
+  //   pair?.parentId = parentId;
+  //   emit(state.copyWith(widgets: newWidgets));
+  // }
+  void clearParentId(int id) {
+    var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
+    var pair = newWidgets[id];
+    if (pair == null) {
+      return;
+    }
+    for (var parentId in pair.parentIds) {
+      var parentObjects = state.parentObjects[parentId];
+      if (parentObjects == null) {
+        continue;
+      }
+      var cubit = pair.cubit;
+      parentObjects[cubit.runtimeType]?.removeWhere((pair) {
+        return pair.cubit == cubit;
+      });
+    }
+    pair.parentIds.clear();
     emit(state.copyWith(widgets: newWidgets));
   }
 
-  void resetParentId({required int id, int parentId = 0}) {
+  void addParentId({required int id, required int parentId}) {
     var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
     var pair = newWidgets[id];
-    pair?.parentId = parentId;
-    emit(state.copyWith(widgets: newWidgets));
+    if (pair == null) {
+      return;
+    }
+    var newParentIds = List<int>.from(pair.parentIds);
+    newParentIds.add(parentId);
+    pair.parentIds = newParentIds;
+    var newParentObjects =
+        Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>>.from(
+            state.parentObjects);
+    var parentObjects = newParentObjects[parentId];
+    parentObjects ??= {};
+    parentObjects[pair.cubit.runtimeType] = [
+      ...(parentObjects[pair.cubit.runtimeType] ?? []),
+      pair,
+    ];
+    newParentObjects[parentId] = parentObjects;
+    emit(state.copyWith(widgets: newWidgets, parentObjects: newParentObjects));
+  }
+
+  void removeParentId({required int id, required int parentId}) {
+    var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
+    var pair = newWidgets[id];
+    if (pair == null) {
+      return;
+    }
+    pair.parentIds.remove(parentId);
+    var newParentObjects =
+        Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>>.from(
+            state.parentObjects);
+    var parentObjects = newParentObjects[parentId];
+    if (parentObjects == null) {
+      return;
+    }
+    var cubit = pair.cubit;
+    parentObjects[cubit.runtimeType]?.removeWhere((pair) {
+      return pair.cubit == cubit;
+    });
+    emit(state.copyWith(widgets: newWidgets, parentObjects: newParentObjects));
+  }
+
+  List<int> getParentIds(int id) {
+    var pair = state.widgets[id];
+    if (pair == null) {
+      return [];
+    }
+    return pair.parentIds;
+  }
+
+  T getWidgetCubit<T extends Cubit>(int id) {
+    var pair = state.widgets[id];
+    if (pair == null) {
+      throw Exception('Widget not found');
+    }
+    return pair.cubit as T;
+  }
+
+  List<WorkspaceWidgetManagerPair> getWidgetCubitList<T extends Cubit>() {
+    //TODO: 최적화 필요
+    return state.widgets.values.where((pair) => pair.cubit is T).toList();
+  }
+
+  List<WorkspaceWidgetManagerPair> getParentWidgetCubitList<T extends Cubit>(
+      {required int parentId}) {
+    var parentObjects = state.parentObjects[parentId];
+    if (parentObjects == null) {
+      return [];
+    }
+    var pairList = parentObjects[T];
+    if (pairList == null) {
+      return [];
+    }
+    // return pairList.map((pair) => pair.cubit as T).toList();
+    return pairList;
   }
 
   int _getIdFromCallback(ApiCallbackMessage message) {

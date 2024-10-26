@@ -26,22 +26,22 @@ extension Timeline on UniqLibrary {
     malloc.free(namePtr);
   }
 
-  // API void timeline_group_add(id_t timeline_id, id_t group_id);
+  // API bool timeline_group_add(id_t timeline_id, id_t group_id);
   // timeline_group_add
-  static final void Function(int, int) _groupAdd = UniqLibrary._uniqLibrary!
-      .lookupFunction<Void Function(Uint64, Uint64), void Function(int, int)>(
+  static final bool Function(int, int) _groupAdd = UniqLibrary._uniqLibrary!
+      .lookupFunction<Bool Function(Uint64, Uint64), bool Function(int, int)>(
           'timeline_group_add');
-  static void groupAdd(int timelineId, int groupId) {
-    _groupAdd(timelineId, groupId);
+  static bool groupAdd(int timelineId, int groupId) {
+    return _groupAdd(timelineId, groupId);
   }
 
-  // API void timeline_group_remove(id_t timeline_id, id_t group_id);
+  // API bool timeline_group_remove(id_t timeline_id, id_t group_id);
   // timeline_group_remove
-  static final void Function(int, int) _groupRemove = UniqLibrary._uniqLibrary!
-      .lookupFunction<Void Function(Uint64, Uint64), void Function(int, int)>(
+  static final bool Function(int, int) _groupRemove = UniqLibrary._uniqLibrary!
+      .lookupFunction<Bool Function(Uint64, Uint64), bool Function(int, int)>(
           'timeline_group_remove');
-  static void groupRemove(int timelineId, int groupId) {
-    _groupRemove(timelineId, groupId);
+  static bool groupRemove(int timelineId, int groupId) {
+    return _groupRemove(timelineId, groupId);
   }
   // ==================== Timeline End ====================
 }

@@ -33,7 +33,8 @@ class TimelineCueCubit extends Cubit<TimelineCueState> {
     );
   }
 
-  void setPoint(int point) => TimelineCue.cuePointSet(state.idInfo.id, point);
+  void setPoint(Duration point) =>
+      TimelineCue.cuePointSet(state.idInfo.id, point.inMicroseconds);
 
   @override
   Future<void> close() {

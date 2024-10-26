@@ -86,7 +86,7 @@ class ProjectCubit extends Cubit<ProjectState> {
       callback: (ApiCallbackMessage callback) {
         var timelineId = callback.dataPtr.cast<ffi.Int32>().value;
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
-        wwmc?.resetParentId(parentId: id, id: timelineId);
+        wwmc?.addParentId(parentId: id, id: timelineId);
       },
     );
   }
@@ -167,6 +167,7 @@ class _ProjectWidgetState extends State<ProjectWidget> {
     projectDragCubit = WorkspaceDragCubit(WorkspaceDragState(
       cubit: widget.projectCubit,
       offset: Offset.zero,
+      size: Size.zero,
     ));
     super.initState();
   }
@@ -187,9 +188,8 @@ class _ProjectWidgetState extends State<ProjectWidget> {
           Matrix4 matrixOnlyScale = Matrix4.identity()..scale(currentScale);
 
           var timeLineList = context.select((WorkspaceWidgetManagerCubit w) {
-            return (w.state.objects[TimelineCubit] ?? [])
-                .where((pair) => pair.parentId == state.idInfo.id)
-                .toList();
+            return w.getParentWidgetCubitList<TimelineCubit>(
+                parentId: state.idInfo.id);
           });
 
           // print(currentX + state.offset.dx * currentTimeScale);
@@ -220,8 +220,6 @@ class _ProjectWidgetState extends State<ProjectWidget> {
                       transform: matrixOnlyScale,
                       child: WorkspaceDraggable<ProjectCubit>(
                         cubit: projectDragCubit,
-                        wvb: wvb,
-                        currentScale: currentScale,
                         child:
                             _ProjectWidget(projectCubit: widget.projectCubit),
                       ),
@@ -252,7 +250,12 @@ class _ProjectWidgetState extends State<ProjectWidget> {
                           ],
                         ),
                         child: Center(
-                          child: Text('타임라인 미리보기'),
+                          child: TextButton(
+                            onPressed: () {
+                              print('타임라인 추가');
+                            },
+                            child: Text('타임라인 추가'),
+                          ),
                         ),
                       ),
                     ),

@@ -9,6 +9,7 @@ import 'package:uniq_ui/common/test/children_controlled_layout.dart';
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
 import 'package:uniq_ui/features/workspace/widgets/audio_block.dart';
+import 'package:uniq_ui/features/workspace/widgets/draggable.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline_cue.dart';
 import 'package:uniq_ui/features/workspace/widgets/event_block.dart';
 
@@ -25,8 +26,9 @@ class TimelineGroupState with _$TimelineGroupState {
   factory TimelineGroupState({
     required Id idInfo,
     required Offset offset,
+    required Size size,
     @Default(100 * 1000) int eventDuration,
-    // @Default([]) List<EventBlockCubit> eventList,
+    @Default(0) int startCueId,
     @Default([]) List<AudioBlockCubit> audioBlockList,
   }) = _TimelineGroupState;
 }
@@ -43,7 +45,8 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
       callback: (ApiCallbackMessage callback) {
         var timelineCueId = callback.dataPtr.cast<ffi.Uint64>().value;
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
-        wwmc?.resetParentId(parentId: id, id: timelineCueId);
+        wwmc?.addParentId(parentId: id, id: timelineCueId);
+        emit(state.copyWith(startCueId: timelineCueId));
       },
     );
     CallbackManager.registerCallback(
@@ -67,7 +70,7 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
       callback: (ApiCallbackMessage callback) {
         var segmentId = callback.dataPtr.cast<ffi.Int32>().value;
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
-        wwmc?.resetParentId(parentId: id, id: segmentId);
+        wwmc?.addParentId(parentId: id, id: segmentId);
       },
     );
     // CallbackManager.registerCallback(
@@ -104,6 +107,12 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
   void addGroup(int groupId) => Timeline.groupAdd(state.idInfo.id, groupId);
   void removeGroup(int groupId) =>
       Timeline.groupRemove(state.idInfo.id, groupId);
+
+  TimelineCueCubit get startCueCubit {
+    var id = state.startCueId;
+    return WorkspaceWidgetManagerCubit.getInstance(state.idInfo.workspaceId)!
+        .getWidgetCubit<TimelineCueCubit>(id);
+  }
 }
 
 class TimelineGroupWidget extends StatelessWidget {
@@ -112,8 +121,29 @@ class TimelineGroupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TimelineGroupCubit>(
-      create: (context) => cubit,
+    return WorkspaceDraggable<TimelineGroupCubit>(
+      cubit: WorkspaceDragCubit<TimelineGroupCubit>(WorkspaceDragState(
+        cubit: cubit,
+        offset: Offset.zero,
+        size: Size.zero,
+      )),
+      autoScale: false,
+      child: _TimelineGroupWidget(key: UniqueKey(), cubit: cubit),
+    );
+  }
+}
+
+class _TimelineGroupWidget extends StatelessWidget {
+  final TimelineGroupCubit cubit;
+  const _TimelineGroupWidget({
+    super.key,
+    required this.cubit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: cubit,
       child: BlocBuilder<TimelineGroupCubit, TimelineGroupState>(
         builder: (context, state) {
           var wvb = context.watch<WorkspaceViewBloc>();
@@ -126,29 +156,34 @@ class TimelineGroupWidget extends StatelessWidget {
           Matrix4 matrixOnlyScale = Matrix4.identity()..scale(currentScale);
 
           var AudioBlockList = context.select((WorkspaceWidgetManagerCubit w) {
-            return (w.state.objects[AudioBlockCubit] ?? [])
-                .where((pair) => pair.parentId == state.idInfo.id)
-                .toList();
+            return w.getParentWidgetCubitList<AudioBlockCubit>(
+                parentId: state.idInfo.id);
           });
+          // print((AudioBlockList[0].cubit.state as AudioBlockState).name);
+          // print((AudioBlockList[0].cubit.state as AudioBlockState).idInfo.id);
+          // print((AudioBlockList[0].cubit.state as AudioBlockState).audioCueEndId
 
           // left: state.offset.dx * currentScale + currentX,
           // top: state.offset.dy * currentScale + currentY,
-          return Transform(
-            transform: matrixOnlyScale,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: timelineSpace,
-              children: [
-                SizedBox(
-                  width: state.eventDuration *
-                      currentTimeScale /
-                      defaultTimeLength,
-                  height: timelineEventHeight,
-                  // color: Colors.red,
-                  child: EventBlockWidget(),
-                ),
-                for (var pair in AudioBlockList) pair.widget!,
-              ],
+          return SizedBox(
+            width: double.maxFinite,
+            child: Transform(
+              transform: matrixOnlyScale,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: timelineSpace,
+                children: [
+                  SizedBox(
+                    width: state.eventDuration *
+                        currentTimeScale /
+                        defaultTimeLength,
+                    height: timelineEventHeight,
+                    // color: Colors.red,
+                    child: EventBlockWidget(),
+                  ),
+                  for (var pair in AudioBlockList) pair.widget!,
+                ],
+              ),
             ),
           );
         },

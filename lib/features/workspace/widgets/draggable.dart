@@ -15,6 +15,7 @@ class WorkspaceDragState<T> with _$WorkspaceDragState<T> {
   factory WorkspaceDragState({
     required T cubit,
     required Offset offset,
+    required Size size,
   }) = _WorkspaceDragState;
 }
 
@@ -29,19 +30,22 @@ class WorkspaceDraggable<T> extends StatelessWidget {
     super.key,
     // required this.projectDragCubit,
     required this.cubit,
-    required this.wvb,
     required this.child,
-    required this.currentScale,
+    this.autoScale = true,
   });
 
   // final ProjectDragCubit projectDragCubit;
   final WorkspaceDragCubit<T> cubit;
-  final WorkspaceViewBloc wvb;
   final Widget child;
-  final double currentScale;
+  final bool autoScale;
 
   @override
   Widget build(BuildContext context) {
+    var wvb = context.watch<WorkspaceViewBloc>();
+    var currentScale =
+        context.select((WorkspaceViewBloc value) => value.state.scale);
+    WorkspaceWidgetManagerCubit wwmc =
+        context.read<WorkspaceWidgetManagerCubit>();
     return DraggableWithCancel<WorkspaceDragCubit<T>>(
       data: cubit,
       feedback: MultiBlocProvider(
@@ -52,21 +56,29 @@ class WorkspaceDraggable<T> extends StatelessWidget {
           BlocProvider.value(
             value: cubit,
           ),
+          BlocProvider.value(
+            value: wwmc,
+          ),
         ],
         child: BlocBuilder<WorkspaceViewBloc, WorkspaceViewState>(
             builder: (context, state) {
           var workspaceDragState = context.watch<WorkspaceDragCubit<T>>().state;
           return Opacity(
             opacity: 0.8,
-            child: Transform(
-              // origin: ProjectGlobal.anchor,
-              // origin: projectDragState.offset,
-              transform: Matrix4.identity()..scale(state.scale),
-              child: Material(
-                color: Colors.transparent,
-                child: child,
-              ),
-            ),
+            child: autoScale
+                ? Transform(
+                    // origin: ProjectGlobal.anchor,
+                    // origin: projectDragState.offset,
+                    transform: Matrix4.identity()..scale(state.scale),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: child,
+                    ),
+                  )
+                : Material(
+                    color: Colors.transparent,
+                    child: child,
+                  ),
           );
         }),
       ),
@@ -74,7 +86,7 @@ class WorkspaceDraggable<T> extends StatelessWidget {
         final RenderBox renderObject = context.findRenderObject()! as RenderBox;
         Offset offset = renderObject.globalToLocal(position);
         cubit.setOffset(offset);
-        return offset * currentScale;
+        return autoScale ? offset * currentScale : offset;
       },
       feedbackOffset: Offset.zero,
       delay: const Duration(milliseconds: 200),

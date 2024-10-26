@@ -26,6 +26,8 @@ class AudioBlockState with _$AudioBlockState {
   factory AudioBlockState({
     required Id idInfo,
     required Offset offset,
+    required Size size,
+    @Default("이름 없음") String name,
     @Default(0) int audioSourceId,
     @Default(0) int audioCueStartId,
     @Default(0) int audioCueEndId,
@@ -40,21 +42,27 @@ class AudioBlockCubit extends Cubit<AudioBlockState> {
       workspaceId: workspaceId,
       objId: id,
       funcIdName:
-          'uniq::audio_segment::audio_segment(const shared_ptr<audio_source> &, const shared_ptr<audio_cue> &, const shared_ptr<audio_cue> &)',
+          'uniq::audio_segment::audio_segment(const shared_ptr<audio_source> &, const shared_ptr<audio_cue> &, const shared_ptr<audio_cue> &, const string &)',
       callback: (ApiCallbackMessage callback) {
         var array = callback.dataPtr.cast<ffi.Uint64>();
         var audioSourceId = array[0];
         var audioCueStartId = array[1];
         var audioCueEndId = array[2];
+        var name = (callback.dataPtr.cast<ffi.Uint64>() + 3)
+            .cast<ffi.Pointer<ffi.Utf8>>()
+            .value
+            .toDartString();
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
-        wwmc?.resetParentId(parentId: id, id: audioSourceId);
-        wwmc?.resetParentId(parentId: id, id: audioCueStartId);
-        wwmc?.resetParentId(parentId: id, id: audioCueEndId);
+        wwmc?.addParentId(parentId: id, id: audioSourceId);
+        wwmc?.addParentId(parentId: id, id: audioCueStartId);
+        wwmc?.addParentId(parentId: id, id: audioCueEndId);
         emit(
           state.copyWith(
-              audioSourceId: audioSourceId,
-              audioCueStartId: audioCueStartId,
-              audioCueEndId: audioCueEndId),
+            audioSourceId: audioSourceId,
+            audioCueStartId: audioCueStartId,
+            audioCueEndId: audioCueEndId,
+            name: name,
+          ),
         );
       },
     );
@@ -101,11 +109,22 @@ class AudioBlockWidget extends StatelessWidget {
           var currentTimeLength =
               context.select((WorkspaceViewBloc w) => w.state.timeLength);
 
+          // //화면에 보이는지 확인
+          // final RenderObject? renderObject = context.findRenderObject();
+          // if (renderObject == null) return SizedBox();
+          // if (renderObject is RenderBox) {
+          //   final position = renderObject.localToGlobal(Offset.zero);
+          //   final size = renderObject.size;
+          //   if (position.dx + size.width < 0 ||
+          //       position.dx > MediaQuery.of(context).size.width) {
+          //     return SizedBox();
+          //   }
+          // }
+
           //오디오 길이 계산
           var pairList = context.select((WorkspaceWidgetManagerCubit w) {
-            return (w.state.objects[AudioCueCubit] ?? [])
-                .where((pair) => pair.parentId == state.idInfo.id)
-                .toList();
+            return w.getParentWidgetCubitList<AudioCueCubit>(
+                parentId: state.idInfo.id);
           });
           var audioCueCubitList = pairList.map((e) => e.cubit).toList();
           Cubit<dynamic> audioCueCubitStart;
@@ -114,9 +133,8 @@ class AudioBlockWidget extends StatelessWidget {
           try {
             sampleRate = context
                 .select((WorkspaceWidgetManagerCubit w) {
-                  return (w.state.objects[AudioSourceCubit] ?? [])
-                      .where((pair) => pair.parentId == state.idInfo.id)
-                      .toList();
+                  return w.getParentWidgetCubitList<AudioSourceCubit>(
+                      parentId: state.idInfo.id);
                 })
                 .first
                 .cubit
@@ -147,9 +165,23 @@ class AudioBlockWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('0, 0'),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      "${state.name}",
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   Expanded(
                     child: WaveWidget(cubit: cubit, width: width),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      "2ch·16bit·44.1kHz",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 10),
+                    ),
                   ),
                 ],
               ),
@@ -177,7 +209,7 @@ class WaveWidget extends StatefulWidget {
 class _WaveWidgetState extends State<WaveWidget> {
   @override
   Widget build(BuildContext context) {
-    if (widget.cubit.state.idInfo.id >= 1080) return SizedBox();
+    // if (widget.cubit.state.idInfo.id >= 1080) return SizedBox();
     var waveData = AudioSegment.waveformGet(
         widget.cubit.state.idInfo.id, widget.width.toInt(), 0);
     return SizedBox(
@@ -207,15 +239,14 @@ class WavePainter extends CustomPainter {
 
     var length = min(data.length, size.width ~/ xStep);
     for (int i = 0; i < length; i++) {
-      final x = i * xStep;
-      final y = midY - (data[i] * midY); // 중앙 기준으로 수직 위치
-      canvas.drawLine(Offset(x, midY), Offset(x, y), paint);
+      final x = i * xStep + 0.5;
+      final y = data[i] * midY;
+      canvas.drawLine(Offset(x, midY + y), Offset(x, midY - y), paint);
     }
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    print('repaint');
     return false;
   }
 }

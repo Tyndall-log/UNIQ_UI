@@ -18,8 +18,9 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$TimelineGroupState {
   Id get idInfo => throw _privateConstructorUsedError;
   Offset get offset => throw _privateConstructorUsedError;
-  int get eventDuration =>
-      throw _privateConstructorUsedError; // @Default([]) List<EventBlockCubit> eventList,
+  Size get size => throw _privateConstructorUsedError;
+  int get eventDuration => throw _privateConstructorUsedError;
+  int get startCueId => throw _privateConstructorUsedError;
   List<AudioBlockCubit> get audioBlockList =>
       throw _privateConstructorUsedError;
 
@@ -39,7 +40,9 @@ abstract class $TimelineGroupStateCopyWith<$Res> {
   $Res call(
       {Id idInfo,
       Offset offset,
+      Size size,
       int eventDuration,
+      int startCueId,
       List<AudioBlockCubit> audioBlockList});
 }
 
@@ -60,7 +63,9 @@ class _$TimelineGroupStateCopyWithImpl<$Res, $Val extends TimelineGroupState>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? size = null,
     Object? eventDuration = null,
+    Object? startCueId = null,
     Object? audioBlockList = null,
   }) {
     return _then(_value.copyWith(
@@ -72,9 +77,17 @@ class _$TimelineGroupStateCopyWithImpl<$Res, $Val extends TimelineGroupState>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      size: null == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as Size,
       eventDuration: null == eventDuration
           ? _value.eventDuration
           : eventDuration // ignore: cast_nullable_to_non_nullable
+              as int,
+      startCueId: null == startCueId
+          ? _value.startCueId
+          : startCueId // ignore: cast_nullable_to_non_nullable
               as int,
       audioBlockList: null == audioBlockList
           ? _value.audioBlockList
@@ -95,7 +108,9 @@ abstract class _$$TimelineGroupStateImplCopyWith<$Res>
   $Res call(
       {Id idInfo,
       Offset offset,
+      Size size,
       int eventDuration,
+      int startCueId,
       List<AudioBlockCubit> audioBlockList});
 }
 
@@ -114,7 +129,9 @@ class __$$TimelineGroupStateImplCopyWithImpl<$Res>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? size = null,
     Object? eventDuration = null,
+    Object? startCueId = null,
     Object? audioBlockList = null,
   }) {
     return _then(_$TimelineGroupStateImpl(
@@ -126,9 +143,17 @@ class __$$TimelineGroupStateImplCopyWithImpl<$Res>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      size: null == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as Size,
       eventDuration: null == eventDuration
           ? _value.eventDuration
           : eventDuration // ignore: cast_nullable_to_non_nullable
+              as int,
+      startCueId: null == startCueId
+          ? _value.startCueId
+          : startCueId // ignore: cast_nullable_to_non_nullable
               as int,
       audioBlockList: null == audioBlockList
           ? _value._audioBlockList
@@ -144,7 +169,9 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
   _$TimelineGroupStateImpl(
       {required this.idInfo,
       required this.offset,
+      required this.size,
       this.eventDuration = 100 * 1000,
+      this.startCueId = 0,
       final List<AudioBlockCubit> audioBlockList = const []})
       : _audioBlockList = audioBlockList,
         super._();
@@ -154,11 +181,14 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
   @override
   final Offset offset;
   @override
+  final Size size;
+  @override
   @JsonKey()
   final int eventDuration;
-// @Default([]) List<EventBlockCubit> eventList,
+  @override
+  @JsonKey()
+  final int startCueId;
   final List<AudioBlockCubit> _audioBlockList;
-// @Default([]) List<EventBlockCubit> eventList,
   @override
   @JsonKey()
   List<AudioBlockCubit> get audioBlockList {
@@ -169,7 +199,7 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
 
   @override
   String toString() {
-    return 'TimelineGroupState(idInfo: $idInfo, offset: $offset, eventDuration: $eventDuration, audioBlockList: $audioBlockList)';
+    return 'TimelineGroupState(idInfo: $idInfo, offset: $offset, size: $size, eventDuration: $eventDuration, startCueId: $startCueId, audioBlockList: $audioBlockList)';
   }
 
   @override
@@ -179,14 +209,23 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
             other is _$TimelineGroupStateImpl &&
             (identical(other.idInfo, idInfo) || other.idInfo == idInfo) &&
             (identical(other.offset, offset) || other.offset == offset) &&
+            (identical(other.size, size) || other.size == size) &&
             (identical(other.eventDuration, eventDuration) ||
                 other.eventDuration == eventDuration) &&
+            (identical(other.startCueId, startCueId) ||
+                other.startCueId == startCueId) &&
             const DeepCollectionEquality()
                 .equals(other._audioBlockList, _audioBlockList));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, idInfo, offset, eventDuration,
+  int get hashCode => Object.hash(
+      runtimeType,
+      idInfo,
+      offset,
+      size,
+      eventDuration,
+      startCueId,
       const DeepCollectionEquality().hash(_audioBlockList));
 
   /// Create a copy of TimelineGroupState
@@ -203,7 +242,9 @@ abstract class _TimelineGroupState extends TimelineGroupState {
   factory _TimelineGroupState(
       {required final Id idInfo,
       required final Offset offset,
+      required final Size size,
       final int eventDuration,
+      final int startCueId,
       final List<AudioBlockCubit> audioBlockList}) = _$TimelineGroupStateImpl;
   _TimelineGroupState._() : super._();
 
@@ -212,7 +253,11 @@ abstract class _TimelineGroupState extends TimelineGroupState {
   @override
   Offset get offset;
   @override
-  int get eventDuration; // @Default([]) List<EventBlockCubit> eventList,
+  Size get size;
+  @override
+  int get eventDuration;
+  @override
+  int get startCueId;
   @override
   List<AudioBlockCubit> get audioBlockList;
 

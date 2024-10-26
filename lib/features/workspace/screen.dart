@@ -89,7 +89,7 @@ class Bb2 extends StatelessWidget {
         // final wwms = context.watch<WorkspaceWidgetManagerCubit>().state;
         final projectList = context.select(
           (WorkspaceWidgetManagerCubit cubit) =>
-              cubit.state.objects[ProjectCubit] ?? [],
+              cubit.getWidgetCubitList<ProjectCubit>(),
         );
         return DragTarget<WorkspaceDragCubit<ProjectCubit>>(
           builder: (context, candidateData, rejectedData) {

@@ -18,6 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$AudioBlockState {
   Id get idInfo => throw _privateConstructorUsedError;
   Offset get offset => throw _privateConstructorUsedError;
+  Size get size => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
   int get audioSourceId => throw _privateConstructorUsedError;
   int get audioCueStartId => throw _privateConstructorUsedError;
   int get audioCueEndId => throw _privateConstructorUsedError;
@@ -38,6 +40,8 @@ abstract class $AudioBlockStateCopyWith<$Res> {
   $Res call(
       {Id idInfo,
       Offset offset,
+      Size size,
+      String name,
       int audioSourceId,
       int audioCueStartId,
       int audioCueEndId});
@@ -60,6 +64,8 @@ class _$AudioBlockStateCopyWithImpl<$Res, $Val extends AudioBlockState>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? size = null,
+    Object? name = null,
     Object? audioSourceId = null,
     Object? audioCueStartId = null,
     Object? audioCueEndId = null,
@@ -73,6 +79,14 @@ class _$AudioBlockStateCopyWithImpl<$Res, $Val extends AudioBlockState>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      size: null == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as Size,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
       audioSourceId: null == audioSourceId
           ? _value.audioSourceId
           : audioSourceId // ignore: cast_nullable_to_non_nullable
@@ -100,6 +114,8 @@ abstract class _$$AudioBlockStateImplCopyWith<$Res>
   $Res call(
       {Id idInfo,
       Offset offset,
+      Size size,
+      String name,
       int audioSourceId,
       int audioCueStartId,
       int audioCueEndId});
@@ -120,6 +136,8 @@ class __$$AudioBlockStateImplCopyWithImpl<$Res>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? size = null,
+    Object? name = null,
     Object? audioSourceId = null,
     Object? audioCueStartId = null,
     Object? audioCueEndId = null,
@@ -133,6 +151,14 @@ class __$$AudioBlockStateImplCopyWithImpl<$Res>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      size: null == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as Size,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
       audioSourceId: null == audioSourceId
           ? _value.audioSourceId
           : audioSourceId // ignore: cast_nullable_to_non_nullable
@@ -155,6 +181,8 @@ class _$AudioBlockStateImpl extends _AudioBlockState {
   _$AudioBlockStateImpl(
       {required this.idInfo,
       required this.offset,
+      required this.size,
+      this.name = "이름 없음",
       this.audioSourceId = 0,
       this.audioCueStartId = 0,
       this.audioCueEndId = 0})
@@ -164,6 +192,11 @@ class _$AudioBlockStateImpl extends _AudioBlockState {
   final Id idInfo;
   @override
   final Offset offset;
+  @override
+  final Size size;
+  @override
+  @JsonKey()
+  final String name;
   @override
   @JsonKey()
   final int audioSourceId;
@@ -176,7 +209,7 @@ class _$AudioBlockStateImpl extends _AudioBlockState {
 
   @override
   String toString() {
-    return 'AudioBlockState(idInfo: $idInfo, offset: $offset, audioSourceId: $audioSourceId, audioCueStartId: $audioCueStartId, audioCueEndId: $audioCueEndId)';
+    return 'AudioBlockState(idInfo: $idInfo, offset: $offset, size: $size, name: $name, audioSourceId: $audioSourceId, audioCueStartId: $audioCueStartId, audioCueEndId: $audioCueEndId)';
   }
 
   @override
@@ -186,6 +219,8 @@ class _$AudioBlockStateImpl extends _AudioBlockState {
             other is _$AudioBlockStateImpl &&
             (identical(other.idInfo, idInfo) || other.idInfo == idInfo) &&
             (identical(other.offset, offset) || other.offset == offset) &&
+            (identical(other.size, size) || other.size == size) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.audioSourceId, audioSourceId) ||
                 other.audioSourceId == audioSourceId) &&
             (identical(other.audioCueStartId, audioCueStartId) ||
@@ -195,8 +230,8 @@ class _$AudioBlockStateImpl extends _AudioBlockState {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, idInfo, offset, audioSourceId,
-      audioCueStartId, audioCueEndId);
+  int get hashCode => Object.hash(runtimeType, idInfo, offset, size, name,
+      audioSourceId, audioCueStartId, audioCueEndId);
 
   /// Create a copy of AudioBlockState
   /// with the given fields replaced by the non-null parameter values.
@@ -212,6 +247,8 @@ abstract class _AudioBlockState extends AudioBlockState {
   factory _AudioBlockState(
       {required final Id idInfo,
       required final Offset offset,
+      required final Size size,
+      final String name,
       final int audioSourceId,
       final int audioCueStartId,
       final int audioCueEndId}) = _$AudioBlockStateImpl;
@@ -221,6 +258,10 @@ abstract class _AudioBlockState extends AudioBlockState {
   Id get idInfo;
   @override
   Offset get offset;
+  @override
+  Size get size;
+  @override
+  String get name;
   @override
   int get audioSourceId;
   @override

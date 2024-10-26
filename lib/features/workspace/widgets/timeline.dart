@@ -1,4 +1,5 @@
 import 'dart:ffi' as ffi;
+import 'dart:math';
 
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:uniq_ui/common/test/children_controlled_layout.dart';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/features/workspace/bloc/bloc.dart';
+import 'package:uniq_ui/features/workspace/widgets/draggable.dart';
+import 'package:uniq_ui/features/workspace/widgets/project.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline_cue.dart';
 import 'package:uniq_ui/features/workspace/widgets/timeline_group.dart';
 
@@ -50,7 +53,7 @@ class TimelineCubit extends Cubit<TimelineState> {
       callback: (ApiCallbackMessage callback) {
         var groupId = callback.dataPtr.cast<ffi.Int32>().value;
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
-        wwmc?.resetParentId(parentId: id, id: groupId);
+        wwmc?.addParentId(parentId: id, id: groupId);
       },
     );
     CallbackManager.registerCallback(
@@ -73,10 +76,17 @@ class TimelineCubit extends Cubit<TimelineState> {
     return super.close();
   }
 
+  Duration mouseToDuration(BuildContext context, Offset mouse) {
+    var wvbs = context.read<WorkspaceViewBloc>().state;
+    var projectCubit = context.read<ProjectCubit>();
+    var offset = wvbs.mouseToOffset(mouse) - projectCubit.state.offset;
+    return Duration(microseconds: (offset.dx * defaultTimeLength).toInt());
+  }
+
   String getName() => Timeline.nameGet(state.idInfo.id);
   void setName(String name) => Timeline.nameSet(state.idInfo.id, name);
-  void addGroup(int groupId) => Timeline.groupAdd(state.idInfo.id, groupId);
-  void removeGroup(int groupId) =>
+  bool addGroup(int groupId) => Timeline.groupAdd(state.idInfo.id, groupId);
+  bool removeGroup(int groupId) =>
       Timeline.groupRemove(state.idInfo.id, groupId);
 }
 
@@ -101,69 +111,96 @@ class TimelineWidget extends StatelessWidget {
 
           var timelineGroupList =
               context.select((WorkspaceWidgetManagerCubit w) {
-            return (w.state.objects[TimelineGroupCubit] ?? [])
-                .where((pair) => pair.parentId == state.idInfo.id)
-                .toList();
+            return w.getParentWidgetCubitList<TimelineGroupCubit>(
+                parentId: state.idInfo.id);
           });
 
           // left: state.offset.dx * currentScale + currentX,
           // top: state.offset.dy * currentScale + currentY,
-          return ChildrenControlledLayout(
-            delegate: TimelineLayoutDelegate(
-              workspaceViewBloc: wvb,
-              timelineCubit: cubit,
-              timelineGroupList: timelineGroupList
-                  .map((e) => e.cubit as TimelineGroupCubit)
-                  .toList(),
-            ),
-            children: [
-              LayoutId(
-                id: 0,
-                child: Transform(
-                  transform: matrixOnlyScale,
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
-                        icon: Icon(Icons.power_settings_new),
-                        onPressed: () {},
+          return DragTarget<WorkspaceDragCubit<TimelineGroupCubit>>(
+            onAcceptWithDetails: (onAcceptWithDetails) {
+              var timelineGroupCubit = onAcceptWithDetails.data.state.cubit;
+              var duration =
+                  cubit.mouseToDuration(context, onAcceptWithDetails.offset);
+              timelineGroupCubit.startCueCubit.setPoint(duration);
+              var wwmc = WorkspaceWidgetManagerCubit.getInstance(
+                  timelineGroupCubit.state.idInfo.workspaceId)!;
+              var id = timelineGroupCubit.state.idInfo.id;
+              var sourceParentId = wwmc.getParentIds(id)[0];
+              if (sourceParentId == state.idInfo.id) {
+                return;
+              }
+              cubit.addGroup(
+                  onAcceptWithDetails.data.state.cubit.state.idInfo.id);
+              if (sourceParentId != 0) {
+                var sourceParent =
+                    wwmc.getWidgetCubit<TimelineCubit>(sourceParentId);
+                sourceParent.removeGroup(id);
+              }
+            },
+            onWillAcceptWithDetails: (onWillAcceptWithDetails) {
+              return true;
+            },
+            onLeave: (data) {},
+            builder: (context, candidateData, rejectedData) {
+              return ChildrenControlledLayout(
+                delegate: TimelineLayoutDelegate(
+                  workspaceViewBloc: wvb,
+                  timelineCubit: cubit,
+                  timelineGroupList: timelineGroupList
+                      .map((e) => e.cubit as TimelineGroupCubit)
+                      .toList(),
+                ),
+                children: [
+                  LayoutId(
+                    id: 0,
+                    child: Transform(
+                      transform: matrixOnlyScale,
+                      child: Row(
+                        spacing: 10,
+                        children: [
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(),
+                            icon: Icon(Icons.power_settings_new),
+                            onPressed: () {},
+                          ),
+                          Text(state.name,
+                              style: TextStyle(
+                                fontSize: 16,
+                              )),
+                        ],
                       ),
-                      Text(state.name,
-                          style: TextStyle(
-                            fontSize: 16,
-                          )),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              // LayoutId(
-              //   id: 1,
-              //   child: Transform(
-              //     transform: matrixOnlyScale,
-              //     child: Stack(
-              //       children: [
-              //         Positioned(
-              //           left: 0,
-              //           top: 0,
-              //           child: Container(
-              //             width: 100,
-              //             height: 10,
-              //             color: Colors.red,
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              for (var pair in timelineGroupList)
-                LayoutId(
-                  id: pair.cubit,
-                  child: pair.widget!,
-                ),
-              // Text(state.timeLineGroup.toString()),
-            ],
+                  // LayoutId(
+                  //   id: 1,
+                  //   child: Transform(
+                  //     transform: matrixOnlyScale,
+                  //     child: Stack(
+                  //       children: [
+                  //         Positioned(
+                  //           left: 0,
+                  //           top: 0,
+                  //           child: Container(
+                  //             width: 100,
+                  //             height: 10,
+                  //             color: Colors.red,
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
+                  for (var pair in timelineGroupList)
+                    LayoutId(
+                      id: pair.cubit,
+                      child: pair.widget!,
+                    ),
+                  // Text(state.timeLineGroup.toString()),
+                ],
+              );
+            },
           );
         },
       ),
@@ -210,8 +247,10 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
           BoxConstraints.loose(Size(double.maxFinite, timelineAllHeight)));
       WorkspaceWidgetManagerPair timelineCue;
       try {
-        timelineCue = (wwmc!.state.objects[TimelineCueCubit] ?? []).firstWhere(
-            (pair) => pair.parentId == timelineGroup.state.idInfo.id);
+        // timelineCue = (wwmc!.state.objects[TimelineCueCubit] ?? []).firstWhere(
+        //     (pair) => pair.parentId == timelineGroup.state.idInfo.id);
+        timelineCue = wwmc!.getParentWidgetCubitList<TimelineCueCubit>(
+            parentId: timelineGroup.state.idInfo.id)[0];
       } catch (e) {
         print("TimelineCueCubit not found"); //TODO: 문제 해결
         continue;
@@ -222,7 +261,7 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
       positionChild(timelineGroup, Offset(point, offset.dy));
     }
     offset += Offset(0, timelineAllHeight);
-    return Size(size.width == double.infinity ? layoutSize.width : size.width,
+    return Size(size.width == double.infinity ? double.maxFinite : size.width,
         offset.dy);
   }
 

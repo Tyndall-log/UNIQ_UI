@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$WorkspaceDragState<T> {
   T get cubit => throw _privateConstructorUsedError;
   Offset get offset => throw _privateConstructorUsedError;
+  Size get size => throw _privateConstructorUsedError;
 
   /// Create a copy of WorkspaceDragState
   /// with the given fields replaced by the non-null parameter values.
@@ -32,7 +33,7 @@ abstract class $WorkspaceDragStateCopyWith<T, $Res> {
           $Res Function(WorkspaceDragState<T>) then) =
       _$WorkspaceDragStateCopyWithImpl<T, $Res, WorkspaceDragState<T>>;
   @useResult
-  $Res call({T cubit, Offset offset});
+  $Res call({T cubit, Offset offset, Size size});
 }
 
 /// @nodoc
@@ -53,6 +54,7 @@ class _$WorkspaceDragStateCopyWithImpl<T, $Res,
   $Res call({
     Object? cubit = freezed,
     Object? offset = null,
+    Object? size = null,
   }) {
     return _then(_value.copyWith(
       cubit: freezed == cubit
@@ -63,6 +65,10 @@ class _$WorkspaceDragStateCopyWithImpl<T, $Res,
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      size: null == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as Size,
     ) as $Val);
   }
 }
@@ -75,7 +81,7 @@ abstract class _$$WorkspaceDragStateImplCopyWith<T, $Res>
       __$$WorkspaceDragStateImplCopyWithImpl<T, $Res>;
   @override
   @useResult
-  $Res call({T cubit, Offset offset});
+  $Res call({T cubit, Offset offset, Size size});
 }
 
 /// @nodoc
@@ -94,6 +100,7 @@ class __$$WorkspaceDragStateImplCopyWithImpl<T, $Res>
   $Res call({
     Object? cubit = freezed,
     Object? offset = null,
+    Object? size = null,
   }) {
     return _then(_$WorkspaceDragStateImpl<T>(
       cubit: freezed == cubit
@@ -104,6 +111,10 @@ class __$$WorkspaceDragStateImplCopyWithImpl<T, $Res>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      size: null == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as Size,
     ));
   }
 }
@@ -111,17 +122,20 @@ class __$$WorkspaceDragStateImplCopyWithImpl<T, $Res>
 /// @nodoc
 
 class _$WorkspaceDragStateImpl<T> extends _WorkspaceDragState<T> {
-  _$WorkspaceDragStateImpl({required this.cubit, required this.offset})
+  _$WorkspaceDragStateImpl(
+      {required this.cubit, required this.offset, required this.size})
       : super._();
 
   @override
   final T cubit;
   @override
   final Offset offset;
+  @override
+  final Size size;
 
   @override
   String toString() {
-    return 'WorkspaceDragState<$T>(cubit: $cubit, offset: $offset)';
+    return 'WorkspaceDragState<$T>(cubit: $cubit, offset: $offset, size: $size)';
   }
 
   @override
@@ -130,12 +144,13 @@ class _$WorkspaceDragStateImpl<T> extends _WorkspaceDragState<T> {
         (other.runtimeType == runtimeType &&
             other is _$WorkspaceDragStateImpl<T> &&
             const DeepCollectionEquality().equals(other.cubit, cubit) &&
-            (identical(other.offset, offset) || other.offset == offset));
+            (identical(other.offset, offset) || other.offset == offset) &&
+            (identical(other.size, size) || other.size == size));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(cubit), offset);
+      runtimeType, const DeepCollectionEquality().hash(cubit), offset, size);
 
   /// Create a copy of WorkspaceDragState
   /// with the given fields replaced by the non-null parameter values.
@@ -150,13 +165,16 @@ class _$WorkspaceDragStateImpl<T> extends _WorkspaceDragState<T> {
 abstract class _WorkspaceDragState<T> extends WorkspaceDragState<T> {
   factory _WorkspaceDragState(
       {required final T cubit,
-      required final Offset offset}) = _$WorkspaceDragStateImpl<T>;
+      required final Offset offset,
+      required final Size size}) = _$WorkspaceDragStateImpl<T>;
   _WorkspaceDragState._() : super._();
 
   @override
   T get cubit;
   @override
   Offset get offset;
+  @override
+  Size get size;
 
   /// Create a copy of WorkspaceDragState
   /// with the given fields replaced by the non-null parameter values.

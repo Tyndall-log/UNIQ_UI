@@ -186,8 +186,8 @@ abstract class _WorkspaceProjectManagerState
 mixin _$WorkspaceWidgetManagerState {
   int get workspaceId => throw _privateConstructorUsedError;
   Map<int, WorkspaceWidgetManagerPair> get widgets =>
-      throw _privateConstructorUsedError;
-  Map<Type, List<WorkspaceWidgetManagerPair>> get objects =>
+      throw _privateConstructorUsedError; // @Default({}) Map<Type, List<WorkspaceWidgetManagerPair>> objects,
+  Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>> get parentObjects =>
       throw _privateConstructorUsedError;
 
   /// Create a copy of WorkspaceWidgetManagerState
@@ -208,7 +208,7 @@ abstract class $WorkspaceWidgetManagerStateCopyWith<$Res> {
   $Res call(
       {int workspaceId,
       Map<int, WorkspaceWidgetManagerPair> widgets,
-      Map<Type, List<WorkspaceWidgetManagerPair>> objects});
+      Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>> parentObjects});
 }
 
 /// @nodoc
@@ -229,7 +229,7 @@ class _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
   $Res call({
     Object? workspaceId = null,
     Object? widgets = null,
-    Object? objects = null,
+    Object? parentObjects = null,
   }) {
     return _then(_value.copyWith(
       workspaceId: null == workspaceId
@@ -240,10 +240,10 @@ class _$WorkspaceWidgetManagerStateCopyWithImpl<$Res,
           ? _value.widgets
           : widgets // ignore: cast_nullable_to_non_nullable
               as Map<int, WorkspaceWidgetManagerPair>,
-      objects: null == objects
-          ? _value.objects
-          : objects // ignore: cast_nullable_to_non_nullable
-              as Map<Type, List<WorkspaceWidgetManagerPair>>,
+      parentObjects: null == parentObjects
+          ? _value.parentObjects
+          : parentObjects // ignore: cast_nullable_to_non_nullable
+              as Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>>,
     ) as $Val);
   }
 }
@@ -260,7 +260,7 @@ abstract class _$$WorkspaceWidgetManagerStateImplCopyWith<$Res>
   $Res call(
       {int workspaceId,
       Map<int, WorkspaceWidgetManagerPair> widgets,
-      Map<Type, List<WorkspaceWidgetManagerPair>> objects});
+      Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>> parentObjects});
 }
 
 /// @nodoc
@@ -280,7 +280,7 @@ class __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>
   $Res call({
     Object? workspaceId = null,
     Object? widgets = null,
-    Object? objects = null,
+    Object? parentObjects = null,
   }) {
     return _then(_$WorkspaceWidgetManagerStateImpl(
       workspaceId: null == workspaceId
@@ -291,10 +291,10 @@ class __$$WorkspaceWidgetManagerStateImplCopyWithImpl<$Res>
           ? _value._widgets
           : widgets // ignore: cast_nullable_to_non_nullable
               as Map<int, WorkspaceWidgetManagerPair>,
-      objects: null == objects
-          ? _value._objects
-          : objects // ignore: cast_nullable_to_non_nullable
-              as Map<Type, List<WorkspaceWidgetManagerPair>>,
+      parentObjects: null == parentObjects
+          ? _value._parentObjects
+          : parentObjects // ignore: cast_nullable_to_non_nullable
+              as Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>>,
     ));
   }
 }
@@ -305,9 +305,10 @@ class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
   _$WorkspaceWidgetManagerStateImpl(
       {required this.workspaceId,
       final Map<int, WorkspaceWidgetManagerPair> widgets = const {},
-      final Map<Type, List<WorkspaceWidgetManagerPair>> objects = const {}})
+      final Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>>
+          parentObjects = const {}})
       : _widgets = widgets,
-        _objects = objects,
+        _parentObjects = parentObjects,
         super._();
 
   @override
@@ -321,18 +322,20 @@ class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
     return EqualUnmodifiableMapView(_widgets);
   }
 
-  final Map<Type, List<WorkspaceWidgetManagerPair>> _objects;
+// @Default({}) Map<Type, List<WorkspaceWidgetManagerPair>> objects,
+  final Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>> _parentObjects;
+// @Default({}) Map<Type, List<WorkspaceWidgetManagerPair>> objects,
   @override
   @JsonKey()
-  Map<Type, List<WorkspaceWidgetManagerPair>> get objects {
-    if (_objects is EqualUnmodifiableMapView) return _objects;
+  Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>> get parentObjects {
+    if (_parentObjects is EqualUnmodifiableMapView) return _parentObjects;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_objects);
+    return EqualUnmodifiableMapView(_parentObjects);
   }
 
   @override
   String toString() {
-    return 'WorkspaceWidgetManagerState(workspaceId: $workspaceId, widgets: $widgets, objects: $objects)';
+    return 'WorkspaceWidgetManagerState(workspaceId: $workspaceId, widgets: $widgets, parentObjects: $parentObjects)';
   }
 
   @override
@@ -343,7 +346,8 @@ class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
             (identical(other.workspaceId, workspaceId) ||
                 other.workspaceId == workspaceId) &&
             const DeepCollectionEquality().equals(other._widgets, _widgets) &&
-            const DeepCollectionEquality().equals(other._objects, _objects));
+            const DeepCollectionEquality()
+                .equals(other._parentObjects, _parentObjects));
   }
 
   @override
@@ -351,7 +355,7 @@ class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
       runtimeType,
       workspaceId,
       const DeepCollectionEquality().hash(_widgets),
-      const DeepCollectionEquality().hash(_objects));
+      const DeepCollectionEquality().hash(_parentObjects));
 
   /// Create a copy of WorkspaceWidgetManagerState
   /// with the given fields replaced by the non-null parameter values.
@@ -366,18 +370,19 @@ class _$WorkspaceWidgetManagerStateImpl extends _WorkspaceWidgetManagerState {
 abstract class _WorkspaceWidgetManagerState
     extends WorkspaceWidgetManagerState {
   factory _WorkspaceWidgetManagerState(
-          {required final int workspaceId,
-          final Map<int, WorkspaceWidgetManagerPair> widgets,
-          final Map<Type, List<WorkspaceWidgetManagerPair>> objects}) =
-      _$WorkspaceWidgetManagerStateImpl;
+      {required final int workspaceId,
+      final Map<int, WorkspaceWidgetManagerPair> widgets,
+      final Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>>
+          parentObjects}) = _$WorkspaceWidgetManagerStateImpl;
   _WorkspaceWidgetManagerState._() : super._();
 
   @override
   int get workspaceId;
   @override
-  Map<int, WorkspaceWidgetManagerPair> get widgets;
+  Map<int, WorkspaceWidgetManagerPair>
+      get widgets; // @Default({}) Map<Type, List<WorkspaceWidgetManagerPair>> objects,
   @override
-  Map<Type, List<WorkspaceWidgetManagerPair>> get objects;
+  Map<int, Map<Type, List<WorkspaceWidgetManagerPair>>> get parentObjects;
 
   /// Create a copy of WorkspaceWidgetManagerState
   /// with the given fields replaced by the non-null parameter values.
