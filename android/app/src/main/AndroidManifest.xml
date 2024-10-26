@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <meta-data
+        android:name="io.flutter.embedding.android.EnableImpeller"
+        android:value="false" />
     <application
         android:label="uniq_ui"
         android:name="${applicationName}"

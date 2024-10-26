@@ -13,7 +13,7 @@ class CommonBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(8),

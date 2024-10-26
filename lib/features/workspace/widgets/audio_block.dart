@@ -1,7 +1,9 @@
 import 'dart:ffi' as ffi;
+import 'dart:math';
 
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uniq_ui/common/test/children_controlled_layout.dart';
@@ -132,19 +134,88 @@ class AudioBlockWidget extends StatelessWidget {
           var audioCueEnd = audioCueCubitEnd.state.point;
           var audioLength = audioCueEnd - audioCueStart;
 
+          var width = (audioLength / sampleRate) *
+              100 /
+              currentTimeLength *
+              defaultTimeLength;
+
           return SizedBox(
-            width: (audioLength / sampleRate) *
-                100 /
-                currentTimeLength *
-                defaultTimeLength,
+            width: width,
             height: timelineAudioHeight,
             child: CommonBlock(
               color: Colors.lightBlueAccent.shade100,
-              child: Text('0, 0'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('0, 0'),
+                  Expanded(
+                    child: WaveWidget(cubit: cubit, width: width),
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
     );
+  }
+}
+
+class WaveWidget extends StatefulWidget {
+  final double width;
+  final AudioBlockCubit cubit;
+  const WaveWidget({
+    super.key,
+    required this.cubit,
+    required this.width,
+  });
+
+  @override
+  State<WaveWidget> createState() => _WaveWidgetState();
+}
+
+class _WaveWidgetState extends State<WaveWidget> {
+  @override
+  Widget build(BuildContext context) {
+    if (widget.cubit.state.idInfo.id >= 1080) return SizedBox();
+    var waveData = AudioSegment.waveformGet(
+        widget.cubit.state.idInfo.id, widget.width.toInt(), 0);
+    return SizedBox(
+      width: widget.width,
+      child: CustomPaint(
+        painter: WavePainter(waveData),
+      ),
+    );
+  }
+}
+
+class WavePainter extends CustomPainter {
+  final List<double> data;
+  // final double pixelRatio;
+
+  WavePainter(this.data);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.blue
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    final midY = size.height / 2;
+    final xStep = 1.0;
+
+    var length = min(data.length, size.width ~/ xStep);
+    for (int i = 0; i < length; i++) {
+      final x = i * xStep;
+      final y = midY - (data[i] * midY); // 중앙 기준으로 수직 위치
+      canvas.drawLine(Offset(x, midY), Offset(x, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    print('repaint');
+    return false;
   }
 }

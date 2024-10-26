@@ -47,6 +47,9 @@ class _MyAppState extends State<MyApp> {
     // print('build MyApp');
 
     return MaterialApp(
+      theme: ThemeData(
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, //버튼 padding 제거
+      ),
       home: BlocProvider(
         create: (context) => TabBar.TabBloc(
           context: context,

@@ -11,6 +11,8 @@ import 'package:uniq_ui/common/sample_toast.dart';
 import 'alias.dart';
 
 part 'api/api.dart';
+part 'audio/audio_segment.dart';
+part 'audio/audio_source.dart';
 part 'core/callback_manager.dart';
 part 'core/id.dart';
 part 'core/hash.dart';

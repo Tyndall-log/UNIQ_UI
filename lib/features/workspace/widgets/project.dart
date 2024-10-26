@@ -401,6 +401,9 @@ class _ProjectWidget extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         iconSize: 20,
                         constraints: BoxConstraints(),
+                        style: ButtonStyle(
+                          padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        ),
                         icon: Icon(Icons.play_arrow),
                         onPressed: () {},
                       ),
