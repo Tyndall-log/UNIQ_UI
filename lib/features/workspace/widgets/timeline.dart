@@ -88,6 +88,10 @@ class TimelineCubit extends Cubit<TimelineState> {
   bool addGroup(int groupId) => Timeline.groupAdd(state.idInfo.id, groupId);
   bool removeGroup(int groupId) =>
       Timeline.groupRemove(state.idInfo.id, groupId);
+
+  void setOffset(Offset offset) {
+    emit(state.copyWith(offset: offset));
+  }
 }
 
 class TimelineWidget extends StatelessWidget {
@@ -257,8 +261,13 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
       }
       var point =
           (timelineCue.cubit.state as TimelineCueState).point.toDouble();
+      timelineGroup.setOffset(timelineCubit.state.offset +
+          Offset(point / defaultTimeLength, offset.dy));
       point *= currentScale / currentTimeLength;
+      // timelineGroup
+      //     .setOffset(Offset(currentX * currentScale + point, offset.dy));
       positionChild(timelineGroup, Offset(point, offset.dy));
+      // print();
     }
     offset += Offset(0, timelineAllHeight);
     return Size(size.width == double.infinity ? double.maxFinite : size.width,

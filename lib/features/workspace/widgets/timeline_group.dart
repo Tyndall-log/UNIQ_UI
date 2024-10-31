@@ -113,6 +113,10 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
     return WorkspaceWidgetManagerCubit.getInstance(state.idInfo.workspaceId)!
         .getWidgetCubit<TimelineCueCubit>(id);
   }
+
+  void setOffset(Offset offset) {
+    emit(state.copyWith(offset: offset));
+  }
 }
 
 class TimelineGroupWidget extends StatelessWidget {
@@ -128,7 +132,7 @@ class TimelineGroupWidget extends StatelessWidget {
         size: Size.zero,
       )),
       autoScale: false,
-      child: _TimelineGroupWidget(key: UniqueKey(), cubit: cubit),
+      child: _TimelineGroupWidget(cubit: cubit),
     );
   }
 }
@@ -165,6 +169,16 @@ class _TimelineGroupWidget extends StatelessWidget {
 
           // left: state.offset.dx * currentScale + currentX,
           // top: state.offset.dy * currentScale + currentY,
+          for (var pair in AudioBlockList) {
+            (pair.cubit as AudioBlockCubit).setOffset(Offset(
+              state.offset.dx,
+              state.offset.dy + timelineSpace + timelineEventHeight,
+            ));
+            // ..setSize(Size(
+            //   state.size.width,
+            //   timelineAudioHeight,
+            // ));
+          }
           return SizedBox(
             width: double.maxFinite,
             child: Transform(
@@ -179,7 +193,7 @@ class _TimelineGroupWidget extends StatelessWidget {
                         defaultTimeLength,
                     height: timelineEventHeight,
                     // color: Colors.red,
-                    child: EventBlockWidget(),
+                    child: const EventBlockWidget(),
                   ),
                   for (var pair in AudioBlockList) pair.widget!,
                 ],

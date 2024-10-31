@@ -54,10 +54,10 @@ class WorkspaceDraggable<T> extends StatelessWidget {
             value: wvb,
           ),
           BlocProvider.value(
-            value: cubit,
+            value: wwmc,
           ),
           BlocProvider.value(
-            value: wwmc,
+            value: cubit,
           ),
         ],
         child: BlocBuilder<WorkspaceViewBloc, WorkspaceViewState>(

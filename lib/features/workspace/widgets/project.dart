@@ -96,6 +96,7 @@ class ProjectCubit extends Cubit<ProjectState> {
 
   @override
   Future<void> close() {
+    print('ProjectCubit close');
     CallbackManager.unregisterCallbackByObjIdAll(state.idInfo.id);
     return super.close();
   }
@@ -191,6 +192,12 @@ class _ProjectWidgetState extends State<ProjectWidget> {
             return w.getParentWidgetCubitList<TimelineCubit>(
                 parentId: state.idInfo.id);
           });
+          for (var pair in timeLineList) {
+            (pair.cubit as TimelineCubit).setOffset(Offset(
+              state.offset.dx,
+              state.offset.dy,
+            ));
+          }
 
           // print(currentX + state.offset.dx * currentTimeScale);
           // print((currentX + state.offset.dx * currentTimeScale) * currentScale);

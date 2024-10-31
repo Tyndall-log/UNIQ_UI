@@ -285,6 +285,10 @@ class WorkspaceViewBloc extends Bloc<WorkspaceViewEvent, WorkspaceViewState> {
   Offset mouseToOffset(Offset mouse) {
     return state.mouseToOffset(mouse);
   }
+
+  double mouseToTime(double x) {
+    return state.mouseToTime(x);
+  }
 }
 //========== WorkspaceViewBloc End ==========
 
@@ -564,7 +568,7 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
       // if (newParentObjectsList == null) continue;
       // parentObjects[cubit.runtimeType] = newParentObjectsList;
     }
-    removeWidget.parentIds.clear();
+    // removeWidget.parentIds.clear();
     removeWidget.cubit.close();
     emit(state.copyWith(widgets: newWidgets, parentObjects: newParentObjects));
   }

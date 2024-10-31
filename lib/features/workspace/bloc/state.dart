@@ -45,6 +45,10 @@ class WorkspaceViewState {
       mouse.dy / scale - offset.dy,
     );
   }
+
+  double mouseToTime(double mouse) {
+    return (mouse / scale - offset.dx) / defaultTimeLength * timeLength;
+  }
 }
 //========== WorkspaceViewState End ==========
 
