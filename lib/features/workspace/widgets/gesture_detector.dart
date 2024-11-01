@@ -17,6 +17,8 @@ var _tapDownPosition = Offset.zero;
 var _tapDownLocalPosition = Offset.zero;
 int _tapDragTimeDeadline = 300;
 bool _tapDragFlag = false;
+var _tapDragTime = DateTime.now().millisecondsSinceEpoch;
+var _tapDragStartPosition = Offset.zero;
 
 class WorkspaceGestureDetector extends StatelessWidget {
   final Widget? child;
@@ -54,7 +56,11 @@ class WorkspaceGestureDetector extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onScaleStart: (details) {
-          if (_tapDragFlag && details.pointerCount == 1) {
+          if (_tapDragFlag &&
+              details.pointerCount == 1 &&
+              (_tapDragStartPosition - details.focalPoint).distanceSquared <
+                  100 &&
+              DateTime.now().millisecondsSinceEpoch - _tapDragTime <= 500) {
             details = ScaleStartDetails(
               focalPoint: _tapDownLocalPosition,
               localFocalPoint: _tapDownLocalPosition,
@@ -113,6 +119,8 @@ class WorkspaceGestureDetector extends StatelessWidget {
           if (now - _tapDownTime < _tapDragTimeDeadline &&
               (_tapDownPosition - details.globalPosition).distance < limit) {
             _tapDragFlag = true;
+            _tapDragTime = now;
+            _tapDragStartPosition = details.globalPosition;
             return;
           }
           _tapDownTime = now;

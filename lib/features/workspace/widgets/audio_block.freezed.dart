@@ -17,8 +17,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$AudioBlockState {
   Id get idInfo => throw _privateConstructorUsedError;
-  Offset get offset => throw _privateConstructorUsedError;
-  Size get size => throw _privateConstructorUsedError;
+  ui.Offset get offset => throw _privateConstructorUsedError;
+  ui.Size get size => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   int get audioSourceId => throw _privateConstructorUsedError;
   int get audioCueStartId => throw _privateConstructorUsedError;
@@ -39,8 +39,8 @@ abstract class $AudioBlockStateCopyWith<$Res> {
   @useResult
   $Res call(
       {Id idInfo,
-      Offset offset,
-      Size size,
+      ui.Offset offset,
+      ui.Size size,
       String name,
       int audioSourceId,
       int audioCueStartId,
@@ -78,11 +78,11 @@ class _$AudioBlockStateCopyWithImpl<$Res, $Val extends AudioBlockState>
       offset: null == offset
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
-              as Offset,
+              as ui.Offset,
       size: null == size
           ? _value.size
           : size // ignore: cast_nullable_to_non_nullable
-              as Size,
+              as ui.Size,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -113,8 +113,8 @@ abstract class _$$AudioBlockStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {Id idInfo,
-      Offset offset,
-      Size size,
+      ui.Offset offset,
+      ui.Size size,
       String name,
       int audioSourceId,
       int audioCueStartId,
@@ -150,11 +150,11 @@ class __$$AudioBlockStateImplCopyWithImpl<$Res>
       offset: null == offset
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
-              as Offset,
+              as ui.Offset,
       size: null == size
           ? _value.size
           : size // ignore: cast_nullable_to_non_nullable
-              as Size,
+              as ui.Size,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -191,9 +191,9 @@ class _$AudioBlockStateImpl extends _AudioBlockState {
   @override
   final Id idInfo;
   @override
-  final Offset offset;
+  final ui.Offset offset;
   @override
-  final Size size;
+  final ui.Size size;
   @override
   @JsonKey()
   final String name;
@@ -246,8 +246,8 @@ class _$AudioBlockStateImpl extends _AudioBlockState {
 abstract class _AudioBlockState extends AudioBlockState {
   factory _AudioBlockState(
       {required final Id idInfo,
-      required final Offset offset,
-      required final Size size,
+      required final ui.Offset offset,
+      required final ui.Size size,
       final String name,
       final int audioSourceId,
       final int audioCueStartId,
@@ -257,9 +257,9 @@ abstract class _AudioBlockState extends AudioBlockState {
   @override
   Id get idInfo;
   @override
-  Offset get offset;
+  ui.Offset get offset;
   @override
-  Size get size;
+  ui.Size get size;
   @override
   String get name;
   @override

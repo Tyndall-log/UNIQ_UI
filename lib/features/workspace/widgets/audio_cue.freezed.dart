@@ -17,6 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$AudioCueState {
   Id get idInfo => throw _privateConstructorUsedError;
+  List<void Function()> get callbackList => throw _privateConstructorUsedError;
   int get point => throw _privateConstructorUsedError;
 
   /// Create a copy of AudioCueState
@@ -32,7 +33,7 @@ abstract class $AudioCueStateCopyWith<$Res> {
           AudioCueState value, $Res Function(AudioCueState) then) =
       _$AudioCueStateCopyWithImpl<$Res, AudioCueState>;
   @useResult
-  $Res call({Id idInfo, int point});
+  $Res call({Id idInfo, List<void Function()> callbackList, int point});
 }
 
 /// @nodoc
@@ -51,6 +52,7 @@ class _$AudioCueStateCopyWithImpl<$Res, $Val extends AudioCueState>
   @override
   $Res call({
     Object? idInfo = null,
+    Object? callbackList = null,
     Object? point = null,
   }) {
     return _then(_value.copyWith(
@@ -58,6 +60,10 @@ class _$AudioCueStateCopyWithImpl<$Res, $Val extends AudioCueState>
           ? _value.idInfo
           : idInfo // ignore: cast_nullable_to_non_nullable
               as Id,
+      callbackList: null == callbackList
+          ? _value.callbackList
+          : callbackList // ignore: cast_nullable_to_non_nullable
+              as List<void Function()>,
       point: null == point
           ? _value.point
           : point // ignore: cast_nullable_to_non_nullable
@@ -74,7 +80,7 @@ abstract class _$$TimelineCueStateImplCopyWith<$Res>
       __$$TimelineCueStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Id idInfo, int point});
+  $Res call({Id idInfo, List<void Function()> callbackList, int point});
 }
 
 /// @nodoc
@@ -91,6 +97,7 @@ class __$$TimelineCueStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? idInfo = null,
+    Object? callbackList = null,
     Object? point = null,
   }) {
     return _then(_$TimelineCueStateImpl(
@@ -98,6 +105,10 @@ class __$$TimelineCueStateImplCopyWithImpl<$Res>
           ? _value.idInfo
           : idInfo // ignore: cast_nullable_to_non_nullable
               as Id,
+      callbackList: null == callbackList
+          ? _value._callbackList
+          : callbackList // ignore: cast_nullable_to_non_nullable
+              as List<void Function()>,
       point: null == point
           ? _value.point
           : point // ignore: cast_nullable_to_non_nullable
@@ -109,17 +120,31 @@ class __$$TimelineCueStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$TimelineCueStateImpl extends _TimelineCueState {
-  _$TimelineCueStateImpl({required this.idInfo, this.point = 0}) : super._();
+  _$TimelineCueStateImpl(
+      {required this.idInfo,
+      final List<void Function()> callbackList = const [],
+      this.point = 0})
+      : _callbackList = callbackList,
+        super._();
 
   @override
   final Id idInfo;
+  final List<void Function()> _callbackList;
+  @override
+  @JsonKey()
+  List<void Function()> get callbackList {
+    if (_callbackList is EqualUnmodifiableListView) return _callbackList;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_callbackList);
+  }
+
   @override
   @JsonKey()
   final int point;
 
   @override
   String toString() {
-    return 'AudioCueState(idInfo: $idInfo, point: $point)';
+    return 'AudioCueState(idInfo: $idInfo, callbackList: $callbackList, point: $point)';
   }
 
   @override
@@ -128,11 +153,14 @@ class _$TimelineCueStateImpl extends _TimelineCueState {
         (other.runtimeType == runtimeType &&
             other is _$TimelineCueStateImpl &&
             (identical(other.idInfo, idInfo) || other.idInfo == idInfo) &&
+            const DeepCollectionEquality()
+                .equals(other._callbackList, _callbackList) &&
             (identical(other.point, point) || other.point == point));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, idInfo, point);
+  int get hashCode => Object.hash(runtimeType, idInfo,
+      const DeepCollectionEquality().hash(_callbackList), point);
 
   /// Create a copy of AudioCueState
   /// with the given fields replaced by the non-null parameter values.
@@ -145,12 +173,16 @@ class _$TimelineCueStateImpl extends _TimelineCueState {
 }
 
 abstract class _TimelineCueState extends AudioCueState {
-  factory _TimelineCueState({required final Id idInfo, final int point}) =
-      _$TimelineCueStateImpl;
+  factory _TimelineCueState(
+      {required final Id idInfo,
+      final List<void Function()> callbackList,
+      final int point}) = _$TimelineCueStateImpl;
   _TimelineCueState._() : super._();
 
   @override
   Id get idInfo;
+  @override
+  List<void Function()> get callbackList;
   @override
   int get point;
 

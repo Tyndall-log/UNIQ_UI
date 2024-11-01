@@ -22,7 +22,12 @@ class AudioSourceState with _$AudioSourceState {
   factory AudioSourceState({
     required Id idInfo,
     required Offset offset,
+    @Default(2) int channel,
+    @Default(16) int bitDepth,
     @Default(44100) int sampleRate,
+    @Default(44100) int sampleNum,
+    @Default("알 수 없음") String name,
+    @Default({}) Set<int> cueList,
   }) = _AudioSourceState;
 }
 
@@ -36,8 +41,33 @@ class AudioSourceCubit extends Cubit<AudioSourceState> {
       funcIdName:
           'static std::shared_ptr<audio_source> uniq::audio_source::internal::audio_load(unique_ptr<InputStream>, const string &, const string &, const string &)',
       callback: (ApiCallbackMessage callback) {
-        var SampleRate = callback.dataPtr.cast<ffi.Uint32>().value;
-        emit(state.copyWith(sampleRate: SampleRate));
+        var uint32Pointer = callback.dataPtr.cast<ffi.Uint32>();
+        var sampleRate = uint32Pointer[0];
+        var sampleNum = uint32Pointer[1];
+        var channel = uint32Pointer[2];
+        var name = (uint32Pointer + 4)
+            .cast<ffi.Pointer<ffi.Utf8>>()
+            .value
+            .toDartString();
+        emit(state.copyWith(
+          sampleRate: sampleRate,
+          sampleNum: sampleNum,
+          channel: channel,
+          name: name,
+        ));
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'bool uniq::audio_source::audio_cue_insert(const std::shared_ptr<audio_cue> &)',
+      callback: (ApiCallbackMessage callback) {
+        var audioCueId = callback.dataPtr.cast<ffi.Uint64>().value;
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.addParentId(parentId: id, id: audioCueId);
+        var newCueList = state.cueList.toSet()..add(audioCueId);
+        emit(state.copyWith(cueList: newCueList));
       },
     );
   }

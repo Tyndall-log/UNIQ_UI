@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$TimelineState {
   Id get idInfo => throw _privateConstructorUsedError;
   Offset get offset => throw _privateConstructorUsedError;
+  int get markNeedUpdate => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   List<TimelineGroupCubit> get timelineGroupList =>
       throw _privateConstructorUsedError;
@@ -38,6 +39,7 @@ abstract class $TimelineStateCopyWith<$Res> {
   $Res call(
       {Id idInfo,
       Offset offset,
+      int markNeedUpdate,
       String name,
       List<TimelineGroupCubit> timelineGroupList});
 }
@@ -59,6 +61,7 @@ class _$TimelineStateCopyWithImpl<$Res, $Val extends TimelineState>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? markNeedUpdate = null,
     Object? name = null,
     Object? timelineGroupList = null,
   }) {
@@ -71,6 +74,10 @@ class _$TimelineStateCopyWithImpl<$Res, $Val extends TimelineState>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      markNeedUpdate: null == markNeedUpdate
+          ? _value.markNeedUpdate
+          : markNeedUpdate // ignore: cast_nullable_to_non_nullable
+              as int,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -94,6 +101,7 @@ abstract class _$$TimelineStateImplCopyWith<$Res>
   $Res call(
       {Id idInfo,
       Offset offset,
+      int markNeedUpdate,
       String name,
       List<TimelineGroupCubit> timelineGroupList});
 }
@@ -113,6 +121,7 @@ class __$$TimelineStateImplCopyWithImpl<$Res>
   $Res call({
     Object? idInfo = null,
     Object? offset = null,
+    Object? markNeedUpdate = null,
     Object? name = null,
     Object? timelineGroupList = null,
   }) {
@@ -125,6 +134,10 @@ class __$$TimelineStateImplCopyWithImpl<$Res>
           ? _value.offset
           : offset // ignore: cast_nullable_to_non_nullable
               as Offset,
+      markNeedUpdate: null == markNeedUpdate
+          ? _value.markNeedUpdate
+          : markNeedUpdate // ignore: cast_nullable_to_non_nullable
+              as int,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -143,6 +156,7 @@ class _$TimelineStateImpl extends _TimelineState {
   _$TimelineStateImpl(
       {required this.idInfo,
       required this.offset,
+      this.markNeedUpdate = 0,
       this.name = "타임라인 이름",
       final List<TimelineGroupCubit> timelineGroupList = const []})
       : _timelineGroupList = timelineGroupList,
@@ -152,6 +166,9 @@ class _$TimelineStateImpl extends _TimelineState {
   final Id idInfo;
   @override
   final Offset offset;
+  @override
+  @JsonKey()
+  final int markNeedUpdate;
   @override
   @JsonKey()
   final String name;
@@ -167,7 +184,7 @@ class _$TimelineStateImpl extends _TimelineState {
 
   @override
   String toString() {
-    return 'TimelineState(idInfo: $idInfo, offset: $offset, name: $name, timelineGroupList: $timelineGroupList)';
+    return 'TimelineState(idInfo: $idInfo, offset: $offset, markNeedUpdate: $markNeedUpdate, name: $name, timelineGroupList: $timelineGroupList)';
   }
 
   @override
@@ -177,14 +194,16 @@ class _$TimelineStateImpl extends _TimelineState {
             other is _$TimelineStateImpl &&
             (identical(other.idInfo, idInfo) || other.idInfo == idInfo) &&
             (identical(other.offset, offset) || other.offset == offset) &&
+            (identical(other.markNeedUpdate, markNeedUpdate) ||
+                other.markNeedUpdate == markNeedUpdate) &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality()
                 .equals(other._timelineGroupList, _timelineGroupList));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, idInfo, offset, name,
-      const DeepCollectionEquality().hash(_timelineGroupList));
+  int get hashCode => Object.hash(runtimeType, idInfo, offset, markNeedUpdate,
+      name, const DeepCollectionEquality().hash(_timelineGroupList));
 
   /// Create a copy of TimelineState
   /// with the given fields replaced by the non-null parameter values.
@@ -199,6 +218,7 @@ abstract class _TimelineState extends TimelineState {
   factory _TimelineState(
       {required final Id idInfo,
       required final Offset offset,
+      final int markNeedUpdate,
       final String name,
       final List<TimelineGroupCubit> timelineGroupList}) = _$TimelineStateImpl;
   _TimelineState._() : super._();
@@ -207,6 +227,8 @@ abstract class _TimelineState extends TimelineState {
   Id get idInfo;
   @override
   Offset get offset;
+  @override
+  int get markNeedUpdate;
   @override
   String get name;
   @override

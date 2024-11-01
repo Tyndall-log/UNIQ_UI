@@ -26,6 +26,7 @@ class TimelineState with _$TimelineState {
   factory TimelineState({
     required Id idInfo,
     required Offset offset,
+    @Default(0) int markNeedUpdate,
     @Default("타임라인 이름") String name,
     @Default([]) List<TimelineGroupCubit> timelineGroupList,
   }) = _TimelineState;
@@ -100,8 +101,8 @@ class TimelineWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TimelineCubit>(
-      create: (context) => cubit,
+    return BlocProvider<TimelineCubit>.value(
+      value: cubit,
       child: BlocBuilder<TimelineCubit, TimelineState>(
         builder: (context, state) {
           var wvb = context.watch<WorkspaceViewBloc>();
@@ -131,16 +132,16 @@ class TimelineWidget extends StatelessWidget {
                   timelineGroupCubit.state.idInfo.workspaceId)!;
               var id = timelineGroupCubit.state.idInfo.id;
               var sourceParentId = wwmc.getParentIds(id)[0];
-              if (sourceParentId == state.idInfo.id) {
-                return;
+              if (sourceParentId != state.idInfo.id) {
+                cubit.addGroup(
+                    onAcceptWithDetails.data.state.cubit.state.idInfo.id);
+                if (sourceParentId != 0) {
+                  var sourceParent =
+                      wwmc.getWidgetCubit<TimelineCubit>(sourceParentId);
+                  sourceParent.removeGroup(id);
+                }
               }
-              cubit.addGroup(
-                  onAcceptWithDetails.data.state.cubit.state.idInfo.id);
-              if (sourceParentId != 0) {
-                var sourceParent =
-                    wwmc.getWidgetCubit<TimelineCubit>(sourceParentId);
-                sourceParent.removeGroup(id);
-              }
+              // setState(() {});
             },
             onWillAcceptWithDetails: (onWillAcceptWithDetails) {
               return true;
@@ -247,8 +248,10 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
     // positionChild(1, offset);
     // offset += Offset(0, layoutSize.height);
     for (var timelineGroup in timelineGroupList) {
-      layoutSize = layoutChild(timelineGroup,
-          BoxConstraints.loose(Size(double.maxFinite, timelineAllHeight)));
+      layoutSize = layoutChild(
+          timelineGroup,
+          // BoxConstraints.loose(Size(double.maxFinite, timelineAllHeight)));
+          BoxConstraints.loose(const Size(double.maxFinite, double.maxFinite)));
       WorkspaceWidgetManagerPair timelineCue;
       try {
         // timelineCue = (wwmc!.state.objects[TimelineCueCubit] ?? []).firstWhere(
@@ -271,7 +274,7 @@ class TimelineLayoutDelegate extends CustomMultiChildLayoutDelegate {
     }
     offset += Offset(0, timelineAllHeight);
     return Size(size.width == double.infinity ? double.maxFinite : size.width,
-        offset.dy);
+        double.maxFinite);
   }
 
   @override

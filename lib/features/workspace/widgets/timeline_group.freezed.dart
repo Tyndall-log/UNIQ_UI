@@ -21,6 +21,8 @@ mixin _$TimelineGroupState {
   Size get size => throw _privateConstructorUsedError;
   int get eventDuration => throw _privateConstructorUsedError;
   int get startCueId => throw _privateConstructorUsedError;
+  int get buttonX => throw _privateConstructorUsedError;
+  int get buttonY => throw _privateConstructorUsedError;
   List<AudioBlockCubit> get audioBlockList =>
       throw _privateConstructorUsedError;
 
@@ -43,6 +45,8 @@ abstract class $TimelineGroupStateCopyWith<$Res> {
       Size size,
       int eventDuration,
       int startCueId,
+      int buttonX,
+      int buttonY,
       List<AudioBlockCubit> audioBlockList});
 }
 
@@ -66,6 +70,8 @@ class _$TimelineGroupStateCopyWithImpl<$Res, $Val extends TimelineGroupState>
     Object? size = null,
     Object? eventDuration = null,
     Object? startCueId = null,
+    Object? buttonX = null,
+    Object? buttonY = null,
     Object? audioBlockList = null,
   }) {
     return _then(_value.copyWith(
@@ -89,6 +95,14 @@ class _$TimelineGroupStateCopyWithImpl<$Res, $Val extends TimelineGroupState>
           ? _value.startCueId
           : startCueId // ignore: cast_nullable_to_non_nullable
               as int,
+      buttonX: null == buttonX
+          ? _value.buttonX
+          : buttonX // ignore: cast_nullable_to_non_nullable
+              as int,
+      buttonY: null == buttonY
+          ? _value.buttonY
+          : buttonY // ignore: cast_nullable_to_non_nullable
+              as int,
       audioBlockList: null == audioBlockList
           ? _value.audioBlockList
           : audioBlockList // ignore: cast_nullable_to_non_nullable
@@ -111,6 +125,8 @@ abstract class _$$TimelineGroupStateImplCopyWith<$Res>
       Size size,
       int eventDuration,
       int startCueId,
+      int buttonX,
+      int buttonY,
       List<AudioBlockCubit> audioBlockList});
 }
 
@@ -132,6 +148,8 @@ class __$$TimelineGroupStateImplCopyWithImpl<$Res>
     Object? size = null,
     Object? eventDuration = null,
     Object? startCueId = null,
+    Object? buttonX = null,
+    Object? buttonY = null,
     Object? audioBlockList = null,
   }) {
     return _then(_$TimelineGroupStateImpl(
@@ -155,6 +173,14 @@ class __$$TimelineGroupStateImplCopyWithImpl<$Res>
           ? _value.startCueId
           : startCueId // ignore: cast_nullable_to_non_nullable
               as int,
+      buttonX: null == buttonX
+          ? _value.buttonX
+          : buttonX // ignore: cast_nullable_to_non_nullable
+              as int,
+      buttonY: null == buttonY
+          ? _value.buttonY
+          : buttonY // ignore: cast_nullable_to_non_nullable
+              as int,
       audioBlockList: null == audioBlockList
           ? _value._audioBlockList
           : audioBlockList // ignore: cast_nullable_to_non_nullable
@@ -172,6 +198,8 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
       required this.size,
       this.eventDuration = 100 * 1000,
       this.startCueId = 0,
+      this.buttonX = 0,
+      this.buttonY = 0,
       final List<AudioBlockCubit> audioBlockList = const []})
       : _audioBlockList = audioBlockList,
         super._();
@@ -188,6 +216,12 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
   @override
   @JsonKey()
   final int startCueId;
+  @override
+  @JsonKey()
+  final int buttonX;
+  @override
+  @JsonKey()
+  final int buttonY;
   final List<AudioBlockCubit> _audioBlockList;
   @override
   @JsonKey()
@@ -199,7 +233,7 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
 
   @override
   String toString() {
-    return 'TimelineGroupState(idInfo: $idInfo, offset: $offset, size: $size, eventDuration: $eventDuration, startCueId: $startCueId, audioBlockList: $audioBlockList)';
+    return 'TimelineGroupState(idInfo: $idInfo, offset: $offset, size: $size, eventDuration: $eventDuration, startCueId: $startCueId, buttonX: $buttonX, buttonY: $buttonY, audioBlockList: $audioBlockList)';
   }
 
   @override
@@ -214,6 +248,8 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
                 other.eventDuration == eventDuration) &&
             (identical(other.startCueId, startCueId) ||
                 other.startCueId == startCueId) &&
+            (identical(other.buttonX, buttonX) || other.buttonX == buttonX) &&
+            (identical(other.buttonY, buttonY) || other.buttonY == buttonY) &&
             const DeepCollectionEquality()
                 .equals(other._audioBlockList, _audioBlockList));
   }
@@ -226,6 +262,8 @@ class _$TimelineGroupStateImpl extends _TimelineGroupState {
       size,
       eventDuration,
       startCueId,
+      buttonX,
+      buttonY,
       const DeepCollectionEquality().hash(_audioBlockList));
 
   /// Create a copy of TimelineGroupState
@@ -245,6 +283,8 @@ abstract class _TimelineGroupState extends TimelineGroupState {
       required final Size size,
       final int eventDuration,
       final int startCueId,
+      final int buttonX,
+      final int buttonY,
       final List<AudioBlockCubit> audioBlockList}) = _$TimelineGroupStateImpl;
   _TimelineGroupState._() : super._();
 
@@ -258,6 +298,10 @@ abstract class _TimelineGroupState extends TimelineGroupState {
   int get eventDuration;
   @override
   int get startCueId;
+  @override
+  int get buttonX;
+  @override
+  int get buttonY;
   @override
   List<AudioBlockCubit> get audioBlockList;
 

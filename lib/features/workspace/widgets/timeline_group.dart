@@ -29,6 +29,8 @@ class TimelineGroupState with _$TimelineGroupState {
     required Size size,
     @Default(100 * 1000) int eventDuration,
     @Default(0) int startCueId,
+    @Default(0) int buttonX,
+    @Default(0) int buttonY,
     @Default([]) List<AudioBlockCubit> audioBlockList,
   }) = _TimelineGroupState;
 }
@@ -71,6 +73,26 @@ class TimelineGroupCubit extends Cubit<TimelineGroupState> {
         var segmentId = callback.dataPtr.cast<ffi.Int32>().value;
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
         wwmc?.addParentId(parentId: id, id: segmentId);
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::project::timeline_group::button_x_set(const int8_t)',
+      callback: (ApiCallbackMessage callback) {
+        var buttonX = callback.dataPtr.cast<ffi.Int8>().value;
+        emit(state.copyWith(buttonX: buttonX));
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::project::timeline_group::button_y_set(const int8_t)',
+      callback: (ApiCallbackMessage callback) {
+        var buttonY = callback.dataPtr.cast<ffi.Int8>().value;
+        emit(state.copyWith(buttonY: buttonY));
       },
     );
     // CallbackManager.registerCallback(
@@ -193,7 +215,7 @@ class _TimelineGroupWidget extends StatelessWidget {
                         defaultTimeLength,
                     height: timelineEventHeight,
                     // color: Colors.red,
-                    child: const EventBlockWidget(),
+                    child: EventBlockWidget(cubit: cubit),
                   ),
                   for (var pair in AudioBlockList) pair.widget!,
                 ],
@@ -207,13 +229,30 @@ class _TimelineGroupWidget extends StatelessWidget {
 }
 
 class EventBlockWidget extends StatelessWidget {
-  const EventBlockWidget({super.key});
+  final TimelineGroupCubit cubit;
+  const EventBlockWidget({super.key, required this.cubit});
 
   @override
   Widget build(BuildContext context) {
     return CommonBlock(
       color: Colors.indigoAccent.shade100,
-      child: Text('0, 0'),
+      child: BlocBuilder<TimelineGroupCubit, TimelineGroupState>(
+        builder: (context, state) {
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "  ${state.buttonX}, ${state.buttonY}",
+              maxLines: 1,
+              softWrap: false,
+              style: const TextStyle(
+                overflow: TextOverflow.fade,
+                fontSize: 12,
+                color: Colors.black,
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

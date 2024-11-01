@@ -599,11 +599,11 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
     emit(state.copyWith(widgets: newWidgets));
   }
 
-  void addParentId({required int id, required int parentId}) {
+  bool addParentId({required int id, required int parentId}) {
     var newWidgets = Map<int, WorkspaceWidgetManagerPair>.from(state.widgets);
     var pair = newWidgets[id];
     if (pair == null) {
-      return;
+      return false;
     }
     var newParentIds = List<int>.from(pair.parentIds);
     newParentIds.add(parentId);
@@ -619,6 +619,7 @@ class WorkspaceWidgetManagerCubit extends Cubit<WorkspaceWidgetManagerState> {
     ];
     newParentObjects[parentId] = parentObjects;
     emit(state.copyWith(widgets: newWidgets, parentObjects: newParentObjects));
+    return true;
   }
 
   void removeParentId({required int id, required int parentId}) {

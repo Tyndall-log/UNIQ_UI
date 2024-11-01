@@ -1,4 +1,5 @@
 import 'dart:ffi' as ffi;
+import 'dart:ui' as ui;
 import 'dart:math';
 
 import 'package:ffi/ffi.dart' as ffi;
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uniq_ui/common/overlay/window.dart';
 import 'package:uniq_ui/common/test/children_controlled_layout.dart';
 
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
@@ -16,6 +18,7 @@ import 'package:uniq_ui/features/workspace/widgets/timeline_group.dart';
 
 import '../bloc/state.dart';
 import '../default_value.dart';
+import '../window/audio_editer.dart';
 import 'audio_source.dart';
 import 'common_block.dart';
 
@@ -55,6 +58,19 @@ class AudioBlockCubit extends Cubit<AudioBlockState> {
             .value
             .toDartString();
         var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        // wwmc?.getWidgetCubit<AudioCueCubit>(audioCueStartId).addCallback(
+        //   () {
+        //     emit(state.copyWith(
+        //       size: Size(
+        //         (state.size.width *
+        //                 (audioCueEndId - audioCueStartId) /
+        //                 (audioCueEndId - audioCueStartId)) *
+        //             100,
+        //         state.size.height,
+        //       ),
+        //     ));
+        //   },
+        // );
         wwmc?.addParentId(parentId: id, id: audioSourceId);
         wwmc?.addParentId(parentId: id, id: audioCueStartId);
         wwmc?.addParentId(parentId: id, id: audioCueEndId);
@@ -68,27 +84,40 @@ class AudioBlockCubit extends Cubit<AudioBlockState> {
         );
       },
     );
-    // CallbackManager.registerCallback(
-    //   workspaceId: workspaceId,
-    //   objId: id,
-    //   funcIdName:
-    //       'bool uniq::project::timeline::group_add(const std::shared_ptr<timeline_group> &)',
-    //   callback: (ApiCallbackMessage callback) {
-    //     var groupId = callback.dataPtr.cast<ffi.Int32>().value;
-    //     emit(state.copyWith(timeLineGroup: [...state.timeLineGroup, groupId]));
-    //   },
-    // );
-    // CallbackManager.registerCallback(
-    //   workspaceId: workspaceId,
-    //   objId: id,
-    //   funcIdName: 'void uniq::timeline::timeline::group_remove(const id_t)',
-    //   callback: (ApiCallbackMessage callback) {
-    //     var groupId = callback.dataPtr.cast<ffi.Int32>().value;
-    //     emit(state.copyWith(
-    //         timeLineGroup:
-    //             state.timeLineGroup.where((e) => e != groupId).toList()));
-    //   },
-    // );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::audio_segment::start_cue_change(const shared_ptr<audio_cue> &)',
+      callback: (ApiCallbackMessage callback) {
+        var pointer = callback.dataPtr.cast<ffi.Uint64>();
+        var prevId = pointer[0];
+        var newId = pointer[1];
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.removeParentId(id: prevId, parentId: id);
+        wwmc?.addParentId(parentId: id, id: newId);
+        if (state.audioCueStartId == prevId) {
+          emit(state.copyWith(audioCueStartId: newId));
+        }
+      },
+    );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::audio_segment::end_cue_change(const shared_ptr<audio_cue> &)',
+      callback: (ApiCallbackMessage callback) {
+        var pointer = callback.dataPtr.cast<ffi.Uint64>();
+        var prevId = pointer[0];
+        var newId = pointer[1];
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.removeParentId(id: prevId, parentId: id);
+        wwmc?.addParentId(parentId: id, id: newId);
+        if (state.audioCueEndId == prevId) {
+          emit(state.copyWith(audioCueEndId: newId));
+        }
+      },
+    );
   }
 
   void setOffset(Offset offset) {
@@ -148,8 +177,8 @@ class AudioBlockWidget extends StatelessWidget {
           });
           var audioCueCubitList =
               audioCueCubitPairList.map((e) => e.cubit).toList();
-          Cubit<dynamic> audioCueCubitStart;
-          Cubit<dynamic> audioCueCubitEnd;
+          AudioCueCubit audioCueCubitStart;
+          AudioCueCubit audioCueCubitEnd;
           int sampleRate;
           try {
             sampleRate = context
@@ -161,11 +190,14 @@ class AudioBlockWidget extends StatelessWidget {
                 .cubit
                 .state
                 .sampleRate;
-            audioCueCubitStart = audioCueCubitList.firstWhere(
-                (element) => element.state.idInfo.id == state.audioCueStartId);
+            audioCueCubitStart = audioCueCubitList.firstWhere((element) =>
+                    element.state.idInfo.id == state.audioCueStartId)
+                as AudioCueCubit;
             audioCueCubitEnd = audioCueCubitList.firstWhere(
-                (element) => element.state.idInfo.id == state.audioCueEndId);
+                    (element) => element.state.idInfo.id == state.audioCueEndId)
+                as AudioCueCubit;
           } catch (e) {
+            print("AudioBlockWidget error: $e");
             return const SizedBox();
           }
 
@@ -209,30 +241,56 @@ class AudioBlockWidget extends StatelessWidget {
           return SizedBox(
             width: width,
             height: timelineAudioHeight,
-            child: CommonBlock(
-              color: Colors.lightBlueAccent.shade100,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      state.name,
-                      overflow: TextOverflow.ellipsis,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onDoubleTap: () {
+                var overlayState = Overlay.of(context);
+                window(
+                  overlayState: overlayState,
+                  x: 100,
+                  y: 100,
+                  width: 700,
+                  height: 500,
+                  title: "오디오 편집기",
+                  content: AudioEditorView(
+                    workspaceWidgetManagerCubit:
+                        WorkspaceWidgetManagerCubit.getInstance(
+                            state.idInfo.workspaceId)!,
+                    audioSourceCubit: context
+                        .read<WorkspaceWidgetManagerCubit>()
+                        .getWidgetCubit<AudioSourceCubit>(state.audioSourceId),
+                  ),
+                );
+              },
+              child: CommonBlock(
+                color: Colors.lightBlueAccent.shade100,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        state.name,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.fade,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: WaveWidget(cubit: cubit, width: width),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      "2ch·16bit·44.1kHz",
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 10),
+                    Expanded(
+                      child: WaveWidget(cubit: cubit, width: width),
                     ),
-                  ),
-                ],
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        "2ch·16bit·44.1kHz",
+                        overflow: TextOverflow.fade,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -259,38 +317,55 @@ class _WaveWidgetState extends State<WaveWidget> {
   @override
   Widget build(BuildContext context) {
     // if (widget.cubit.state.idInfo.id >= 1080) return SizedBox();
-    var waveData = AudioSegment.waveformGet(
-        widget.cubit.state.idInfo.id, widget.width.toInt(), 0);
+    // var currentTimeLength = context.read<WorkspaceViewBloc>().state.timeLength;
+    // var currentTimeScale = defaultTimeLength / currentTimeLength;
+    var currentScale = context.read<WorkspaceViewBloc>().state.scale;
+    final dpr = ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
+    var waveData = AudioSegment.waveformGet(widget.cubit.state.idInfo.id,
+        (widget.width * currentScale * dpr).toInt() + 2, 0);
+    var waveData2 = AudioSegment.waveformGet(widget.cubit.state.idInfo.id,
+        (widget.width * currentScale * dpr).toInt() + 2, 1);
+    // List<double> waveData2 = [];
     return SizedBox(
       width: widget.width,
       child: CustomPaint(
-        painter: WavePainter(waveData),
+        painter: WavePainter([waveData, waveData2], 1.0 / currentScale / dpr),
       ),
     );
   }
 }
 
 class WavePainter extends CustomPainter {
-  final List<double> data;
-  // final double pixelRatio;
+  final List<List<double>> data;
+  final double xStep;
 
-  WavePainter(this.data);
+  WavePainter(this.data, this.xStep);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.blue
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.fill;
 
-    final midY = size.height / 2;
-    const xStep = 1.0;
+    final channelCount = data.length;
+    final midY = size.height / channelCount / 2;
+    // final xStep = size.width / (data[0].length - 1);
+    final yStep = size.height / channelCount;
 
-    var length = min(data.length, size.width ~/ xStep);
-    for (int i = 0; i < length; i++) {
-      final x = i * xStep + 0.5;
-      final y = data[i] * midY;
-      canvas.drawLine(Offset(x, midY + y), Offset(x, midY - y), paint);
+    for (int channel = 0; channel < channelCount; channel++) {
+      final path = Path();
+      for (int i = 0; i < data[channel].length; i++) {
+        final x = i * xStep;
+        final y = data[channel][i] * midY;
+        path.lineTo(x, midY + yStep * channel - y);
+      }
+      for (int i = data[channel].length - 1; i >= 0; i--) {
+        final x = i * xStep;
+        final y = data[channel][i] * midY;
+        path.lineTo(x, midY + yStep * channel + y);
+      }
+      path.close();
+      canvas.drawPath(path, paint);
     }
   }
 

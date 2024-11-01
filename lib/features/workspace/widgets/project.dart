@@ -59,6 +59,17 @@ class ProjectCubit extends Cubit<ProjectState> {
         emit(state.copyWith(producerName: producerName));
       },
     );
+    CallbackManager.registerCallback(
+      workspaceId: workspaceId,
+      objId: id,
+      funcIdName:
+          'void uniq::project::project::audio_source_add(const std::shared_ptr<audio_source> &)',
+      callback: (ApiCallbackMessage callback) {
+        var audioSourceId = callback.dataPtr.cast<ffi.Int32>().value;
+        var wwmc = WorkspaceWidgetManagerCubit.getInstance(workspaceId);
+        wwmc?.addParentId(parentId: id, id: audioSourceId);
+      },
+    );
     // //timeline_create
     // CallbackManager.registerCallback(
     //   workspaceId: workspaceId,

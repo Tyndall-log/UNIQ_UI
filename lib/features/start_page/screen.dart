@@ -7,6 +7,7 @@ import 'package:uniq_ui/features/tab_view/tabs/workspace.dart';
 import 'package:uniq_ui/common/uniq_library/uniq.dart';
 import 'package:uniq_ui/common/overlay/window.dart';
 import 'package:uniq_ui/common/sample_toast.dart';
+import 'package:uniq_ui/features/workspace/window/audio_editer.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({super.key});
@@ -200,6 +201,8 @@ class _StartPageState extends State<StartPage> {
                           overlayState: overlayState,
                           y: 100,
                           x: 100,
+                          width: 250,
+                          height: 300,
                           title: '라이브러리 로그 창',
                           builder: (context) {
                             return GestureDetector(
@@ -215,6 +218,7 @@ class _StartPageState extends State<StartPage> {
                                 );
                               },
                               child: SizedBox(
+                                width: 250,
                                 height: 200,
                                 child: ListView.builder(
                                   controller: scrollController,
@@ -248,6 +252,20 @@ class _StartPageState extends State<StartPage> {
                         UniqLibrary.unload();
                       },
                     ),
+                    // leftButton(
+                    //   '오디오 편집기',
+                    //   onPressed: () async {
+                    //     window(
+                    //       overlayState: Overlay.of(context),
+                    //       y: 100,
+                    //       x: 100,
+                    //       width: 600,
+                    //       height: 400,
+                    //       title: '오디오 편집기',
+                    //       content: AudioEditorView(),
+                    //     );
+                    //   },
+                    // ),
                     for (int i = 0; i < 10; i++) leftButton('메뉴 $i'),
                   ],
                 ),

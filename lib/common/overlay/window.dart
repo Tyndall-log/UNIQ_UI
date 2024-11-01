@@ -9,6 +9,8 @@ OverlayEntry window({
   required OverlayState overlayState,
   required double x,
   required double y,
+  required double width,
+  required double height,
   required String title,
   IconData? icon,
   Widget? content,
@@ -22,64 +24,68 @@ OverlayEntry window({
       return Positioned(
         top: y,
         left: x,
-        child: Material(
-          color: Colors.transparent,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () {},
-            onPanUpdate: (details) {
-              x += details.delta.dx;
-              y += details.delta.dy;
-              overlayEntry!.markNeedsBuild();
-            },
-            child: Container(
-              width: 250,
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10.0,
-                    spreadRadius: 1.0,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (icon != null)
-                          Icon(
-                            icon,
-                            size: 18,
-                          ),
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            overlayEntry?.remove();
-                          },
-                          child: const Icon(Icons.close),
-                        ),
-                      ],
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: Material(
+            color: Colors.transparent,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {},
+              onPanUpdate: (details) {
+                x += details.delta.dx;
+                y += details.delta.dy;
+                overlayEntry!.markNeedsBuild();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10.0,
+                      spreadRadius: 1.0,
+                      offset: Offset(0, 5),
                     ),
-                  ),
-                  if (content != null) content,
-                  if (builder != null) builder(context),
-                  Text('random: ${random.nextInt(100)}'),
-                ],
+                  ],
+                ),
+                child: Column(
+                  // mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (icon != null)
+                            Icon(
+                              icon,
+                              size: 18,
+                            ),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          // const Spacer(),
+                          GestureDetector(
+                            onTap: () {
+                              overlayEntry?.remove();
+                            },
+                            child: const Icon(Icons.close),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (content != null) Expanded(child: content),
+                    if (builder != null) Expanded(child: builder(context)),
+                    Text('random: ${random.nextInt(100)}'),
+                  ],
+                ),
               ),
             ),
           ),
